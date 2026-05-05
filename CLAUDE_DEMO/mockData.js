@@ -1,0 +1,103 @@
+export const CATEGORIES = ['All', 'Fruits & Veg', 'Meat', 'Fish', 'Bakery', 'Dairy', 'Spices', 'Flowers'];
+
+export const SHOPS = [
+  {
+    id: 'shop1',
+    name: "Martí's Fruits",
+    category: 'Fruits & Veg',
+    owner: 'Joan Martí',
+    description: 'Fresh seasonal fruits and vegetables from local farms.',
+    position: { x: 30, y: 25 },
+    lat: 41.382,
+    lng: 2.177,
+    isOpen: true,
+    queue: [
+      { id: 'c1', name: 'Anna G.', joinedAt: Date.now() - 900000, position: 1 },
+      { id: 'c2', name: 'Pere M.', joinedAt: Date.now() - 600000, position: 2 },
+      { id: 'c3', name: 'Laia F.', joinedAt: Date.now() - 300000, position: 3 },
+      { id: 'c4', name: 'Demo User', joinedAt: Date.now() - 100000, position: 4 },
+    ],
+    avgServiceTime: 4,
+  },
+  {
+    id: 'shop2',
+    name: "Pep's Bakery",
+    category: 'Bakery',
+    owner: 'Josep Vila',
+    description: 'Traditional Catalan bread and pastries baked fresh daily.',
+    position: { x: 55, y: 40 },
+    lat: 41.383,
+    lng: 2.179,
+    isOpen: true,
+    queue: [
+      { id: 'c5', name: 'Maria T.', joinedAt: Date.now() - 500000, position: 1 },
+      { id: 'c6', name: 'Demo User', joinedAt: Date.now() - 200000, position: 2 },
+    ],
+    avgServiceTime: 3,
+  },
+  {
+    id: 'shop3',
+    name: "La Peixateria",
+    category: 'Fish',
+    owner: 'Rosa Puig',
+    description: 'Fresh daily catch from the Mediterranean coast.',
+    position: { x: 70, y: 60 },
+    lat: 41.381,
+    lng: 2.180,
+    isOpen: true,
+    queue: [
+      { id: 'c7', name: 'Jordi R.', joinedAt: Date.now() - 700000, position: 1 },
+      { id: 'c8', name: 'Clara B.', joinedAt: Date.now() - 400000, position: 2 },
+      { id: 'c9', name: 'Marc S.', joinedAt: Date.now() - 150000, position: 3 },
+    ],
+    avgServiceTime: 6,
+  },
+  {
+    id: 'shop4',
+    name: "Ca la Carnissera",
+    category: 'Meat',
+    owner: 'Montse Soler',
+    description: 'Quality local meats and homemade sausages.',
+    position: { x: 40, y: 65 },
+    lat: 41.380,
+    lng: 2.178,
+    isOpen: false,
+    queue: [],
+    avgServiceTime: 5,
+  },
+  {
+    id: 'shop5',
+    name: "Espècies del Món",
+    category: 'Spices',
+    owner: 'Ahmed Bensali',
+    description: 'Exotic spices and herbs from around the world.',
+    position: { x: 20, y: 55 },
+    lat: 41.382,
+    lng: 2.175,
+    isOpen: true,
+    queue: [
+      { id: 'c10', name: 'Demo User', joinedAt: Date.now() - 50000, position: 1 },
+    ],
+    avgServiceTime: 2,
+  },
+  {
+    id: 'shop6',
+    name: "Flors i Plantes",
+    category: 'Flowers',
+    owner: 'Núria Costa',
+    description: 'Beautiful flowers and plants for every occasion.',
+    position: { x: 75, y: 30 },
+    lat: 41.384,
+    lng: 2.181,
+    isOpen: true,
+    queue: [],
+    avgServiceTime: 3,
+  },
+];
+
+export const DEMO_USER = {
+  id: 'demo-user',
+  name: 'Demo User',
+};
+
+export const DEMO_OWNER_SHOP_ID = 'shop1';
