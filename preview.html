@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>QueueGo Mobile Demo</title>
+  <style>
+    body {
+      margin: 0;
+      background: #e5e7eb;
+      font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .phone {
+      width: 360px;
+      height: 720px;
+      background: white;
+      border-radius: 35px;
+      overflow: hidden;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.25);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .header {
+      background: #2563eb;
+      color: white;
+      padding: 18px;
+    }
+
+    .content {
+      flex: 1;
+      padding: 16px;
+      overflow-y: auto;
+    }
+
+    .card {
+      background: white;
+      border-radius: 18px;
+      padding: 16px;
+      margin-bottom: 14px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+
+    .info-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .info {
+      background: #f1f5f9;
+      padding: 14px;
+      border-radius: 16px;
+      text-align: center;
+    }
+
+    .button {
+      background: #2563eb;
+      color: white;
+      border: none;
+      padding: 12px;
+      width: 100%;
+      border-radius: 16px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .nav {
+      display: flex;
+      justify-content: space-around;
+      border-top: 1px solid #ddd;
+      padding: 10px;
+    }
+
+    .nav button {
+      border: none;
+      background: none;
+      font-size: 12px;
+      cursor: pointer;
+    }
+
+    .active {
+      color: #2563eb;
+      font-weight: bold;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .map {
+      position: relative;
+      height: 280px;
+      background: #f1f5f9;
+      border-radius: 18px;
+      border: 2px solid #cbd5e1;
+    }
+
+    .shop {
+      position: absolute;
+      width: 90px;
+      height: 70px;
+      border-radius: 14px;
+      border: 1px solid #aaa;
+      font-size: 12px;
+      padding: 6px;
+      cursor: pointer;
+    }
+
+    .bakery { top: 20px; left: 20px; background: #ffedd5; }
+    .fish { top: 20px; right: 20px; background: #cffafe; }
+    .butcher { bottom: 30px; left: 20px; background: #fee2e2; }
+    .fruit { bottom: 30px; right: 20px; background: #dcfce7; }
+  </style>
+</head>
+
+<body>
+  <div class="phone">
+    <div class="header">
+      <h2>QueueGo</h2>
+      <p>Smart queues</p>
+    </div>
+
+    <div class="content">
+      <div id="home">
+        <div class="card">
+          <p>Current queue</p>
+          <h3>Bakery La Plaça</h3>
+          <h1 id="position">#4</h1>
+          <p>8 min remaining</p>
+        </div>
+
+        <div class="info-grid">
+          <div class="info">⏱️<br>8 min</div>
+          <div class="info">🔔<br>Alert ON</div>
+        </div>
+
+        <div class="card">✅ You will be notified when your turn is ready</div>
+
+        <button class="button" onclick="updateQueue()">Simulate update</button>
+      </div>
+
+      <div id="queues" class="hidden">
+        <div class="card">
+          <h3>My queues</h3>
+          <p>Bakery: <b id="qpos">#4</b></p>
+          <p>Fish Market: <b>#7</b></p>
+          <p>Butcher: <b>#2</b></p>
+        </div>
+      </div>
+
+      <div id="map" class="hidden">
+        <div class="card">
+          <h3>Market map</h3>
+          <p>Tap a shop to see queue info</p>
+
+          <div class="map">
+            <div class="shop bakery" onclick="selectShop('Bakery', 4, '8 min')">🏪<br>Bakery<br>4 people</div>
+            <div class="shop fish" onclick="selectShop('Fish Market', 7, '18 min')">🐟<br>Fish Market<br>7 people</div>
+            <div class="shop butcher" onclick="selectShop('Butcher', 2, '5 min')">🥩<br>Butcher<br>2 people</div>
+            <div class="shop fruit" onclick="selectShop('Fruit Shop', 5, '12 min')">🍎<br>Fruit Shop<br>5 people</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3 id="shopName">Bakery</h3>
+          <p id="shopInfo">Queue: 4 people | Wait: 8 min</p>
+          <button class="button">Join this queue</button>
+        </div>
+      </div>
+
+      <div id="owner" class="hidden">
+        <div class="card">
+          <h3>Shop dashboard</h3>
+          <p>Customer A - #1</p>
+          <p>Customer B - #2</p>
+          <p>Customer C - #3</p>
+          <button class="button">Next customer</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="nav">
+      <button onclick="showTab('home')" class="active">🏠<br>Home</button>
+      <button onclick="showTab('queues')">👥<br>Queues</button>
+      <button onclick="showTab('map')">🗺️<br>Map</button>
+      <button onclick="showTab('owner')">🏪<br>Owner</button>
+    </div>
+  </div>
+
+  <script>
+    let position = 4;
+
+    function updateQueue() {
+      if (position > 1) position--;
+      document.getElementById("position").innerText = "#" + position;
+      document.getElementById("qpos").innerText = "#" + position;
+    }
+
+    function showTab(tab) {
+      document.getElementById("home").classList.add("hidden");
+      document.getElementById("queues").classList.add("hidden");
+      document.getElementById("map").classList.add("hidden");
+      document.getElementById("owner").classList.add("hidden");
+
+      document.getElementById(tab).classList.remove("hidden");
+    }
+
+    function selectShop(name, queue, time) {
+      document.getElementById("shopName").innerText = name;
+      document.getElementById("shopInfo").innerText =
+        "Queue: " + queue + " people | Wait: " + time;
+    }
+  </script>
+</body>
+</html>
