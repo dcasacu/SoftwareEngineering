@@ -1,5 +1,5 @@
-import { useState, useEffect, useCallback } from "react";
-import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
+import { useState, useEffect, useCallback, useRef } from "react";
+import { MapContainer, TileLayer, Marker, Popup, Polyline, useMap } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { COLORS, TYPOGRAPHY, SHADOWS, RADIUS, TRANSITIONS, createStyles } from "./styles/theme";
@@ -82,6 +82,62 @@ const getCategoryEmoji = (cat) => ({
   "Fruits & Veg": "🥕", Meat: "🥩", Fish: "🐟",
   Bakery: "🥖", Dairy: "🧀", Spices: "🌶️", Flowers: "🌸",
 })[cat] || "🛒";
+
+const DEFAULT_USER_LOCATION = { lat: 41.3851, lng: 2.1734 };
+
+function useUserLocation() {
+  const [location, setLocation] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!navigator.geolocation) {
+      setLocation(DEFAULT_USER_LOCATION);
+      setLoading(false);
+      return;
+    }
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        setLocation({ lat: pos.coords.latitude, lng: pos.coords.longitude });
+        setLoading(false);
+      },
+      () => {
+        setLocation(DEFAULT_USER_LOCATION);
+        setLoading(false);
+      },
+      { enableHighAccuracy: true, timeout: 8000, maximumAge: 30000 }
+    );
+  }, []);
+
+  return { location, loading };
+}
+
+async function fetchWalkingRoute(fromLat, fromLng, toLat, toLng) {
+  try {
+    const url = `https://router.project-osrm.org/route/v1/foot/${fromLng},${fromLat};${toLng},${toLat}?overview=full&geometries=geojson`;
+    const res = await fetch(url);
+    if (!res.ok) return null;
+    const data = await res.json();
+    if (!data.routes || data.routes.length === 0) return null;
+    const route = data.routes[0];
+    const coords = route.geometry.coordinates.map(([lng, lat]) => [lat, lng]);
+    const distanceKm = route.distance / 1000;
+    const durationMin = Math.round(route.duration / 60);
+    return { coords, distanceKm, durationMin };
+  } catch {
+    return null;
+  }
+}
+
+const userLocationIcon = L.divIcon({
+  html: `<div style="
+    width:20px;height:20px;border-radius:50%;
+    background:#3B82F6;border:3px solid #fff;
+    box-shadow:0 0 0 6px rgba(59,130,246,0.3), 0 2px 6px rgba(0,0,0,0.2);
+  "></div>`,
+  className: "custom-marker",
+  iconSize: [20, 20],
+  iconAnchor: [10, 10],
+});
 
 // ─── LocalStorage Helpers ───────────────────────────────────────────────────────
 const STORAGE_KEY = "lineup_app_state";
@@ -314,7 +370,19 @@ function MapFlyToShop({ selectedShop }) {
   return null;
 }
 
-function MarketMap({ shops, onSelectShop, selectedShopId }) {
+function MapFitRoute({ routeCoords, userLocation, shopLocation }) {
+  const map = useMap();
+  useEffect(() => {
+    if (routeCoords && routeCoords.length > 0) {
+      const allPoints = [...routeCoords, [userLocation.lat, userLocation.lng]];
+      const bounds = L.latLngBounds(allPoints.map(([lat, lng]) => [lat, lng]));
+      map.fitBounds(bounds, { padding: [60, 60], maxZoom: 17 });
+    }
+  }, [routeCoords, userLocation, shopLocation, map]);
+  return null;
+}
+
+function MarketMap({ shops, onSelectShop, selectedShopId, userLocation, routeData, onNavigate, onClearRoute }) {
   return (
     <div style={{
       margin: "0 20px 16px",
@@ -338,6 +406,18 @@ function MarketMap({ shops, onSelectShop, selectedShopId }) {
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
         <MapFlyToShop selectedShop={selectedShopId ? shops.find(s => s.id === selectedShopId) : null} />
+        {routeData && routeData.coords.length > 0 && (
+          <MapFitRoute routeCoords={routeData.coords} userLocation={userLocation} shopLocation={null} />
+        )}
+        {routeData && routeData.coords.length > 0 && (
+          <Polyline
+            positions={routeData.coords}
+            pathOptions={{ color: COLORS.primary, weight: 5, opacity: 0.8, dashArray: null }}
+          />
+        )}
+        {userLocation && (
+          <Marker position={[userLocation.lat, userLocation.lng]} icon={userLocationIcon} />
+        )}
         {shops.map((shop) => {
           const userInQueue = shop.queue.some((c) => c.id === DEMO_USER_ID);
           const qLen = shop.queue.length;
@@ -381,25 +461,70 @@ function MarketMap({ shops, onSelectShop, selectedShopId }) {
                       {qLen} in line
                     </span>
                   </div>
-                  <button
-                    onClick={() => onSelectShop(shop.id)}
-                    style={{
-                      width: "100%", padding: "12px",
-                      background: `linear-gradient(135deg, ${COLORS.primary} 0%, ${COLORS.primaryDark} 100%)`,
-                      color: COLORS.white, border: "none", borderRadius: 14,
-                      fontWeight: 700, fontSize: 14, cursor: "pointer",
-                      fontFamily: "'DM Sans', sans-serif",
-                      boxShadow: `0 4px 12px ${COLORS.primary}40`,
-                    }}
-                  >
-                    View Details →
-                  </button>
+                  <div style={{ display: "flex", gap: 8 }}>
+                    <button
+                      onClick={() => onNavigate(shop.id)}
+                      style={{
+                        flex: 1, padding: "10px",
+                        background: COLORS.secondaryLight, color: COLORS.secondary,
+                        border: "none", borderRadius: 14,
+                        fontWeight: 700, fontSize: 13, cursor: "pointer",
+                        fontFamily: "'DM Sans', sans-serif",
+                      }}
+                    >
+                      📍 Navigate
+                    </button>
+                    <button
+                      onClick={() => onSelectShop(shop.id)}
+                      style={{
+                        flex: 1.5, padding: "10px",
+                        background: `linear-gradient(135deg, ${COLORS.primary} 0%, ${COLORS.primaryDark} 100%)`,
+                        color: COLORS.white, border: "none", borderRadius: 14,
+                        fontWeight: 700, fontSize: 13, cursor: "pointer",
+                        fontFamily: "'DM Sans', sans-serif",
+                        boxShadow: `0 4px 12px ${COLORS.primary}40`,
+                      }}
+                    >
+                      View Details →
+                    </button>
+                  </div>
                 </div>
               </Popup>
             </Marker>
           );
         })}
       </MapContainer>
+      {routeData && (
+        <div style={{
+          position: "absolute", top: 10, left: 10, right: 10,
+          background: "rgba(255,255,255,0.96)", borderRadius: 16,
+          padding: "12px 16px", boxShadow: SHADOWS.lg,
+          border: `2px solid ${COLORS.primary}`,
+          zIndex: 1000, display: "flex", alignItems: "center", justifyContent: "space-between",
+        }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            <span style={{ fontSize: 20 }}>🚶</span>
+            <div>
+              <div style={{ fontWeight: 800, fontSize: 14, color: COLORS.text }}>
+                {routeData.distanceKm < 1 ? `${Math.round(routeData.distanceKm * 1000)} m` : `${routeData.distanceKm.toFixed(1)} km`}
+              </div>
+              <div style={{ fontSize: 12, color: COLORS.textSecondary, fontWeight: 600 }}>
+                ~{routeData.durationMin} min walk
+              </div>
+            </div>
+          </div>
+          <button
+            onClick={onClearRoute}
+            style={{
+              background: COLORS.errorLight, color: COLORS.error, border: "none",
+              borderRadius: 12, padding: "6px 14px", fontWeight: 800, fontSize: 12,
+              cursor: "pointer", fontFamily: "'DM Sans', sans-serif",
+            }}
+          >
+            ✕ Clear
+          </button>
+        </div>
+      )}
       <div style={{
         position: "absolute", bottom: 10, right: 10, background: "rgba(255,255,255,0.96)", borderRadius: 14,
         padding: "10px 14px", fontSize: 11, color: COLORS.textSecondary,
@@ -412,6 +537,10 @@ function MarketMap({ shops, onSelectShop, selectedShopId }) {
         <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 6 }}>
           <div style={{ width: 12, height: 12, borderRadius: "50%", background: COLORS.primary }} />
           <span style={{ fontWeight: 700 }}>Open shops</span>
+        </div>
+        <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 6 }}>
+          <div style={{ width: 12, height: 12, borderRadius: "50%", background: "#3B82F6" }} />
+          <span style={{ fontWeight: 700 }}>Your location</span>
         </div>
       </div>
     </div>
@@ -464,7 +593,7 @@ function MyQueues({ shops, onLeaveQueue, onGoToShop }) {
   );
 }
 
-function MapView({ shops, onSelectShop, selectedShopId }) {
+function MapView({ shops, onSelectShop, selectedShopId, userLocation, routeData, onNavigate, onClearRoute }) {
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("All");
   const [showFilters, setShowFilters] = useState(false);
@@ -499,7 +628,7 @@ function MapView({ shops, onSelectShop, selectedShopId }) {
       )}
 
       <div style={{ position: "relative" }}>
-        <MarketMap shops={filtered} onSelectShop={onSelectShop} selectedShopId={selectedShopId} />
+        <MarketMap shops={filtered} onSelectShop={onSelectShop} selectedShopId={selectedShopId} userLocation={userLocation} routeData={routeData} onNavigate={onNavigate} onClearRoute={onClearRoute} />
       </div>
 
       <div style={{ padding: "0 20px", flex: 1 }}>
@@ -509,8 +638,8 @@ function MapView({ shops, onSelectShop, selectedShopId }) {
         {filtered.map((shop) => {
           const userInQueue = shop.queue.some((c) => c.id === DEMO_USER_ID);
           return (
-            <div key={shop.id} style={{ ...s.card, cursor: "pointer", transform: "translateZ(0)", border: userInQueue ? `2.5px solid ${COLORS.accent}` : `1px solid ${COLORS.border}` }} onClick={() => onSelectShop(shop.id)}>
-              <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+            <div key={shop.id} style={{ ...s.card, cursor: "pointer", transform: "translateZ(0)", border: userInQueue ? `2.5px solid ${COLORS.accent}` : `1px solid ${COLORS.border}` }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 16 }} onClick={() => onSelectShop(shop.id)}>
                 <div style={{ width: 56, height: 56, borderRadius: 18, background: COLORS.primaryLight, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 32, flexShrink: 0 }}>
                   {getCategoryEmoji(shop.category)}
                 </div>
@@ -523,6 +652,12 @@ function MapView({ shops, onSelectShop, selectedShopId }) {
                   {shop.queue.length > 0 && <div style={{ fontSize: 13, color: COLORS.textMuted, marginTop: 6, fontWeight: 600 }}>{shop.queue.length} in line</div>}
                 </div>
               </div>
+              <button
+                onClick={(e) => { e.stopPropagation(); onNavigate(shop.id); }}
+                style={{ ...s.btnSecondary(true), width: "100%", marginTop: 12, borderRadius: 14, display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}
+              >
+                📍 Navigate here
+              </button>
             </div>
           );
         })}
@@ -531,7 +666,7 @@ function MapView({ shops, onSelectShop, selectedShopId }) {
   );
 }
 
-function ShopDetail({ shop, onBack, onJoin, onLeave }) {
+function ShopDetail({ shop, onBack, onJoin, onLeave, onNavigate, routeData }) {
   const userEntry = getUserQueueEntry(shop);
   const qLen = shop.queue.length;
 
@@ -542,13 +677,27 @@ function ShopDetail({ shop, onBack, onJoin, onLeave }) {
         <div style={{ fontSize: 56, marginBottom: 16 }}>{getCategoryEmoji(shop.category)}</div>
         <div style={{ fontSize: 32, fontWeight: 900, color: COLORS.white }}>{shop.name}</div>
         <div style={{ fontSize: 16, color: "rgba(255,255,255,0.85)", marginTop: 8, lineHeight: 1.5 }}>{shop.description}</div>
-        <div style={{ display: "flex", gap: 12, marginTop: 20 }}>
+        <div style={{ display: "flex", gap: 12, marginTop: 20, flexWrap: "wrap" }}>
           <span style={s.badge(shop.isOpen ? COLORS.success : COLORS.error, shop.isOpen ? "rgba(34,197,94,0.3)" : "rgba(239,68,68,0.3)")}>{shop.isOpen ? "● Open Now" : "● Closed"}</span>
           <span style={s.badge(COLORS.white, "rgba(255,255,255,0.25)")}>~{shop.avgServiceTime} min/person</span>
         </div>
       </div>
 
       <div style={{ padding: 24, marginTop: -20 }}>
+        <button
+          onClick={() => onNavigate(shop.id)}
+          style={{
+            ...s.btnSecondary(true), width: "100%", marginBottom: 20, borderRadius: 18, display: "flex",
+            alignItems: "center", justifyContent: "center", gap: 10, padding: "14px",
+          }}
+        >
+          📍 Show walking route
+          {routeData && (
+            <span style={{ fontSize: 13, fontWeight: 700, color: COLORS.secondary }}>
+              ({routeData.distanceKm < 1 ? `${Math.round(routeData.distanceKm * 1000)}m` : `${routeData.distanceKm.toFixed(1)}km`} · {routeData.durationMin} min)
+            </span>
+          )}
+        </button>
         {userEntry && (
           <div style={{ marginBottom: 24 }}>
             <div style={{ fontSize: 15, fontWeight: 800, color: COLORS.textSecondary, marginBottom: 12 }}>Your Place in Line</div>
@@ -677,10 +826,45 @@ export default function LineUpApp() {
   const savedState = loadFromStorage();
   
   const [mode, setMode] = useState(savedState?.mode ?? null); 
-  const [shops, setShops] = useState(savedState?.shops ?? INITIAL_SHOPS);
+  const [shops, setShops] = useState(() => {
+    const saved = savedState?.shops;
+    if (!saved) return INITIAL_SHOPS;
+    return saved.map((shop) => {
+      const ref = INITIAL_SHOPS.find((s) => s.id === shop.id);
+      return {
+        ...shop,
+        lat: shop.lat ?? ref?.lat ?? 41.3825,
+        lng: shop.lng ?? ref?.lng ?? 2.1775,
+      };
+    });
+  });
   const [activeTab, setActiveTab] = useState(savedState?.activeTab ?? "map");
   const [selectedShopId, setSelectedShopId] = useState(null);
   const [toast, setToast] = useState({ show: false, message: "", type: "default", icon: null });
+  const [routeData, setRouteData] = useState(null);
+  const [navigatingTo, setNavigatingTo] = useState(null);
+
+  const { location: userLocation } = useUserLocation();
+
+  const handleNavigate = useCallback(async (shopId) => {
+    const shop = shops.find((s) => s.id === shopId);
+    if (!shop || !userLocation) return;
+    setNavigatingTo(shopId);
+    setRouteData(null);
+    const route = await fetchWalkingRoute(userLocation.lat, userLocation.lng, shop.lat, shop.lng);
+    if (route) {
+      setRouteData({ ...route, shopId });
+      showToast(`${route.distanceKm < 1 ? `${Math.round(route.distanceKm * 1000)}m` : `${route.distanceKm.toFixed(1)}km`} walk · ${route.durationMin} min`, "success", "📍");
+    } else {
+      showToast("Could not calculate route", "warning", "⚠️");
+      setNavigatingTo(null);
+    }
+  }, [shops, userLocation]);
+
+  const clearRoute = useCallback(() => {
+    setRouteData(null);
+    setNavigatingTo(null);
+  }, []);
 
   useEffect(() => {
     const stateToSave = { mode, shops, activeTab };
@@ -804,8 +988,8 @@ export default function LineUpApp() {
 
   const renderContent = () => {
     if (mode === "owner") return <OwnerDashboard shop={ownerShop} onAdvance={advanceQueue} onRemove={(id) => cancelQueue(OWNER_SHOP_ID, id)} onToggleOpen={toggleQueueStatus} />;
-    if (selectedShop) return <ShopDetail shop={selectedShop} onBack={() => setSelectedShopId(null)} onJoin={() => joinQueue(selectedShop.id)} onLeave={() => { cancelQueue(selectedShop.id, DEMO_USER_ID); setSelectedShopId(null); }} />;
-    if (activeTab === "map") return <MapView shops={shops} onSelectShop={setSelectedShopId} selectedShopId={selectedShopId} />;
+    if (selectedShop) return <ShopDetail shop={selectedShop} onBack={() => setSelectedShopId(null)} onJoin={() => joinQueue(selectedShop.id)} onLeave={() => { cancelQueue(selectedShop.id, DEMO_USER_ID); setSelectedShopId(null); }} onNavigate={handleNavigate} routeData={routeData && routeData.shopId === selectedShop.id ? routeData : null} />;
+    if (activeTab === "map") return <MapView shops={shops} onSelectShop={setSelectedShopId} selectedShopId={selectedShopId} userLocation={userLocation} routeData={routeData} onNavigate={handleNavigate} onClearRoute={clearRoute} />;
     if (activeTab === "queues") return <MyQueues shops={shops} onLeaveQueue={(id) => cancelQueue(id, DEMO_USER_ID)} onGoToShop={(id) => { setSelectedShopId(id); setActiveTab("map"); }} />;
   };
 
