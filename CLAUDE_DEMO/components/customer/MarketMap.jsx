@@ -1,112 +1,196 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import L from "leaflet";
+import "leaflet/dist/leaflet.css";
 import { getCategoryEmoji } from "../../utils/queueHelpers";
 import { COLORS } from "../../styles/theme";
 import ShopQuickView from "./ShopQuickView";
 
-/**
- * Market Map Visualization
- * Interactive map showing shop pins with queue counts
- * Tap pins to see quick view popup
- */
+const createShopIcon = (shop, isSelected, userInQueue) => {
+  const size = isSelected ? 44 : 36;
+  const bgColor = userInQueue ? COLORS.accent : (shop.isOpen ? COLORS.primary : COLORS.textMuted);
+  const emoji = getCategoryEmoji(shop.category);
+  
+  return L.divIcon({
+    className: "custom-marker",
+    html: `
+      <div style="
+        width: ${size}px;
+        height: ${size}px;
+        background: ${bgColor};
+        border-radius: 50%;
+        border: 3px solid ${COLORS.white};
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: ${isSelected ? "0 8px 20px rgba(0,0,0,0.25)" : "0 4px 10px rgba(0,0,0,0.15)"};
+        transform: ${isSelected ? "scale(1.1)" : "scale(1)"};
+        transition: all 0.3s ease;
+        cursor: pointer;
+      ">
+        <span style="font-size: ${isSelected ? 18 : 14}px;">${emoji}</span>
+      </div>
+      ${shop.queue.length > 0 && !isSelected ? `
+        <div style="
+          position: absolute;
+          top: -5px;
+          right: -5px;
+          width: 18px;
+          height: 18px;
+          background: ${bgColor};
+          color: ${COLORS.white};
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 10px;
+          font-weight: 900;
+          border: 2px solid ${COLORS.white};
+        ">${shop.queue.length}</div>
+      ` : ""}
+    `,
+    iconSize: [size, size],
+    iconAnchor: [size / 2, size / 2],
+    popupAnchor: [0, -size / 2],
+  });
+};
+
 export default function MarketMap({ shops, onSelectShop, userId }) {
-  const [selectedPin, setSelectedPin] = useState(null);
+  const mapRef = useRef(null);
+  const mapInstanceRef = useRef(null);
+  const markersRef = useRef({});
+  const [selectedShop, setSelectedShop] = useState(null);
+  const [mapReady, setMapReady] = useState(false);
+
+  useEffect(() => {
+    if (!mapRef.current || mapInstanceRef.current) return;
+
+    mapInstanceRef.current = L.map(mapRef.current, {
+      center: [41.3851, 2.1734],
+      zoom: 16,
+      zoomControl: true,
+      attributionControl: false,
+    });
+
+    L.tileLayer("https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png", {
+      maxZoom: 19,
+    }).addTo(mapInstanceRef.current);
+
+    setMapReady(true);
+
+    return () => {
+      if (mapInstanceRef.current) {
+        mapInstanceRef.current.remove();
+        mapInstanceRef.current = null;
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!mapReady || !mapInstanceRef.current) return;
+
+    Object.values(markersRef.current).forEach(marker => marker.remove());
+    markersRef.current = {};
+
+    shops.forEach((shop) => {
+      const userInQueue = shop.queue.some((c) => c.id === userId);
+      const icon = createShopIcon(shop, selectedShop === shop.id, userInQueue);
+      
+      const marker = L.marker([shop.position.x / 10, shop.position.y / 10], { icon })
+        .addTo(mapInstanceRef.current);
+
+      marker.on("click", () => {
+        setSelectedShop(prev => prev === shop.id ? null : shop.id);
+      });
+
+      markersRef.current[shop.id] = marker;
+    });
+  }, [shops, mapReady, userId]);
+
+  useEffect(() => {
+    if (!mapReady || !selectedShop) return;
+
+    const shop = shops.find(s => s.id === selectedShop);
+    if (shop && mapInstanceRef.current) {
+      mapInstanceRef.current.setView([shop.position.x / 10, shop.position.y / 10], 17, {
+        animate: true,
+        duration: 0.5,
+      });
+    }
+  }, [selectedShop, shops, mapReady]);
+
+  const handleShopSelect = (shopId) => {
+    onSelectShop(shopId);
+    setSelectedShop(null);
+  };
+
+  const currentSelectedShop = shops.find(s => s.id === selectedShop);
 
   return (
-    <div style={{
-      margin: "0 20px 16px",
-      background: `linear-gradient(135deg, #e8f0fe 0%, #dbeafe 50%, #eff6ff 100%)`,
-      borderRadius: 24, position: "relative", height: 300, overflow: "hidden",
-      border: `2px solid ${COLORS.gray200}`, flexShrink: 0,
-      boxShadow: "inset 0 2px 10px rgba(0,0,0,0.05)",
-    }}>
-      {/* Grid lines */}
-      {[...Array(5)].map((_, i) => (
-        <div key={`h${i}`} style={{
-          position: "absolute", left: 0, right: 0,
-          top: `${(i + 1) * 20}%`, height: 1,
-          background: "rgba(46,91,186,0.08)",
-        }} />
-      ))}
-      {[...Array(5)].map((_, i) => (
-        <div key={`v${i}`} style={{
-          position: "absolute", top: 0, bottom: 0,
-          left: `${(i + 1) * 20}%`, width: 1,
-          background: "rgba(46,91,186,0.08)",
-        }} />
-      ))}
+    <div style={{ position: "relative", margin: "0 20px 16px" }}>
+      <div
+        ref={mapRef}
+        style={{
+          height: 320,
+          borderRadius: 24,
+          overflow: "hidden",
+          border: `2px solid ${COLORS.border}`,
+          boxShadow: "0 4px 15px rgba(0,0,0,0.08)",
+        }}
+      />
 
-      {/* Pins */}
-      {shops.map((shop) => {
-        const isSelected = selectedPin === shop.id;
-        const userInQueue = shop.queue.some((c) => c.id === userId);
-        const qLen = shop.queue.length;
+      {currentSelectedShop && (
+        <div style={{
+          position: "absolute",
+          bottom: 16,
+          left: "50%",
+          transform: "translateX(-50%)",
+          zIndex: 1000,
+          width: "90%",
+        }}>
+          <ShopQuickView
+            shop={currentSelectedShop}
+            onSelect={handleShopSelect}
+            onClose={() => setSelectedShop(null)}
+            userId={userId}
+          />
+        </div>
+      )}
 
-        return (
-          <div
-            key={shop.id}
-            onClick={() => setSelectedPin(isSelected ? null : shop.id)}
-            style={{
-              position: "absolute", left: `${shop.position.x}%`, top: `${shop.position.y}%`,
-              transform: "translate(-50%, -100%)", cursor: "pointer",
-              zIndex: isSelected ? 10 : 2, transition: "all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)",
-            }}
-          >
-            {isSelected && (
-              <ShopQuickView
-                shop={shop}
-                onSelect={onSelectShop}
-                onClose={() => setSelectedPin(null)}
-                userId={userId}
-              />
-            )}
-
-            {/* Pin Visual */}
-            <div style={{
-              background: userInQueue ? COLORS.orange : (shop.isOpen ? COLORS.blue : COLORS.gray400),
-              borderRadius: "50% 50% 50% 0", transform: "rotate(-45deg)",
-              width: isSelected ? 44 : 36, height: isSelected ? 44 : 36,
-              display: "flex", alignItems: "center", justifyContent: "center",
-              boxShadow: isSelected ? "0 8px 20px rgba(0,0,0,0.25)" : "0 4px 10px rgba(0,0,0,0.15)",
-              transition: "all 0.2s", border: `3px solid ${COLORS.white}`,
-            }}>
-              <span style={{ transform: "rotate(45deg)", fontSize: isSelected ? 20 : 16 }}>
-                {getCategoryEmoji(shop.category)}
-              </span>
-            </div>
-
-            {/* Queue count badge */}
-            {qLen > 0 && !isSelected && (
-              <div style={{
-                position: "absolute", top: -5, right: -5,
-                background: COLORS.orange, color: COLORS.white,
-                borderRadius: "50%", width: 20, height: 20,
-                display: "flex", alignItems: "center", justifyContent: "center",
-                fontSize: 11, fontWeight: 900, border: `2px solid ${COLORS.white}`,
-                transform: "rotate(45deg)",
-              }}>
-                {qLen}
-              </div>
-            )}
-          </div>
-        );
-      })}
-
-      {/* Legend */}
       <div style={{
-        position: "absolute", bottom: 12, right: 12,
-        background: "rgba(255,255,255,0.95)",
-        borderRadius: 12, padding: "8px 12px",
-        fontSize: 11, color: COLORS.gray600,
-        boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
+        position: "absolute",
+        top: 12,
+        left: 12,
+        background: COLORS.white,
+        borderRadius: 12,
+        padding: "8px 12px",
+        fontSize: 11,
+        color: COLORS.textSecondary,
+        boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
+        zIndex: 1000,
       }}>
         <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-          <div style={{ width: 10, height: 10, borderRadius: "50%", background: COLORS.orange }} />
-          <span style={{ fontWeight: 600 }}>Your active queues</span>
+          <div style={{ width: 10, height: 10, borderRadius: "50%", background: COLORS.accent }} />
+          <span style={{ fontWeight: 600 }}>Your queues</span>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 4 }}>
-          <div style={{ width: 10, height: 10, borderRadius: "50%", background: COLORS.blue }} />
+          <div style={{ width: 10, height: 10, borderRadius: "50%", background: COLORS.primary }} />
           <span style={{ fontWeight: 600 }}>Open shops</span>
         </div>
+      </div>
+
+      <div style={{
+        position: "absolute",
+        top: 12,
+        right: 12,
+        background: COLORS.white,
+        borderRadius: 12,
+        padding: "8px 12px",
+        fontSize: 11,
+        color: COLORS.textSecondary,
+        boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
+        zIndex: 1000,
+      }}>
+        <div style={{ fontWeight: 700 }}>{shops.length} shops</div>
       </div>
     </div>
   );

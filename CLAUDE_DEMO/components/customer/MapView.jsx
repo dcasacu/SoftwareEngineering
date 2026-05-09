@@ -1,15 +1,11 @@
 import { useState } from "react";
 import { COLORS, createStyles } from "../../styles/theme";
 import MarketMap from "./MarketMap";
+import ShopCard from "./ShopCard";
 
 const CATEGORIES = ["All", "Fruits & Veg", "Meat", "Fish", "Bakery", "Dairy", "Spices", "Flowers"];
 const s = createStyles();
 
-/**
- * Map View Tab
- * Shows interactive market map with search and category filtering
- * Allows customers to browse shops and reserve queue places
- */
 export default function MapView({ shops, onSelectShop, userId }) {
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("All");
@@ -24,7 +20,6 @@ export default function MapView({ shops, onSelectShop, userId }) {
 
   return (
     <div style={{ display: "flex", flexDirection: "column", height: "100%", position: "relative" }}>
-      {/* Search Header */}
       <div style={{ padding: "16px 20px", display: "flex", gap: 10 }}>
         <div style={{ flex: 1, position: "relative" }}>
           <input
@@ -38,10 +33,11 @@ export default function MapView({ shops, onSelectShop, userId }) {
         <button
           onClick={() => setShowFilters(!showFilters)}
           style={{
-            ...s.btn(false, true),
+            ...s.btnSecondary(true),
             padding: "0 14px",
-            background: showFilters ? COLORS.blueLight : COLORS.white,
-            display: "flex", alignItems: "center", gap: 6
+            background: showFilters ? COLORS.primaryLight : COLORS.surface,
+            display: "flex", alignItems: "center", gap: 6,
+            borderColor: showFilters ? COLORS.primary : COLORS.border,
           }}
         >
           <span>⚙️</span>
@@ -49,7 +45,6 @@ export default function MapView({ shops, onSelectShop, userId }) {
         </button>
       </div>
 
-      {/* Filter Overlay / Categories */}
       {showFilters && (
         <div style={{
           padding: "0 20px 16px",
@@ -61,9 +56,9 @@ export default function MapView({ shops, onSelectShop, userId }) {
               key={cat}
               onClick={() => setCategory(cat)}
               style={{
-                ...s.pill(
-                  category === cat ? COLORS.white : COLORS.gray600,
-                  category === cat ? COLORS.blue : COLORS.gray100
+                ...s.badge(
+                  category === cat ? COLORS.white : COLORS.primary,
+                  category === cat ? COLORS.primary : COLORS.primaryLight
                 ),
                 cursor: "pointer", border: "none", whiteSpace: "nowrap",
                 padding: "8px 16px", fontFamily: "inherit",
@@ -77,67 +72,23 @@ export default function MapView({ shops, onSelectShop, userId }) {
         </div>
       )}
 
-      {/* Market Map */}
       <MarketMap shops={filtered} onSelectShop={onSelectShop} userId={userId} />
 
-      {/* Shop List */}
       <div style={{ padding: "0 20px", flex: 1 }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
-          <div style={{ fontSize: 14, fontWeight: 700, color: COLORS.gray400 }}>
+          <div style={{ fontSize: 12, fontWeight: 700, color: COLORS.textMuted, letterSpacing: 1 }}>
             {filtered.length} SHOPS NEARBY
           </div>
         </div>
 
-        {filtered.map((shop) => {
-          const userInQueue = shop.queue.some((c) => c.id === userId);
-          return (
-            <div
-              key={shop.id}
-              style={{
-                ...s.card,
-                cursor: "pointer",
-                border: userInQueue ? `2px solid ${COLORS.orange}` : `2px solid transparent`,
-                transition: "transform 0.15s",
-              }}
-              onClick={() => onSelectShop(shop.id)}
-            >
-              <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-                <div style={{
-                  width: 48, height: 48, borderRadius: 14,
-                  background: COLORS.blueLight,
-                  display: "flex", alignItems: "center", justifyContent: "center",
-                  fontSize: 24, flexShrink: 0,
-                }}>
-                  🥕
-                </div>
-                <div style={{ flex: 1 }}>
-                  <div style={{ fontWeight: 800, fontSize: 15, color: COLORS.gray900 }}>
-                    {shop.name}
-                  </div>
-                  <div style={{ fontSize: 12, color: COLORS.gray400 }}>{shop.category}</div>
-                </div>
-                <div style={{ textAlign: "right" }}>
-                  <span style={s.pill(
-                    shop.isOpen ? COLORS.green : COLORS.red,
-                    shop.isOpen ? COLORS.greenLight : COLORS.redLight,
-                  )}>
-                    {shop.isOpen ? "Open" : "Closed"}
-                  </span>
-                  {shop.queue.length > 0 && (
-                    <div style={{ fontSize: 12, color: COLORS.gray400, marginTop: 4 }}>
-                      {shop.queue.length} in queue
-                    </div>
-                  )}
-                  {userInQueue && (
-                    <div style={{ fontSize: 11, color: COLORS.orange, fontWeight: 700, marginTop: 2 }}>
-                      You're here!
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-          );
-        })}
+        {filtered.map((shop) => (
+          <ShopCard
+            key={shop.id}
+            shop={shop}
+            userId={userId}
+            onClick={() => onSelectShop(shop.id)}
+          />
+        ))}
       </div>
     </div>
   );
