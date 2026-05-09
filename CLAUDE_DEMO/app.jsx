@@ -1046,6 +1046,26 @@ const [toast, setToast] = useState({ show: false, message: "", type: "default", 
           </span>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          <button
+            onClick={() => setMode(mode === "customer" ? "owner" : "customer")}
+            style={{
+              background: mode === "customer" ? COLORS.accentLight : "rgba(255,255,255,0.2)",
+              border: `1.5px solid ${mode === "customer" ? COLORS.accent : "rgba(255,255,255,0.3)"}`,
+              borderRadius: 12,
+              padding: "6px 12px",
+              color: mode === "customer" ? COLORS.accent : COLORS.white,
+              cursor: "pointer",
+              fontWeight: 800,
+              fontSize: 12,
+              transition: "all 0.2s",
+              display: "flex",
+              alignItems: "center",
+              gap: 6,
+            }}
+          >
+            {mode === "customer" ? "🧺" : "🏪"}
+            {mode === "customer" ? "Be Owner" : "Be Customer"}
+          </button>
           <span style={s.badge(COLORS.accent, "rgba(255,255,255,0.2)")}>{mode === "owner" ? "Owner" : "Guest"}</span>
           <button onClick={() => { clearStorage(); setMode(null); setShops(INITIAL_SHOPS); setActiveTab("map"); setSelectedShopId(null); }} style={{ background: "rgba(255,255,255,0.2)", border: "none", borderRadius: 12, padding: "8px 14px", color: COLORS.white, cursor: "pointer", fontWeight: 800, fontSize: 13, transition: "all 0.2s" }}>Reset</button>
         </div>
