@@ -268,9 +268,19 @@ const clearStorage = () => {
 
 // ─── Components ──────────────────────────────────────────────────────────────
 function Toast({ message, show, type = "default", icon }) {
+  const isYourTurn = type === "yourTurn";
   return (
     <div style={s.toast(show, type)}>
-      {icon && <span style={{ fontSize: 20 }}>{icon}</span>}
+      {(icon || isYourTurn) && (
+        <span style={{ fontSize: isYourTurn ? 24 : 20, flexShrink: 0 }}>
+          {isYourTurn ? (
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9" />
+              <path d="M13.73 21a2 2 0 01-3.46 0" />
+            </svg>
+          ) : icon}
+        </span>
+      )}
       <span>{message}</span>
     </div>
   );
@@ -963,8 +973,41 @@ const [toast, setToast] = useState({ show: false, message: "", type: "default", 
 
   const showToast = useCallback((msg, type = "default", icon = null) => {
     setToast({ show: true, message: msg, type, icon });
-    setTimeout(() => setToast({ show: false, message: "", type: "default", icon: null }), 3000);
   }, []);
+
+  const notifiedShops = useRef(new Set());
+  const toastTimeoutRef = useRef(null);
+
+  // Auto-dismiss toast
+  useEffect(() => {
+    if (!toast.show) return;
+    if (toastTimeoutRef.current) clearTimeout(toastTimeoutRef.current);
+    toastTimeoutRef.current = setTimeout(() => {
+      setToast((prev) => ({ ...prev, show: false }));
+      toastTimeoutRef.current = setTimeout(() => {
+        setToast({ show: false, message: "", type: "default", icon: null });
+        toastTimeoutRef.current = null;
+      }, 400);
+    }, 4000);
+    return () => {
+      if (toastTimeoutRef.current) clearTimeout(toastTimeoutRef.current);
+    };
+  }, [toast.show, toast.message]);
+
+  // Detect when user reaches position 1
+  useEffect(() => {
+    shops.forEach((shop) => {
+      const userEntry = shop.queue.find((c) => c.id === DEMO_USER_ID);
+      if (!userEntry) {
+        notifiedShops.current.delete(shop.id);
+        return;
+      }
+      if (userEntry.position === 1 && !notifiedShops.current.has(shop.id)) {
+        notifiedShops.current.add(shop.id);
+        showToast(`🎉 ¡Es tu turno en ${shop.name}!`, "yourTurn");
+      }
+    });
+  }, [shops, showToast]);
 
   const updateShop = (shopId, updater) => {
     setShops((prev) => prev.map((s) => s.id === shopId ? updater(s) : s));
@@ -974,19 +1017,19 @@ const [toast, setToast] = useState({ show: false, message: "", type: "default", 
     const shop = shops.find((s) => s.id === shopId);
     if (!shop || !shop.isOpen) return;
     if (shop.queue.some((c) => c.id === DEMO_USER_ID)) {
-      showToast("Already in queue!", "warning", "⚠️"); return;
+      showToast("¡Ya estás en la cola!", "warning", "⚠️"); return;
     }
     updateShop(shopId, (s) => ({
       ...s, queue: [...s.queue, { id: DEMO_USER_ID, name: DEMO_USER_NAME, position: s.queue.length + 1 }],
     }));
-    showToast("Successfully joined!", "success", "🎉"); setActiveTab("queues");
+    showToast("¡Te has unido a la cola!", "success", "🎉"); setActiveTab("queues");
   };
 
   const cancelQueue = (shopId, userId) => {
     updateShop(shopId, (s) => ({
       ...s, queue: s.queue.filter((c) => c.id !== userId).map((c, i) => ({ ...c, position: i + 1 })),
     }));
-    showToast(userId === DEMO_USER_ID ? "Left queue." : "Customer removed.", "default", userId === DEMO_USER_ID ? "👋" : "🗑️");
+    showToast(userId === DEMO_USER_ID ? "Has salido de la cola." : "Cliente eliminado.", "default", userId === DEMO_USER_ID ? "👋" : "🗑️");
   };
 
   const ownerShop = shops.find((s) => s.id === OWNER_SHOP_ID);

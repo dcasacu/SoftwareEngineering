@@ -29,6 +29,12 @@ const icons = {
       <line x1="12" y1="8" x2="12.01" y2="8" />
     </svg>
   ),
+  yourTurn: (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9" />
+      <path d="M13.73 21a2 2 0 01-3.46 0" />
+    </svg>
+  ),
   default: (
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
       <circle cx="12" cy="12" r="10" />
@@ -43,6 +49,7 @@ const typeStyles = {
   error: { background: COLORS.error, border: `3px solid ${COLORS.white}` },
   warning: { background: COLORS.warning, border: `3px solid ${COLORS.white}` },
   info: { background: COLORS.blue || "#3B82F6", border: `3px solid ${COLORS.white}` },
+  yourTurn: { background: "#000000", border: `3px solid ${COLORS.accent}`, boxShadow: `0 0 20px ${COLORS.accent}60, ${SHADOWS.xl}` },
   default: { background: COLORS.text, border: "none" },
 };
 
@@ -51,37 +58,39 @@ export default function Toast({ message, show, type = "default" }) {
 
   const icon = icons[type] || icons.default;
   const style = typeStyles[type] || typeStyles.default;
+  const isYourTurn = type === "yourTurn";
 
   return (
     <div
       role="alert"
-      aria-live="polite"
+      aria-live="assertive"
       aria-atomic="true"
       style={{
         position: "fixed",
-        bottom: 110,
+        bottom: isYourTurn ? 200 : 110,
         left: "50%",
         transform: `translateX(-50%) translateY(${show ? 0 : 60}px)`,
         opacity: show ? 1 : 0,
         color: COLORS.white,
-        padding: "14px 20px",
+        padding: isYourTurn ? "20px 28px" : "14px 20px",
         borderRadius: RADIUS.xl,
-        fontWeight: TYPOGRAPHY.weights.semibold,
-        fontSize: TYPOGRAPHY.sizes.base,
+        fontWeight: isYourTurn ? TYPOGRAPHY.weights.extrabold : TYPOGRAPHY.weights.bold,
+        fontSize: isYourTurn ? TYPOGRAPHY.sizes.lg : TYPOGRAPHY.sizes.base,
         fontFamily: TYPOGRAPHY.fontBody,
-        zIndex: 9999,
-        transition: `all ${TRANSITIONS.slow}`,
+        zIndex: 99999,
+        transition: isYourTurn ? "transform 0.3s ease, opacity 0.3s ease" : `all ${TRANSITIONS.slow}`,
         pointerEvents: "none",
-        boxShadow: SHADOWS.xl,
+        boxShadow: isYourTurn ? `0 0 30px ${COLORS.accent}80, 0 0 60px ${COLORS.accent}40, ${SHADOWS.xl}` : SHADOWS.xl,
         display: "flex",
         alignItems: "center",
-        gap: 10,
+        gap: 12,
         maxWidth: "90%",
-        minWidth: 200,
+        minWidth: 260,
         ...style,
+        ...(isYourTurn ? { background: "#000000", border: `3px solid ${COLORS.accent}` } : {}),
       }}
     >
-      <span style={{ flexShrink: 0 }}>{icon}</span>
+      <span style={{ flexShrink: 0, fontSize: isYourTurn ? 24 : 20 }}>{icon}</span>
       <span>{message}</span>
     </div>
   );
