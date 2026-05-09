@@ -1,4 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
+import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
+import L from "leaflet";
+import "leaflet/dist/leaflet.css";
 import { COLORS, TYPOGRAPHY, SHADOWS, RADIUS, TRANSITIONS, createStyles } from "./styles/theme";
 
 const s = createStyles();
@@ -17,7 +20,7 @@ const INITIAL_SHOPS = [
   {
     id: "shop1", name: "Martí's Fruits", category: "Fruits & Veg", owner: "Joan Martí",
     description: "Fresh seasonal fruits and vegetables from local farms.",
-    position: { x: 28, y: 22 }, isOpen: true, avgServiceTime: 4,
+    position: { x: 28, y: 22 }, lat: 41.3825, lng: 2.1765, isOpen: true, avgServiceTime: 4,
     queue: [
       { id: "c1", name: "Anna G.", position: 1 },
       { id: "c2", name: "Pere M.", position: 2 },
@@ -27,7 +30,7 @@ const INITIAL_SHOPS = [
   {
     id: "shop2", name: "Pep's Bakery", category: "Bakery", owner: "Josep Vila",
     description: "Traditional Catalan bread and pastries baked fresh daily.",
-    position: { x: 55, y: 38 }, isOpen: true, avgServiceTime: 3,
+    position: { x: 55, y: 38 }, lat: 41.3840, lng: 2.1790, isOpen: true, avgServiceTime: 3,
     queue: [
       { id: "c5", name: "Maria T.", position: 1 },
     ],
@@ -35,7 +38,7 @@ const INITIAL_SHOPS = [
   {
     id: "shop3", name: "La Peixateria", category: "Fish", owner: "Rosa Puig",
     description: "Fresh daily catch from the Mediterranean coast.",
-    position: { x: 70, y: 62 }, isOpen: true, avgServiceTime: 6,
+    position: { x: 70, y: 62 }, lat: 41.3810, lng: 2.1805, isOpen: true, avgServiceTime: 6,
     queue: [
       { id: "c7", name: "Jordi R.", position: 1 },
       { id: "c8", name: "Clara B.", position: 2 },
@@ -45,22 +48,25 @@ const INITIAL_SHOPS = [
   {
     id: "shop4", name: "Ca la Carnissera", category: "Meat", owner: "Montse Soler",
     description: "Quality local meats and homemade sausages.",
-    position: { x: 40, y: 65 }, isOpen: false, avgServiceTime: 5,
+    position: { x: 40, y: 65 }, lat: 41.3800, lng: 2.1775, isOpen: false, avgServiceTime: 5,
     queue: [],
   },
   {
     id: "shop5", name: "Espècies del Món", category: "Spices", owner: "Ahmed Bensali",
     description: "Exotic spices and herbs from around the world.",
-    position: { x: 18, y: 58 }, isOpen: true, avgServiceTime: 2,
+    position: { x: 18, y: 58 }, lat: 41.3818, lng: 2.1745, isOpen: true, avgServiceTime: 2,
     queue: [],
   },
   {
     id: "shop6", name: "Flors i Plantes", category: "Flowers", owner: "Núria Costa",
     description: "Beautiful flowers and plants for every occasion.",
-    position: { x: 78, y: 28 }, isOpen: true, avgServiceTime: 3,
+    position: { x: 78, y: 28 }, lat: 41.3852, lng: 2.1815, isOpen: true, avgServiceTime: 3,
     queue: [],
   },
 ];
+
+const MAP_CENTER = [41.3825, 2.1775];
+const MAP_DEFAULT_ZOOM = 16;
 
 const DEMO_USER_ID = DEMO_USER.id;
 const DEMO_USER_NAME = DEMO_USER.name;
@@ -265,66 +271,140 @@ function ShopQuickView({ shop, onSelect, onClose }) {
   );
 }
 
-function MarketMap({ shops, onSelectShop }) {
-  const [selectedPin, setSelectedPin] = useState(null);
+function createShopIcon(emoji, color, queueCount, isSelected) {
+  const size = isSelected ? 48 : 40;
+  const html = `
+    <div style="position:relative;display:flex;align-items:center;justify-content:center;">
+      <div style="
+        background:${color};
+        width:${size}px;height:${size}px;
+        border-radius:50% 50% 50% 4px;
+        transform:rotate(-45deg);
+        display:flex;align-items:center;justify-content:center;
+        box-shadow:0 4px 12px rgba(0,0,0,0.25);
+        border:3px solid #fff;
+      ">
+        <span style="transform:rotate(45deg);font-size:${isSelected ? 22 : 18}px;line-height:1;">${emoji}</span>
+      </div>
+      ${queueCount > 0 ? `<div style="
+        position:absolute;top:-4px;right:-4px;
+        background:#D97706;color:#fff;
+        border-radius:50%;width:20px;height:20px;
+        display:flex;align-items:center;justify-content:center;
+        font-size:10px;font-weight:900;border:2px solid #fff;
+        font-family:'DM Sans',sans-serif;
+      ">${queueCount}</div>` : ''}
+    </div>`;
+  return L.divIcon({
+    html,
+    className: "custom-marker",
+    iconSize: [size + 12, size + 12],
+    iconAnchor: [(size + 12) / 2, size + 12],
+    popupAnchor: [0, -(size + 8)],
+  });
+}
 
+function MapFlyToShop({ selectedShop }) {
+  const map = useMap();
+  useEffect(() => {
+    if (selectedShop) {
+      map.flyTo([selectedShop.lat, selectedShop.lng], 18, { duration: 0.8 });
+    }
+  }, [selectedShop, map]);
+  return null;
+}
+
+function MarketMap({ shops, onSelectShop, selectedShopId }) {
   return (
     <div style={{
       margin: "0 20px 16px",
-      background: `linear-gradient(135deg, ${COLORS.primaryLight} 0%, ${COLORS.background} 50%, ${COLORS.surfaceWarm} 100%)`,
-      borderRadius: 28, position: "relative", height: 340, overflow: "hidden",
-      border: `2px solid ${COLORS.borderStrong}`, flexShrink: 0,
-      boxShadow: "inset 0 4px 15px rgba(0,0,0,0.08)",
+      borderRadius: 28,
+      overflow: "hidden",
+      height: 340,
+      flexShrink: 0,
+      border: `2px solid ${COLORS.borderStrong}`,
+      boxShadow: SHADOWS.lg,
+      position: "relative",
     }}>
-      {[...Array(5)].map((_, i) => (
-        <div key={`h${i}`} style={{ position: "absolute", left: 0, right: 0, top: `${(i + 1) * 20}%`, height: 1, background: "rgba(46,91,186,0.05)" }} />
-      ))}
-      {[...Array(5)].map((_, i) => (
-        <div key={`v${i}`} style={{ position: "absolute", top: 0, bottom: 0, left: `${(i + 1) * 20}%`, width: 1, background: "rgba(46,91,186,0.05)" }} />
-      ))}
+      <MapContainer
+        center={MAP_CENTER}
+        zoom={MAP_DEFAULT_ZOOM}
+        scrollWheelZoom={true}
+        style={{ height: "100%", width: "100%" }}
+        zoomControl={true}
+      >
+        <TileLayer
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        />
+        <MapFlyToShop selectedShop={selectedShopId ? shops.find(s => s.id === selectedShopId) : null} />
+        {shops.map((shop) => {
+          const userInQueue = shop.queue.some((c) => c.id === DEMO_USER_ID);
+          const qLen = shop.queue.length;
+          const color = userInQueue ? COLORS.accent : (shop.isOpen ? COLORS.primary : COLORS.textMuted);
+          const emoji = getCategoryEmoji(shop.category);
+          const isSelected = selectedShopId === shop.id;
+          const icon = createShopIcon(emoji, color, qLen, isSelected);
 
-      {shops.map((shop) => {
-        const isSelected = selectedPin === shop.id;
-        const userInQueue = shop.queue.some((c) => c.id === DEMO_USER_ID);
-        const qLen = shop.queue.length;
-
-        return (
-          <div
-            key={shop.id}
-            onClick={() => setSelectedPin(isSelected ? null : shop.id)}
-            style={{
-              position: "absolute", left: `${shop.position.x}%`, top: `${shop.position.y}%`,
-              transform: "translate(-50%, -100%)", cursor: "pointer",
-              zIndex: isSelected ? 10 : 2, transition: "all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)",
-            }}
-          >
-            {isSelected && <ShopQuickView shop={shop} onSelect={onSelectShop} onClose={() => setSelectedPin(null)} />}
-            <div style={{
-              background: userInQueue ? COLORS.accent : (shop.isOpen ? COLORS.primary : COLORS.textMuted),
-              borderRadius: "50% 50% 50% 0", transform: "rotate(-45deg)",
-              width: isSelected ? 52 : 44, height: isSelected ? 52 : 44,
-              display: "flex", alignItems: "center", justifyContent: "center",
-              boxShadow: isSelected ? "0 12px 28px rgba(0,0,0,0.25)" : "0 6px 15px rgba(0,0,0,0.15)",
-              transition: "all 0.2s", border: `3.5px solid ${COLORS.white}`,
-            }}>
-              <span style={{ transform: "rotate(45deg)", fontSize: isSelected ? 24 : 20 }}>
-                {getCategoryEmoji(shop.category)}
-              </span>
-            </div>
-            {qLen > 0 && !isSelected && (
-              <div style={{
-                position: "absolute", top: -6, right: -6, background: COLORS.accent, color: COLORS.white,
-                borderRadius: "50%", width: 22, height: 22, display: "flex", alignItems: "center", justifyContent: "center",
-                fontSize: 11, fontWeight: 900, border: `2.5px solid ${COLORS.white}`, transform: "rotate(45deg)",
-              }}>
-                {qLen}
-              </div>
-            )}
-          </div>
-        );
-      })}
-      
-      <div style={{ position: "absolute", bottom: 16, right: 16, background: "rgba(255,255,255,0.98)", borderRadius: 14, padding: "10px 16px", fontSize: 11, color: COLORS.textSecondary, boxShadow: "0 4px 12px rgba(0,0,0,0.08)", border: `1px solid ${COLORS.border}` }}>
+          return (
+            <Marker key={shop.id} position={[shop.lat, shop.lng]} icon={icon}>
+              <Popup maxWidth={260} minWidth={220} closeButton={true} autoClose={false}>
+                <div style={{
+                  fontFamily: "'DM Sans', sans-serif",
+                  padding: "4px 0",
+                  minWidth: 200,
+                }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10 }}>
+                    <div style={{
+                      width: 44, height: 44, borderRadius: 14,
+                      background: COLORS.primaryLight, display: "flex",
+                      alignItems: "center", justifyContent: "center", fontSize: 24,
+                    }}>
+                      {emoji}
+                    </div>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ fontWeight: 800, fontSize: 16, color: COLORS.text }}>{shop.name}</div>
+                      <div style={{ fontSize: 13, color: COLORS.textMuted }}>{shop.category}</div>
+                    </div>
+                  </div>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
+                    <span style={{
+                      display: "inline-flex", alignItems: "center", gap: 4,
+                      background: shop.isOpen ? COLORS.successLight : COLORS.errorLight,
+                      color: shop.isOpen ? COLORS.success : COLORS.error,
+                      borderRadius: 20, padding: "4px 10px",
+                      fontSize: 11, fontWeight: 700,
+                    }}>
+                      {shop.isOpen ? "● Open" : "● Closed"}
+                    </span>
+                    <span style={{ fontSize: 13, color: COLORS.textSecondary, fontWeight: 700 }}>
+                      {qLen} in line
+                    </span>
+                  </div>
+                  <button
+                    onClick={() => onSelectShop(shop.id)}
+                    style={{
+                      width: "100%", padding: "12px",
+                      background: `linear-gradient(135deg, ${COLORS.primary} 0%, ${COLORS.primaryDark} 100%)`,
+                      color: COLORS.white, border: "none", borderRadius: 14,
+                      fontWeight: 700, fontSize: 14, cursor: "pointer",
+                      fontFamily: "'DM Sans', sans-serif",
+                      boxShadow: `0 4px 12px ${COLORS.primary}40`,
+                    }}
+                  >
+                    View Details →
+                  </button>
+                </div>
+              </Popup>
+            </Marker>
+          );
+        })}
+      </MapContainer>
+      <div style={{
+        position: "absolute", bottom: 10, right: 10, background: "rgba(255,255,255,0.96)", borderRadius: 14,
+        padding: "10px 14px", fontSize: 11, color: COLORS.textSecondary,
+        boxShadow: "0 4px 12px rgba(0,0,0,0.1)", border: `1px solid ${COLORS.border}`, zIndex: 1000,
+      }}>
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
           <div style={{ width: 12, height: 12, borderRadius: "50%", background: COLORS.accent }} />
           <span style={{ fontWeight: 700 }}>Your active queues</span>
@@ -384,7 +464,7 @@ function MyQueues({ shops, onLeaveQueue, onGoToShop }) {
   );
 }
 
-function MapView({ shops, onSelectShop }) {
+function MapView({ shops, onSelectShop, selectedShopId }) {
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("All");
   const [showFilters, setShowFilters] = useState(false);
@@ -418,7 +498,9 @@ function MapView({ shops, onSelectShop }) {
         </div>
       )}
 
-      <MarketMap shops={filtered} onSelectShop={onSelectShop} />
+      <div style={{ position: "relative" }}>
+        <MarketMap shops={filtered} onSelectShop={onSelectShop} selectedShopId={selectedShopId} />
+      </div>
 
       <div style={{ padding: "0 20px", flex: 1 }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
@@ -723,7 +805,7 @@ export default function LineUpApp() {
   const renderContent = () => {
     if (mode === "owner") return <OwnerDashboard shop={ownerShop} onAdvance={advanceQueue} onRemove={(id) => cancelQueue(OWNER_SHOP_ID, id)} onToggleOpen={toggleQueueStatus} />;
     if (selectedShop) return <ShopDetail shop={selectedShop} onBack={() => setSelectedShopId(null)} onJoin={() => joinQueue(selectedShop.id)} onLeave={() => { cancelQueue(selectedShop.id, DEMO_USER_ID); setSelectedShopId(null); }} />;
-    if (activeTab === "map") return <MapView shops={shops} onSelectShop={setSelectedShopId} />;
+    if (activeTab === "map") return <MapView shops={shops} onSelectShop={setSelectedShopId} selectedShopId={selectedShopId} />;
     if (activeTab === "queues") return <MyQueues shops={shops} onLeaveQueue={(id) => cancelQueue(id, DEMO_USER_ID)} onGoToShop={(id) => { setSelectedShopId(id); setActiveTab("map"); }} />;
   };
 
