@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from "react";
-import { MapContainer, TileLayer, Marker, Popup, Polyline, useMap } from "react-leaflet";
+import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { COLORS, TYPOGRAPHY, SHADOWS, RADIUS, TRANSITIONS, createStyles } from "./styles/theme";
@@ -111,21 +111,28 @@ function useUserLocation() {
   return { location, loading };
 }
 
-async function fetchWalkingRoute(fromLat, fromLng, toLat, toLng) {
-  try {
-    const url = `https://router.project-osrm.org/route/v1/foot/${fromLng},${fromLat};${toLng},${toLat}?overview=full&geometries=geojson`;
-    const res = await fetch(url);
-    if (!res.ok) return null;
-    const data = await res.json();
-    if (!data.routes || data.routes.length === 0) return null;
-    const route = data.routes[0];
-    const coords = route.geometry.coordinates.map(([lng, lat]) => [lat, lng]);
-    const distanceKm = route.distance / 1000;
-    const durationMin = Math.round(route.duration / 60);
-    return { coords, distanceKm, durationMin };
-  } catch {
-    return null;
-  }
+const TRANSPORT_MODES = {
+  foot: { id: "foot", emoji: "🚶", label: "Walking", color: COLORS.primary, colorLight: "#FEF3C7", gmMode: "walking", appleDirflg: "w" },
+  car: { id: "car", emoji: "🚗", label: "Driving", color: "#3B82F6", colorLight: "#DBEAFE", gmMode: "driving", appleDirflg: "d" },
+  bike: { id: "bike", emoji: "🚲", label: "Cycling", color: "#10B981", colorLight: "#D1FAE5", gmMode: "bicycling", appleDirflg: "w" },
+  transit: { id: "transit", emoji: "🚌", label: "Public Transit", color: "#8B5CF6", colorLight: "#EDE9FE", gmMode: "transit", appleDirflg: "r" },
+};
+
+const isIOS = typeof navigator !== "undefined" && /iPad|iPhone|iPod/.test(navigator.userAgent);
+
+function getGoogleMapsUrl(fromLat, fromLng, toLat, toLng, mode) {
+  const m = TRANSPORT_MODES[mode];
+  return `https://www.google.com/maps/dir/?api=1&origin=${fromLat},${fromLng}&destination=${toLat},${toLng}&travelmode=${m.gmMode}`;
+}
+
+function getAppleMapsUrl(fromLat, fromLng, toLat, toLng, mode) {
+  const m = TRANSPORT_MODES[mode];
+  return `http://maps.apple.com/?saddr=${fromLat},${fromLng}&daddr=${toLat},${toLng}&dirflg=${m.appleDirflg}`;
+}
+
+function openNavigation(fromLat, fromLng, toLat, toLng, mode, preferApple) {
+  const url = preferApple ? getAppleMapsUrl(fromLat, fromLng, toLat, toLng, mode) : getGoogleMapsUrl(fromLat, fromLng, toLat, toLng, mode);
+  window.open(url, "_blank");
 }
 
 const userLocationIcon = L.divIcon({
@@ -138,6 +145,93 @@ const userLocationIcon = L.divIcon({
   iconSize: [20, 20],
   iconAnchor: [10, 10],
 });
+
+function TransportModeSelector({ shopName, shopLat, shopLng, userLocation, onCancel }) {
+  const [selectedMode, setSelectedMode] = useState(null);
+
+  if (selectedMode) {
+    const m = TRANSPORT_MODES[selectedMode];
+    const gmUrl = getGoogleMapsUrl(userLocation.lat, userLocation.lng, shopLat, shopLng, selectedMode);
+    const appleUrl = getAppleMapsUrl(userLocation.lat, userLocation.lng, shopLat, shopLng, selectedMode);
+    return (
+      <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", zIndex: 2000, display: "flex", alignItems: "flex-end", justifyContent: "center" }} onClick={onCancel}>
+        <div style={{ background: COLORS.white, borderRadius: "28px 28px 0 0", width: "100%", maxWidth: 430, padding: "24px 20px 32px" }} onClick={(e) => e.stopPropagation()}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
+            <div>
+              <div style={{ fontSize: 20, fontWeight: 900, color: m.color }}>{m.emoji} {m.label}</div>
+              <div style={{ fontSize: 15, color: COLORS.textSecondary, marginTop: 2 }}>to {shopName}</div>
+            </div>
+            <button onClick={onCancel} style={{ background: COLORS.background, border: "none", borderRadius: "50%", width: 36, height: 36, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", fontSize: 18, color: COLORS.textSecondary }}>✕</button>
+          </div>
+          <div style={{ fontSize: 13, fontWeight: 800, color: COLORS.textMuted, letterSpacing: 1, marginBottom: 14, textTransform: "uppercase" }}>Open in</div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+            <a href={gmUrl} target="_blank" rel="noopener noreferrer" style={{
+              display: "flex", alignItems: "center", gap: 14, padding: "16px 18px",
+              background: "#E8F5E9", border: "2px solid #34A85340", borderRadius: 18,
+              textDecoration: "none", color: "inherit",
+            }}>
+              <div style={{ fontSize: 28, width: 44, height: 44, borderRadius: 14, background: COLORS.white, display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 2px 8px #34A85320" }}>🗺️</div>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontWeight: 800, fontSize: 16, color: "#34A853" }}>Google Maps</div>
+                <div style={{ fontSize: 12, color: COLORS.textSecondary, marginTop: 2 }}>Turn-by-turn navigation</div>
+              </div>
+              <div style={{ color: "#34A853", fontWeight: 800, fontSize: 18 }}>→</div>
+            </a>
+            {isIOS && (
+              <a href={appleUrl} target="_blank" rel="noopener noreferrer" style={{
+                display: "flex", alignItems: "center", gap: 14, padding: "16px 18px",
+                background: "#EFF6FF", border: "2px solid #007AFF40", borderRadius: 18,
+                textDecoration: "none", color: "inherit",
+              }}>
+                <div style={{ fontSize: 28, width: 44, height: 44, borderRadius: 14, background: COLORS.white, display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 2px 8px #007AFF20" }}>🍎</div>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontWeight: 800, fontSize: 16, color: "#007AFF" }}>Apple Maps</div>
+                  <div style={{ fontSize: 12, color: COLORS.textSecondary, marginTop: 2 }}>Native iOS navigation</div>
+                </div>
+                <div style={{ color: "#007AFF", fontWeight: 800, fontSize: 18 }}>→</div>
+              </a>
+            )}
+          </div>
+          <button onClick={() => setSelectedMode(null)} style={{
+            width: "100%", marginTop: 16, padding: "12px", background: COLORS.background,
+            border: "none", borderRadius: 14, fontWeight: 700, fontSize: 14, cursor: "pointer",
+            color: COLORS.textSecondary, fontFamily: "inherit",
+          }}>← Choose another mode</button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", zIndex: 2000, display: "flex", alignItems: "flex-end", justifyContent: "center" }} onClick={onCancel}>
+      <div style={{ background: COLORS.white, borderRadius: "28px 28px 0 0", width: "100%", maxWidth: 430, padding: "24px 20px 32px" }} onClick={(e) => e.stopPropagation()}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
+          <div>
+            <div style={{ fontSize: 20, fontWeight: 900, color: COLORS.text }}>Navigate to</div>
+            <div style={{ fontSize: 15, color: COLORS.textSecondary, marginTop: 2 }}>{shopName}</div>
+          </div>
+          <button onClick={onCancel} style={{ background: COLORS.background, border: "none", borderRadius: "50%", width: 36, height: 36, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", fontSize: 18, color: COLORS.textSecondary }}>✕</button>
+        </div>
+        <div style={{ fontSize: 13, fontWeight: 800, color: COLORS.textMuted, letterSpacing: 1, marginBottom: 14, textTransform: "uppercase" }}>Choose transport</div>
+        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+          {Object.values(TRANSPORT_MODES).map((m) => (
+            <button key={m.id} onClick={() => setSelectedMode(m.id)} style={{
+              display: "flex", alignItems: "center", gap: 16, padding: "16px 18px",
+              background: m.colorLight, border: `2px solid ${m.color}30`, borderRadius: 18,
+              cursor: "pointer", transition: "all 0.2s", fontFamily: "inherit",
+            }}>
+              <div style={{ fontSize: 28, width: 44, height: 44, borderRadius: 14, background: COLORS.white, display: "flex", alignItems: "center", justifyContent: "center", boxShadow: `0 2px 8px ${m.color}20` }}>{m.emoji}</div>
+              <div style={{ flex: 1, textAlign: "left" }}>
+                <div style={{ fontWeight: 800, fontSize: 16, color: m.color }}>{m.label}</div>
+              </div>
+              <div style={{ color: m.color, fontWeight: 800, fontSize: 18 }}>→</div>
+            </button>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
 
 // ─── LocalStorage Helpers ───────────────────────────────────────────────────────
 const STORAGE_KEY = "lineup_app_state";
@@ -370,19 +464,7 @@ function MapFlyToShop({ selectedShop }) {
   return null;
 }
 
-function MapFitRoute({ routeCoords, userLocation, shopLocation }) {
-  const map = useMap();
-  useEffect(() => {
-    if (routeCoords && routeCoords.length > 0) {
-      const allPoints = [...routeCoords, [userLocation.lat, userLocation.lng]];
-      const bounds = L.latLngBounds(allPoints.map(([lat, lng]) => [lat, lng]));
-      map.fitBounds(bounds, { padding: [60, 60], maxZoom: 17 });
-    }
-  }, [routeCoords, userLocation, shopLocation, map]);
-  return null;
-}
-
-function MarketMap({ shops, onSelectShop, selectedShopId, userLocation, routeData, onNavigate, onClearRoute }) {
+function MarketMap({ shops, onSelectShop, selectedShopId, userLocation, onNavigate }) {
   return (
     <div style={{
       margin: "0 20px 16px",
@@ -406,15 +488,6 @@ function MarketMap({ shops, onSelectShop, selectedShopId, userLocation, routeDat
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
         <MapFlyToShop selectedShop={selectedShopId ? shops.find(s => s.id === selectedShopId) : null} />
-        {routeData && routeData.coords.length > 0 && (
-          <MapFitRoute routeCoords={routeData.coords} userLocation={userLocation} shopLocation={null} />
-        )}
-        {routeData && routeData.coords.length > 0 && (
-          <Polyline
-            positions={routeData.coords}
-            pathOptions={{ color: COLORS.primary, weight: 5, opacity: 0.8, dashArray: null }}
-          />
-        )}
         {userLocation && (
           <Marker position={[userLocation.lat, userLocation.lng]} icon={userLocationIcon} />
         )}
@@ -494,37 +567,6 @@ function MarketMap({ shops, onSelectShop, selectedShopId, userLocation, routeDat
           );
         })}
       </MapContainer>
-      {routeData && (
-        <div style={{
-          position: "absolute", top: 10, left: 10, right: 10,
-          background: "rgba(255,255,255,0.96)", borderRadius: 16,
-          padding: "12px 16px", boxShadow: SHADOWS.lg,
-          border: `2px solid ${COLORS.primary}`,
-          zIndex: 1000, display: "flex", alignItems: "center", justifyContent: "space-between",
-        }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-            <span style={{ fontSize: 20 }}>🚶</span>
-            <div>
-              <div style={{ fontWeight: 800, fontSize: 14, color: COLORS.text }}>
-                {routeData.distanceKm < 1 ? `${Math.round(routeData.distanceKm * 1000)} m` : `${routeData.distanceKm.toFixed(1)} km`}
-              </div>
-              <div style={{ fontSize: 12, color: COLORS.textSecondary, fontWeight: 600 }}>
-                ~{routeData.durationMin} min walk
-              </div>
-            </div>
-          </div>
-          <button
-            onClick={onClearRoute}
-            style={{
-              background: COLORS.errorLight, color: COLORS.error, border: "none",
-              borderRadius: 12, padding: "6px 14px", fontWeight: 800, fontSize: 12,
-              cursor: "pointer", fontFamily: "'DM Sans', sans-serif",
-            }}
-          >
-            ✕ Clear
-          </button>
-        </div>
-      )}
       <div style={{
         position: "absolute", bottom: 10, right: 10, background: "rgba(255,255,255,0.96)", borderRadius: 14,
         padding: "10px 14px", fontSize: 11, color: COLORS.textSecondary,
@@ -593,7 +635,7 @@ function MyQueues({ shops, onLeaveQueue, onGoToShop }) {
   );
 }
 
-function MapView({ shops, onSelectShop, selectedShopId, userLocation, routeData, onNavigate, onClearRoute }) {
+function MapView({ shops, onSelectShop, selectedShopId, userLocation, onNavigate }) {
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("All");
   const [showFilters, setShowFilters] = useState(false);
@@ -628,7 +670,7 @@ function MapView({ shops, onSelectShop, selectedShopId, userLocation, routeData,
       )}
 
       <div style={{ position: "relative" }}>
-        <MarketMap shops={filtered} onSelectShop={onSelectShop} selectedShopId={selectedShopId} userLocation={userLocation} routeData={routeData} onNavigate={onNavigate} onClearRoute={onClearRoute} />
+        <MarketMap shops={filtered} onSelectShop={onSelectShop} selectedShopId={selectedShopId} userLocation={userLocation} onNavigate={onNavigate} />
       </div>
 
       <div style={{ padding: "0 20px", flex: 1 }}>
@@ -666,7 +708,7 @@ function MapView({ shops, onSelectShop, selectedShopId, userLocation, routeData,
   );
 }
 
-function ShopDetail({ shop, onBack, onJoin, onLeave, onNavigate, routeData }) {
+function ShopDetail({ shop, onBack, onJoin, onLeave, onNavigate }) {
   const userEntry = getUserQueueEntry(shop);
   const qLen = shop.queue.length;
 
@@ -691,12 +733,7 @@ function ShopDetail({ shop, onBack, onJoin, onLeave, onNavigate, routeData }) {
             alignItems: "center", justifyContent: "center", gap: 10, padding: "14px",
           }}
         >
-          📍 Show walking route
-          {routeData && (
-            <span style={{ fontSize: 13, fontWeight: 700, color: COLORS.secondary }}>
-              ({routeData.distanceKm < 1 ? `${Math.round(routeData.distanceKm * 1000)}m` : `${routeData.distanceKm.toFixed(1)}km`} · {routeData.durationMin} min)
-            </span>
-          )}
+          📍 Navigate to shop
         </button>
         {userEntry && (
           <div style={{ marginBottom: 24 }}>
@@ -840,31 +877,20 @@ export default function LineUpApp() {
   });
   const [activeTab, setActiveTab] = useState(savedState?.activeTab ?? "map");
   const [selectedShopId, setSelectedShopId] = useState(null);
-  const [toast, setToast] = useState({ show: false, message: "", type: "default", icon: null });
-  const [routeData, setRouteData] = useState(null);
-  const [navigatingTo, setNavigatingTo] = useState(null);
+const [toast, setToast] = useState({ show: false, message: "", type: "default", icon: null });
+  const [showTransportPicker, setShowTransportPicker] = useState(null);
 
   const { location: userLocation } = useUserLocation();
 
-  const handleNavigate = useCallback(async (shopId) => {
+  const handleNavigateRequest = useCallback((shopId) => {
     const shop = shops.find((s) => s.id === shopId);
-    if (!shop || !userLocation) return;
-    setNavigatingTo(shopId);
-    setRouteData(null);
-    const route = await fetchWalkingRoute(userLocation.lat, userLocation.lng, shop.lat, shop.lng);
-    if (route) {
-      setRouteData({ ...route, shopId });
-      showToast(`${route.distanceKm < 1 ? `${Math.round(route.distanceKm * 1000)}m` : `${route.distanceKm.toFixed(1)}km`} walk · ${route.durationMin} min`, "success", "📍");
-    } else {
-      showToast("Could not calculate route", "warning", "⚠️");
-      setNavigatingTo(null);
+    if (!shop) return;
+    if (!userLocation) {
+      showToast("Location not available yet", "warning", "⚠️");
+      return;
     }
+    setShowTransportPicker(shop);
   }, [shops, userLocation]);
-
-  const clearRoute = useCallback(() => {
-    setRouteData(null);
-    setNavigatingTo(null);
-  }, []);
 
   useEffect(() => {
     const stateToSave = { mode, shops, activeTab };
@@ -988,8 +1014,8 @@ export default function LineUpApp() {
 
   const renderContent = () => {
     if (mode === "owner") return <OwnerDashboard shop={ownerShop} onAdvance={advanceQueue} onRemove={(id) => cancelQueue(OWNER_SHOP_ID, id)} onToggleOpen={toggleQueueStatus} />;
-    if (selectedShop) return <ShopDetail shop={selectedShop} onBack={() => setSelectedShopId(null)} onJoin={() => joinQueue(selectedShop.id)} onLeave={() => { cancelQueue(selectedShop.id, DEMO_USER_ID); setSelectedShopId(null); }} onNavigate={handleNavigate} routeData={routeData && routeData.shopId === selectedShop.id ? routeData : null} />;
-    if (activeTab === "map") return <MapView shops={shops} onSelectShop={setSelectedShopId} selectedShopId={selectedShopId} userLocation={userLocation} routeData={routeData} onNavigate={handleNavigate} onClearRoute={clearRoute} />;
+    if (selectedShop) return <ShopDetail shop={selectedShop} onBack={() => setSelectedShopId(null)} onJoin={() => joinQueue(selectedShop.id)} onLeave={() => { cancelQueue(selectedShop.id, DEMO_USER_ID); setSelectedShopId(null); }} onNavigate={handleNavigateRequest} />;
+    if (activeTab === "map") return <MapView shops={shops} onSelectShop={setSelectedShopId} selectedShopId={selectedShopId} userLocation={userLocation} onNavigate={handleNavigateRequest} />;
     if (activeTab === "queues") return <MyQueues shops={shops} onLeaveQueue={(id) => cancelQueue(id, DEMO_USER_ID)} onGoToShop={(id) => { setSelectedShopId(id); setActiveTab("map"); }} />;
   };
 
@@ -1035,6 +1061,15 @@ export default function LineUpApp() {
         </div>
       )}
       <Toast message={toast.message} show={toast.show} type={toast.type} icon={toast.icon} />
+      {showTransportPicker && (
+        <TransportModeSelector
+          shopName={showTransportPicker.name}
+          shopLat={showTransportPicker.lat}
+          shopLng={showTransportPicker.lng}
+          userLocation={userLocation}
+          onCancel={() => setShowTransportPicker(null)}
+        />
+      )}
     </div>
   );
 }
