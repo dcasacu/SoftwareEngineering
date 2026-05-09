@@ -1,68 +1,114 @@
 import { getUserQueueEntry, getWaitTime } from "../../utils/queueHelpers";
-import { COLORS, createStyles } from "../../styles/theme";
+import { COLORS, createStyles, RADIUS, TYPOGRAPHY, SHADOWS, TRANSITIONS } from "../../styles/theme";
 import PositionBadge from "../common/PositionBadge";
 
 const s = createStyles();
 
-/**
- * Shop Detail View
- * Full page detail of a specific shop with queue information
- * Customers can join or leave queues from this view
- */
 export default function ShopDetail({ shop, onBack, onJoin, onLeave, userId }) {
   const userEntry = getUserQueueEntry(shop, userId);
   const qLen = shop.queue.length;
 
   return (
     <div>
-      {/* Hero */}
       <div style={{
-        background: `linear-gradient(135deg, ${COLORS.blue} 0%, ${COLORS.blueDark} 100%)`,
+        background: `linear-gradient(135deg, ${COLORS.primary} 0%, ${COLORS.primaryDark} 100%)`,
         padding: "24px 20px 32px",
       }}>
         <button
+          type="button"
           onClick={onBack}
-          style={{ background: "rgba(255,255,255,0.2)", border: "none", borderRadius: 10, padding: "6px 12px", color: COLORS.white, cursor: "pointer", fontFamily: "inherit", fontWeight: 700, marginBottom: 16 }}
+          aria-label="Volver atrás"
+          style={{
+            background: "rgba(255,255,255,0.2)",
+            border: "none",
+            borderRadius: RADIUS.md,
+            padding: "6px 12px",
+            color: COLORS.white,
+            cursor: "pointer",
+            fontFamily: TYPOGRAPHY.fontBody,
+            fontWeight: TYPOGRAPHY.weights.bold,
+            marginBottom: 16,
+          }}
         >
-          ← Back
+          ← Volver
         </button>
-        <div style={{ fontSize: 40, marginBottom: 8 }}>🥕</div>
-        <div style={{ fontSize: 24, fontWeight: 900, color: COLORS.white }}>{shop.name}</div>
-        <div style={{ fontSize: 14, color: "rgba(255,255,255,0.7)", marginTop: 4 }}>
+        <div style={{ fontSize: 40, marginBottom: 8 }} aria-hidden="true">🥕</div>
+        <h2 style={{
+          fontSize: 24,
+          fontWeight: TYPOGRAPHY.weights.extrabold,
+          color: COLORS.white,
+          margin: "0 0 4px 0",
+          fontFamily: TYPOGRAPHY.fontDisplay,
+        }}>
+          {shop.name}
+        </h2>
+        <p style={{
+          fontSize: 14,
+          color: "rgba(255,255,255,0.7)",
+          margin: 0,
+        }}>
           {shop.category} · {shop.description}
-        </div>
+        </p>
         <div style={{ display: "flex", gap: 8, marginTop: 12 }}>
-          <span style={s.pill(
-            shop.isOpen ? COLORS.green : COLORS.red,
-            shop.isOpen ? "rgba(34,197,94,0.2)" : "rgba(239,68,68,0.2)"
-          )}>
-            {shop.isOpen ? "● Open" : "● Closed"}
+          <span style={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: 4,
+            background: shop.isOpen ? `${COLORS.success}33` : `${COLORS.error}33`,
+            color: shop.isOpen ? COLORS.white : COLORS.white,
+            borderRadius: RADIUS.full,
+            padding: "4px 10px",
+            fontSize: TYPOGRAPHY.sizes.xs,
+            fontWeight: TYPOGRAPHY.weights.bold,
+          }}>
+            {shop.isOpen ? "● Abierto" : "● Cerrado"}
           </span>
-          <span style={s.pill(COLORS.white, "rgba(255,255,255,0.2)")}>
-            ~{shop.avgServiceTime} min/customer
+          <span style={{
+            display: "inline-flex",
+            alignItems: "center",
+            background: "rgba(255,255,255,0.2)",
+            color: COLORS.white,
+            borderRadius: RADIUS.full,
+            padding: "4px 10px",
+            fontSize: TYPOGRAPHY.sizes.xs,
+            fontWeight: TYPOGRAPHY.weights.bold,
+          }}>
+            ~{shop.avgServiceTime} min/cliente
           </span>
         </div>
       </div>
 
       <div style={{ padding: 20 }}>
-        {/* User position */}
         {userEntry && (
           <div style={{ marginBottom: 16 }}>
-            <div style={{ fontSize: 14, fontWeight: 700, color: COLORS.gray600, marginBottom: 8 }}>
-              Your Queue Status
-            </div>
+            <h3 style={{
+              fontSize: TYPOGRAPHY.sizes.sm,
+              fontWeight: TYPOGRAPHY.weights.bold,
+              color: COLORS.textSecondary,
+              marginBottom: 8,
+            }}>
+              Tu Estado en la Cola
+            </h3>
             <PositionBadge position={userEntry.position} total={qLen} avgServiceTime={shop.avgServiceTime} />
           </div>
         )}
 
-        {/* Queue info */}
         <div style={s.card}>
-          <div style={{ fontWeight: 800, color: COLORS.gray900, marginBottom: 12 }}>
-            Current Queue
-          </div>
+          <h3 style={{
+            fontWeight: TYPOGRAPHY.weights.extrabold,
+            color: COLORS.text,
+            marginBottom: 12,
+          }}>
+            Cola Actual
+          </h3>
           {qLen === 0 ? (
-            <div style={{ color: COLORS.gray400, fontSize: 14, textAlign: "center", padding: "16px 0" }}>
-              No one in queue — join now!
+            <div style={{
+              color: COLORS.textMuted,
+              fontSize: TYPOGRAPHY.sizes.sm,
+              textAlign: "center",
+              padding: "16px 0"
+            }}>
+              Nadie en cola — ¡únete ahora!
             </div>
           ) : (
             shop.queue.map((c, i) => (
@@ -72,52 +118,90 @@ export default function ShopDetail({ shop, onBack, onJoin, onLeave, userId }) {
                   display: "flex",
                   alignItems: "center",
                   padding: "10px 0",
-                  borderBottom: i < qLen - 1 ? `1px solid ${COLORS.gray100}` : "none",
-                  background: c.id === userId ? COLORS.orangeLight : "transparent",
-                  borderRadius: c.id === userId ? 8 : 0,
-                  paddingLeft: c.id === userId ? 8 : 0,
-                  paddingRight: c.id === userId ? 8 : 0,
+                  borderBottom: i < qLen - 1 ? `1px solid ${COLORS.border}` : "none",
+                  background: c.id === userId ? COLORS.accentLight : "transparent",
+                  borderRadius: c.id === userId ? RADIUS.md : 0,
+                  paddingLeft: c.id === userId ? RADIUS.sm : 0,
+                  paddingRight: c.id === userId ? RADIUS.sm : 0,
+                  marginLeft: c.id === userId ? -8 : 0,
+                  marginRight: c.id === userId ? -8 : 0,
                 }}
               >
                 <div style={{
-                  width: 32, height: 32, borderRadius: "50%",
-                  background: i === 0 ? COLORS.blue : COLORS.gray100,
-                  color: i === 0 ? COLORS.white : COLORS.gray600,
-                  display: "flex", alignItems: "center", justifyContent: "center",
-                  fontWeight: 900, fontSize: 13, marginRight: 12, flexShrink: 0,
+                  width: 32,
+                  height: 32,
+                  borderRadius: RADIUS.full,
+                  background: i === 0 ? COLORS.primary : COLORS.border,
+                  color: i === 0 ? COLORS.white : COLORS.textSecondary,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  fontWeight: TYPOGRAPHY.weights.bold,
+                  fontSize: 13,
+                  marginRight: 12,
+                  flexShrink: 0,
                 }}>
                   {c.position}
                 </div>
                 <div style={{ flex: 1 }}>
-                  <div style={{ fontWeight: 700, fontSize: 14 }}>
-                    {c.id === userId ? "You 👋" : c.name}
+                  <div style={{
+                    fontWeight: TYPOGRAPHY.weights.bold,
+                    fontSize: TYPOGRAPHY.sizes.sm,
+                  }}>
+                    {c.id === userId ? "Tú 👋" : c.name}
                   </div>
-                  <div style={{ fontSize: 12, color: COLORS.gray400 }}>
-                    ~{getWaitTime(shop, c.position)} min wait
+                  <div style={{
+                    fontSize: TYPOGRAPHY.sizes.xs,
+                    color: COLORS.textMuted
+                  }}>
+                    ~{getWaitTime(shop, c.position)} min espera
                   </div>
                 </div>
-                {i === 0 && <span style={s.pill(COLORS.orange, COLORS.orangeLight)}>Next up</span>}
+                {i === 0 && (
+                  <span style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    background: COLORS.accentLight,
+                    color: COLORS.accent,
+                    borderRadius: RADIUS.full,
+                    padding: "4px 10px",
+                    fontSize: TYPOGRAPHY.sizes.xs,
+                    fontWeight: TYPOGRAPHY.weights.bold,
+                  }}>
+                    Siguiente
+                  </span>
+                )}
               </div>
             ))
           )}
         </div>
 
-        {/* Action */}
         {shop.isOpen ? (
           userEntry ? (
-            <button style={s.btnDanger} onClick={onLeave}>
-              Leave Queue
+            <button
+              type="button"
+              style={s.btnDanger}
+              onClick={onLeave}
+            >
+              Salir de la Cola
             </button>
           ) : (
-            <button style={s.btnOrange()} onClick={onJoin}>
-              Join Queue →
+            <button
+              type="button"
+              style={s.btnAccent()}
+              onClick={onJoin}
+            >
+              Unirse a la Cola →
             </button>
           )
         ) : (
           <div style={{
-            ...s.card, textAlign: "center", color: COLORS.gray400, padding: "16px",
+            ...s.card,
+            textAlign: "center",
+            color: COLORS.textMuted,
+            padding: "16px",
           }}>
-            This shop is currently closed
+            Esta tienda está actualmente cerrada
           </div>
         )}
       </div>

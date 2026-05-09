@@ -1,33 +1,66 @@
 import { getWaitTime } from "../../utils/queueHelpers";
-import { createStyles, COLORS } from "../../styles/theme";
+import { createStyles, COLORS, RADIUS, TYPOGRAPHY } from "../../styles/theme";
 
 const s = createStyles();
 
-/**
- * Position Badge Component
- * Displays current queue position and estimated waiting time
- * Real-time updates as queue progresses
- */
 export default function PositionBadge({ position, total, avgServiceTime }) {
   return (
     <div style={{
-      background: COLORS.blueLight, borderRadius: 16, padding: "16px 20px",
-      display: "flex", alignItems: "center", justifyContent: "space-between",
-      border: `2px solid ${COLORS.blue}22`,
+      background: COLORS.primaryLight,
+      borderRadius: RADIUS.lg,
+      padding: "16px 20px",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "space-between",
+      border: `2px solid ${COLORS.primary}22`,
     }}>
       <div>
-        <div style={{ fontSize: 13, color: COLORS.gray600, fontWeight: 600 }}>Your position</div>
-        <div style={{ fontSize: 38, fontWeight: 900, color: COLORS.blue, lineHeight: 1 }}>
+        <div style={{
+          fontSize: TYPOGRAPHY.sizes.sm,
+          color: COLORS.textSecondary,
+          fontWeight: TYPOGRAPHY.weights.semibold
+        }}>
+          Tu posición
+        </div>
+        <div style={{
+          fontSize: 38,
+          fontWeight: TYPOGRAPHY.weights.extrabold,
+          color: COLORS.primary,
+          lineHeight: 1
+        }}>
           #{position}
         </div>
-        <div style={{ fontSize: 12, color: COLORS.gray400, marginTop: 2 }}>of {total} in queue</div>
+        <div style={{
+          fontSize: 12,
+          color: COLORS.textMuted,
+          marginTop: 2
+        }}>
+          de {total} en cola
+        </div>
       </div>
       <div style={{ textAlign: "right" }}>
-        <div style={{ fontSize: 13, color: COLORS.gray600, fontWeight: 600 }}>Est. wait</div>
-        <div style={{ fontSize: 28, fontWeight: 900, color: COLORS.orange, lineHeight: 1 }}>
+        <div style={{
+          fontSize: TYPOGRAPHY.sizes.sm,
+          color: COLORS.textSecondary,
+          fontWeight: TYPOGRAPHY.weights.semibold
+        }}>
+          Esp. espera
+        </div>
+        <div style={{
+          fontSize: 28,
+          fontWeight: TYPOGRAPHY.weights.extrabold,
+          color: COLORS.accent,
+          lineHeight: 1
+        }}>
           {getWaitTime({ avgServiceTime }, position)}m
         </div>
-        <div style={{ fontSize: 12, color: COLORS.gray400, marginTop: 2 }}>minutes</div>
+        <div style={{
+          fontSize: 12,
+          color: COLORS.textMuted,
+          marginTop: 2
+        }}>
+          minutos
+        </div>
       </div>
     </div>
   );

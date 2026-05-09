@@ -1,87 +1,144 @@
 import { getWaitTime } from "../../utils/queueHelpers";
-import { COLORS, createStyles } from "../../styles/theme";
+import { COLORS, createStyles, RADIUS, TYPOGRAPHY, TRANSITIONS, SHADOWS } from "../../styles/theme";
 
 const s = createStyles();
 
-/**
- * Owner Dashboard
- * Allows shop owners to manage their queue, call next customers, and control open/close status
- * Real-time view of who's being served and who's waiting
- */
 export default function OwnerDashboard({ shop, onAdvance, onRemove, onToggleOpen }) {
   const qLen = shop.queue.length;
 
   return (
     <div style={{ padding: 20 }}>
-      {/* Shop Header */}
-      <div style={{ ...s.card, background: COLORS.blue, color: COLORS.white, marginBottom: 16 }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+      <div style={{
+        ...s.card,
+        background: `linear-gradient(135deg, ${COLORS.primary} 0%, ${COLORS.primaryDark} 100%)`,
+        color: COLORS.white,
+        marginBottom: 16,
+      }}>
+        <div style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "flex-start"
+        }}>
           <div>
-            <div style={{ fontSize: 20, fontWeight: 900 }}>{shop.name}</div>
-            <div style={{ fontSize: 14, opacity: 0.8, marginTop: 4 }}>{shop.category}</div>
+            <h2 style={{
+              fontSize: 20,
+              fontWeight: TYPOGRAPHY.weights.extrabold,
+              margin: 0,
+            }}>
+              {shop.name}
+            </h2>
+            <p style={{
+              fontSize: 14,
+              opacity: 0.8,
+              marginTop: 4,
+            }}>
+              {shop.category}
+            </p>
           </div>
-          <div>
-            <span style={s.pill(
-              shop.isOpen ? COLORS.green : COLORS.red,
-              shop.isOpen ? "rgba(34,197,94,0.2)" : "rgba(239,68,68,0.2)"
-            )}>
-              {shop.isOpen ? "● Open" : "● Closed"}
-            </span>
-          </div>
+          <span style={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: 4,
+            background: shop.isOpen ? `${COLORS.success}33` : `${COLORS.error}33`,
+            color: shop.isOpen ? COLORS.white : COLORS.white,
+            borderRadius: RADIUS.full,
+            padding: "4px 10px",
+            fontSize: TYPOGRAPHY.sizes.xs,
+            fontWeight: TYPOGRAPHY.weights.bold,
+          }}>
+            {shop.isOpen ? "● Abierto" : "● Cerrado"}
+          </span>
         </div>
       </div>
 
-      {/* Toggle Queue Status */}
       <button
+        type="button"
         style={{
-          ...(shop.isOpen ? s.btnDanger : s.btnOrange()),
+          ...(shop.isOpen ? s.btnDanger : s.btnAccent()),
           width: "100%",
           marginBottom: 20,
-          fontSize: 15,
+          fontSize: TYPOGRAPHY.sizes.base,
           padding: "13px 20px",
         }}
         onClick={onToggleOpen}
+        aria-pressed={shop.isOpen}
       >
-        {shop.isOpen ? "🔒 Close Queue" : "🟢 Open Queue"}
+        {shop.isOpen ? "🔒 Cerrar Cola" : "🟢 Abrir Cola"}
       </button>
 
-      {/* Queue management */}
-      <div style={s.sectionTitle}>
-        Manage Queue
-      </div>
+      <h2 style={s.sectionTitle}>
+        Gestionar Cola
+      </h2>
 
       {qLen === 0 ? (
-        <div style={{ ...s.card, textAlign: "center", color: COLORS.gray400, padding: "32px 16px" }}>
-          <div style={{ fontSize: 40, marginBottom: 8 }}>✅</div>
-          <div style={{ fontWeight: 700, color: COLORS.gray600 }}>Queue is empty</div>
-          <div style={{ fontSize: 13, marginTop: 4 }}>No customers waiting right now.</div>
+        <div style={{
+          ...s.card,
+          textAlign: "center",
+          padding: "32px 16px",
+        }}>
+          <div style={{ fontSize: 40, marginBottom: 8 }} aria-hidden="true">✅</div>
+          <div style={{
+            fontWeight: TYPOGRAPHY.weights.bold,
+            color: COLORS.text
+          }}>
+            La cola está vacía
+          </div>
+          <div style={{
+            fontSize: TYPOGRAPHY.sizes.sm,
+            marginTop: 4,
+            color: COLORS.textMuted
+          }}>
+            No hay clientes esperando ahora.
+          </div>
         </div>
       ) : (
         <>
-          {/* Current customer highlight */}
           <div style={{
             ...s.card,
-            background: `linear-gradient(135deg, ${COLORS.orange}, ${COLORS.orangeLight})`,
-            border: `2px solid ${COLORS.orange}`,
+            background: `linear-gradient(135deg, ${COLORS.accent} 0%, ${COLORS.warning} 100%)`,
+            border: `2px solid ${COLORS.accent}`,
             marginBottom: 12,
           }}>
-            <div style={{ fontSize: 12, fontWeight: 700, color: COLORS.orange, marginBottom: 4 }}>
-              NOW SERVING
-            </div>
-            <div style={{ fontSize: 20, fontWeight: 900, color: COLORS.gray900 }}>
+            <p style={{
+              fontSize: TYPOGRAPHY.sizes.xs,
+              fontWeight: TYPOGRAPHY.weights.bold,
+              color: COLORS.white,
+              marginBottom: 4,
+            }}>
+              SIRVIENDO AHORA
+            </p>
+            <p style={{
+              fontSize: 20,
+              fontWeight: TYPOGRAPHY.weights.extrabold,
+              color: COLORS.white,
+              margin: 0,
+            }}>
               {shop.queue[0].name}
-            </div>
+            </p>
             <div style={{ display: "flex", gap: 8, marginTop: 12 }}>
-              <button style={{ ...s.btnOrange(true), flex: 1, fontSize: 14, padding: "10px" }} onClick={onAdvance}>
-                ✓ Done — Next
+              <button
+                type="button"
+                style={{
+                  ...s.btnAccent(true),
+                  flex: 1,
+                  fontSize: 14,
+                  padding: "10px",
+                }}
+                onClick={onAdvance}
+              >
+                ✓ Hecho — Siguiente
               </button>
-              <button style={s.btnDanger} onClick={() => onRemove(shop.queue[0].id)}>
-                Remove
+              <button
+                type="button"
+                style={s.btnDanger}
+                onClick={() => onRemove(shop.queue[0].id)}
+                aria-label={`Eliminar a ${shop.queue[0].name} de la cola`}
+              >
+                ✕
               </button>
             </div>
           </div>
 
-          {/* Rest of queue */}
           {shop.queue.slice(1).map((customer, i) => (
             <div key={customer.id} style={{
               ...s.card,
@@ -90,20 +147,42 @@ export default function OwnerDashboard({ shop, onAdvance, onRemove, onToggleOpen
               marginBottom: 8,
             }}>
               <div style={{
-                width: 36, height: 36, borderRadius: "50%",
-                background: COLORS.gray100, color: COLORS.gray600,
-                display: "flex", alignItems: "center", justifyContent: "center",
-                fontWeight: 900, fontSize: 14, marginRight: 12, flexShrink: 0,
+                width: 36,
+                height: 36,
+                borderRadius: RADIUS.full,
+                background: COLORS.border,
+                color: COLORS.textSecondary,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontWeight: TYPOGRAPHY.weights.bold,
+                fontSize: 14,
+                marginRight: 12,
+                flexShrink: 0,
               }}>
                 {customer.position}
               </div>
               <div style={{ flex: 1 }}>
-                <div style={{ fontWeight: 700 }}>{customer.name}</div>
-                <div style={{ fontSize: 12, color: COLORS.gray400 }}>
-                  ~{getWaitTime(shop, customer.position)} min wait
-                </div>
+                <p style={{
+                  fontWeight: TYPOGRAPHY.weights.bold,
+                  margin: 0,
+                }}>
+                  {customer.name}
+                </p>
+                <p style={{
+                  fontSize: TYPOGRAPHY.sizes.sm,
+                  color: COLORS.textMuted,
+                  margin: 0,
+                }}>
+                  ~{getWaitTime(shop, customer.position)} min espera
+                </p>
               </div>
-              <button style={s.btnDanger} onClick={() => onRemove(customer.id)}>
+              <button
+                type="button"
+                style={s.btnDanger}
+                onClick={() => onRemove(customer.id)}
+                aria-label={`Eliminar a ${customer.name} de la cola`}
+              >
                 ✕
               </button>
             </div>

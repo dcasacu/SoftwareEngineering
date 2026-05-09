@@ -1,5 +1,5 @@
 import { getCategoryEmoji } from "../../utils/queueHelpers";
-import { createStyles, COLORS } from "../../styles/theme";
+import { createStyles, COLORS, RADIUS, TYPOGRAPHY, SHADOWS } from "../../styles/theme";
 
 const s = createStyles();
 
@@ -8,42 +8,102 @@ export default function ShopQuickView({ shop, onSelect, onClose, userId }) {
   const userInQueue = shop.queue.some((c) => c.id === userId);
 
   return (
-    <div style={{
-      position: "absolute", bottom: "100%", left: "50%",
-      transform: "translateX(-50%)", marginBottom: 12,
-      background: COLORS.white, borderRadius: 20, padding: "16px",
-      boxShadow: "0 10px 25px rgba(0,0,0,0.15)", width: 220, zIndex: 100,
-      border: userInQueue ? `2px solid ${COLORS.accent}` : "none",
-    }}>
+    <div
+      role="dialog"
+      aria-label={`Vista rápida de ${shop.name}`}
+      style={{
+        position: "absolute",
+        bottom: "100%",
+        left: "50%",
+        transform: "translateX(-50%)",
+        marginBottom: 12,
+        background: COLORS.white,
+        borderRadius: RADIUS.xl,
+        padding: "16px",
+        boxShadow: SHADOWS.xl,
+        width: 220,
+        zIndex: 100,
+        border: userInQueue ? `2px solid ${COLORS.accent}` : `1px solid ${COLORS.border}`,
+      }}
+    >
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 8 }}>
-        <div style={{ fontSize: 24 }}>{getCategoryEmoji(shop.category)}</div>
-        <button onClick={(e) => { e.stopPropagation(); onClose(); }} style={{ background: "none", border: "none", color: COLORS.textMuted, cursor: "pointer", fontSize: 18 }}>✕</button>
+        <div style={{ fontSize: 24 }} aria-hidden="true">{getCategoryEmoji(shop.category)}</div>
+        <button
+          type="button"
+          onClick={(e) => { e.stopPropagation(); onClose(); }}
+          aria-label="Cerrar"
+          style={{
+            background: "none",
+            border: "none",
+            color: COLORS.textMuted,
+            cursor: "pointer",
+            fontSize: 18,
+            padding: 4,
+            lineHeight: 1,
+          }}
+        >
+          ✕
+        </button>
       </div>
-      <div style={{ fontWeight: 800, fontSize: 16, color: COLORS.text }}>{shop.name}</div>
-      <div style={{ fontSize: 13, color: COLORS.textMuted, marginTop: 2 }}>{shop.category}</div>
+      <h3 style={{
+        fontWeight: TYPOGRAPHY.weights.extrabold,
+        fontSize: 16,
+        color: COLORS.text,
+        margin: "0 0 2px 0",
+      }}>
+        {shop.name}
+      </h3>
+      <p style={{
+        fontSize: TYPOGRAPHY.sizes.sm,
+        color: COLORS.textMuted,
+        margin: 0,
+      }}>
+        {shop.category}
+      </p>
 
       <div style={{ display: "flex", justifyContent: "space-between", marginTop: 12, alignItems: "center" }}>
         <span style={s.badge(
           shop.isOpen ? COLORS.success : COLORS.error,
           shop.isOpen ? COLORS.successLight : COLORS.errorLight,
-        )}>{shop.isOpen ? "Open" : "Closed"}</span>
-        <span style={{ fontSize: 13, color: COLORS.textSecondary, fontWeight: 700 }}>
-          {qLen} waiting
+        )}>
+          {shop.isOpen ? "Abierto" : "Cerrado"}
+        </span>
+        <span style={{
+          fontSize: TYPOGRAPHY.sizes.sm,
+          color: COLORS.textSecondary,
+          fontWeight: TYPOGRAPHY.weights.bold
+        }}>
+          {qLen} esperando
         </span>
       </div>
 
       <button
-        style={{ ...s.btnPrimary(true), marginTop: 14, width: "100%", borderRadius: 10 }}
+        type="button"
+        style={{
+          ...s.btnPrimary(true),
+          marginTop: 14,
+          width: "100%",
+          borderRadius: RADIUS.md,
+        }}
         onClick={(e) => { e.stopPropagation(); onSelect(shop.id); }}
       >
-        View Shop →
+        Ver Tienda →
       </button>
 
-      <div style={{
-        position: "absolute", top: "100%", left: "50%", transform: "translateX(-50%)",
-        width: 0, height: 0, borderLeft: "8px solid transparent",
-        borderRight: "8px solid transparent", borderTop: `8px solid ${COLORS.white}`,
-      }} />
+      <div
+        aria-hidden="true"
+        style={{
+          position: "absolute",
+          top: "100%",
+          left: "50%",
+          transform: "translateX(-50%)",
+          width: 0,
+          height: 0,
+          borderLeft: "8px solid transparent",
+          borderRight: "8px solid transparent",
+          borderTop: `8px solid ${COLORS.white}`,
+        }}
+      />
     </div>
   );
 }
