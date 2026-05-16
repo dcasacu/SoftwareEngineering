@@ -16,7 +16,7 @@ const db = new sqlite3.Database(dbPath, (err) => {
     process.exit(1);
   }
   console.log('Connected to SQLite database');
-}); // Open and connect to the SQLite database
+}); // Create DB constant and connect to the SQLite database
 
 app.get('/api/shops', (req, res) => {
   const query = `
@@ -130,6 +130,29 @@ app.post('/api/shops/:id/leave', (req, res) => {
     });
   });
 }); // Endpoint to allow a user to leave the queue for a specific shop. It deletes the user's queue entry and updates the positions of the remaining entries accordingly.
+
+app.post('/api/shops/:id/attend', (req, res) => {
+  // Find the user with shop ID and status = "called", edit to "attended"
+});
+
+app.post('/api/shops/:id/skip', (req, res) => {
+  // Find the user with shop ID and status = "called", edit to "skipped"
+});
+
+app.post('/api/shops/:id/cancel', (req, res) => {
+  // Find the user with shop ID and status = "called", edit to "cancelled"
+});
+
+app.post('/api/shops/:id/call-next', (req, res) => {
+  const { id } = req.params;
+  const getNextSql = `SELECT id, user_id AS userId FROM queue_entries WHERE shop_id = ? AND status = 'waiting' ORDER BY position ASC LIMIT 1`;
+  const updateSql = `UPDATE queue_entries SET status = 'called', called_at = CURRENT_TIMESTAMP WHERE id = ?`;
+  
+  //Call after atetnd, skip or cancel
+  // Get shop ID as param
+  // Find last "waiting" entry for the shop, ordered by position, edit the status to 'called' and update called_at timestamp
+  
+});
 
 
 
