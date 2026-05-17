@@ -1,16 +1,8 @@
-const sqlite3 = require('sqlite3').verbose();
-const path = require('path');
 
-const dbPath = path.join(__dirname, 'lineup.db');
+// Import the database connection from the db.js file.
+// This allows us to use the same database connection for initializing the database and inserting sample data.
+const db = require('./db');
 
-const db = new sqlite3.Database(dbPath, (err) => {
-  if (err) {
-    console.error('Error opening database:', err);
-    process.exit(1);
-  }
-  console.log('Connected to SQLite database');
-}); // Create a new SQLite database connection. If the database file does not exist, it will be created. If there is an error while opening the database,
-    // it will be logged and the process will exit with an error code. Otherwise, a success message will be logged.
 
 // Create users table
 db.run(`
@@ -50,6 +42,7 @@ db.run(`
     status TEXT CHECK(status IN ('waiting', 'called', 'attended', 'skipped', 'cancelled')) DEFAULT 'waiting', // Status of the queue entry
     joined_at DATETIME DEFAULT CURRENT_TIMESTAMP, // Timestamp of when the user joined the queue
     called_at DATETIME, // Timestamp of when the user was called (nullable, only set when status is 'called')
+    skip_reason TEXT CHECK(skip_reason IN ('no_show', 'owner_skip', NULL)), // Reason for skipping (nullable, only set when status is 'skipped')
     FOREIGN KEY (shop_id) REFERENCES shops(id), // Foreign key constraint linking to the shops table, ensuring that each queue entry is associated with a valid shop
     FOREIGN KEY (user_id) REFERENCES users(id) // Foreign key constraint linking to the users table, ensuring that each queue entry is associated with a valid user
   )
@@ -64,6 +57,8 @@ db.run(`
     customers_served INTEGER DEFAULT 0, // Number of customers served on that date
     customers_skipped INTEGER DEFAULT 0, // Number of customers who got skipped on that date
     no_shows INTEGER DEFAULT 0, // Number of no-shows on that date
+    skips INTEGER DEFAULT 0, // Number of skips on that date (including only owner skips)
+    cancelled INTEGER DEFAULT 0, // Number of cancelled entries on that date
     avg_wait_time INTEGER, // Average wait time in seconds
     peak_hour INTEGER, // Hour of the day with the highest traffic
     FOREIGN KEY (shop_id) REFERENCES shops(id) // Foreign key constraint linking to the shops table, ensuring that each stats entry is associated with a valid shop
