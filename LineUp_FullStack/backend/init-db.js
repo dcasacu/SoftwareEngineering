@@ -59,7 +59,7 @@ db.run(`
     no_shows INTEGER DEFAULT 0, // Number of no-shows on that date
     skips INTEGER DEFAULT 0, // Number of skips on that date (including only owner skips)
     cancelled INTEGER DEFAULT 0, // Number of cancelled entries on that date
-    avg_wait_time INTEGER, // Average wait time in seconds
+    avg_wait_seconds INTEGER, // Average wait time in seconds
     peak_hour INTEGER, // Hour of the day with the highest traffic
     FOREIGN KEY (shop_id) REFERENCES shops(id) // Foreign key constraint linking to the shops table, ensuring that each stats entry is associated with a valid shop
   )
@@ -95,7 +95,7 @@ const shops = [
 
 shops.forEach(shop => {
   db.run(
-    `INSERT OR IGNORE INTO shops (id, owner_id, name, category, location_x, location_y, is_open, avg_service_time) 
+    `INSERT OR IGNORE INTO shops (id, owner_id, name, category, location_x, location_y, is_open, avg_service_seconds) 
      VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
     shop
   );

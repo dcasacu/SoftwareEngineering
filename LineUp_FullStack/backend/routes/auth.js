@@ -19,14 +19,28 @@ router.post('/anon', (req, res) => {
 }); 
 
 // Endpoint to upgrade an anonymous user to a full account. It requires the anonymous user ID, name, and email in the request body.
-// If any of these fields are missing, it returns a 400 error. TODO: Implement logic to update the user's role to 'customer' and save their name and email in the database.
+// If any of these fields are missing, it returns a 400 error. It updates the user's record in the database to set the name, email, and change the role from 'anon' to 'customer'.
+// If the update is successful, it returns the updated user information in the response. If the anonymous user is not found or already upgraded, it returns a 404 error.
+// If there is a database error, it returns a 500 error.
 router.post('/register', (req, res) => {
   const { anonUserId, name, email } = req.body;
 
   if (!anonUserId || !name || !email) {
     return res.status(400).json({ error: 'anonUserId, name, and email are required' });
   }
-}); 
+
+  db.run(`UPDATE users SET name = ?, email = ?, role = 'customer' WHERE id = ? AND role = 'anon'`, [name, email, anonUserId], function (err) {
+    if (err) {
+      console.error(err);
+      return res.status(500).json({ error: 'Failed to upgrade anonymous user' });
+    }
+    if (this.changes === 0) {
+      return res.status(404).json({ error: 'Anonymous user not found or already upgraded' });
+    }
+    res.json({ id: anonUserId, name, email, role: 'customer' });
+  });
+
+});
 
 // Endpoint for user login. It requires email and password in the request body. If either field is missing, it returns a 400 error.
 // TODO: Implement login logic (password verification).
@@ -36,6 +50,9 @@ router.post('/login', (req, res) => {
   if (!email || !password) {
     return res.status(400).json({ error: 'Email and password are required' });
   }
+
+  // TODO: Implement login logic (password verification).
+
 });
 
 router.post('/logout', (req, res) => {
