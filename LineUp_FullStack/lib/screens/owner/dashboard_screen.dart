@@ -4,6 +4,8 @@ import 'package:provider/provider.dart';
 import '../../config/theme.dart';
 import '../../providers/shops_provider.dart';
 import '../../providers/queue_provider.dart';
+import '../../providers/analytics_provider.dart';
+import '../../models/shop_analytics.dart';
 import '../../widgets/queue_list_tile.dart';
 
 class DashboardScreen extends StatefulWidget {
@@ -16,7 +18,17 @@ class DashboardScreen extends StatefulWidget {
 }
 
 class _DashboardScreenState extends State<DashboardScreen> {
-  String? _error;
+  bool _analyticsExpanded = true;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<ShopsProvider>().selectShop(widget.shopId);
+      context.read<QueueProvider>().fetchQueue(widget.shopId);
+      context.read<AnalyticsProvider>().fetchAnalytics(widget.shopId);
+    });
+  }
 
   void _showError(String? error) {
     if (error != null && error.isNotEmpty) {
@@ -25,19 +37,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
       );
     }
   }
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<ShopsProvider>().selectShop(widget.shopId);
-      context.read<QueueProvider>().fetchQueue(widget.shopId);
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
     final shopsProvider = context.watch<ShopsProvider>();
     final queueProvider = context.watch<QueueProvider>();
+    final analyticsProvider = context.watch<AnalyticsProvider>();
     final shop = shopsProvider.selectedShop;
     final queue = queueProvider.queueForShop(widget.shopId);
     final activeQueue = queue.where((e) => e.status == 'waiting' || e.status == 'called').toList();
@@ -84,6 +89,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         onRefresh: () async {
           await context.read<QueueProvider>().fetchQueue(widget.shopId);
           await context.read<ShopsProvider>().selectShop(widget.shopId);
+          await context.read<AnalyticsProvider>().fetchAnalytics(widget.shopId);
         },
         child: ListView(
           padding: const EdgeInsets.all(20),
@@ -137,15 +143,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
               ),
             ),
             const SizedBox(height: 16),
-SizedBox(
-               width: double.infinity,
-               child: ElevatedButton(
-                 onPressed: () async {
-                   final shopsProv = context.read<ShopsProvider>();
-                   final queueProv = context.read<QueueProvider>();
-                   await shopsProv.toggleShopStatus(widget.shopId, !shop.isOpen);
-                   if (shopsProv.error != null) _showError(shopsProv.error);
-                   await queueProv.fetchQueue(widget.shopId);
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: () async {
+                  final shopsProv = context.read<ShopsProvider>();
+                  final queueProv = context.read<QueueProvider>();
+                  await shopsProv.toggleShopStatus(widget.shopId, !shop.isOpen);
+                  if (shopsProv.error != null) _showError(shopsProv.error);
+                  await queueProv.fetchQueue(widget.shopId);
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: shop.isOpen ? AppTheme.red : AppTheme.orange,
@@ -213,11 +219,11 @@ SizedBox(
                 Container(
                   margin: const EdgeInsets.only(bottom: 12),
                   child: ElevatedButton(
-                    onPressed: () async { 
-                             await context.read<QueueProvider>().callNext(widget.shopId);
-                             final q = context.read<QueueProvider>();
-                             if (q.error != null) _showError(q.error);
-                           },
+                    onPressed: () async {
+                      await context.read<QueueProvider>().callNext(widget.shopId);
+                      final q = context.read<QueueProvider>();
+                      if (q.error != null) _showError(q.error);
+                    },
                     style: ElevatedButton.styleFrom(backgroundColor: AppTheme.orange, minimumSize: const Size.fromHeight(48), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
                     child: const Text('📞 Call Next Customer', style: TextStyle(fontWeight: FontWeight.w700)),
                   ),
@@ -236,6 +242,99 @@ SizedBox(
                 },
               )),
             ],
+            const SizedBox(height: 24),
+            _buildAnalyticsSection(analyticsProvider),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAnalyticsSection(AnalyticsProvider analyticsProvider) {
+    final analytics = analyticsProvider.analytics;
+    final isLoading = analyticsProvider.isLoading;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        GestureDetector(
+          onTap: () => setState(() => _analyticsExpanded = !_analyticsExpanded),
+          child: Row(
+            children: [
+              const Text('📊 Analytics', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: AppTheme.gray900)),
+              const Spacer(),
+              Icon(_analyticsExpanded ? Icons.expand_less : Icons.expand_more, color: AppTheme.gray600),
+            ],
+          ),
+        ),
+        if (_analyticsExpanded) ...[
+          const SizedBox(height: 12),
+          if (isLoading)
+            const Center(child: Padding(padding: EdgeInsets.all(32), child: CircularProgressIndicator()))
+          else if (analytics == null)
+            const Center(child: Padding(padding: EdgeInsets.all(32), child: Text('No analytics data available', style: TextStyle(color: AppTheme.gray400))))
+          else ...[
+            _buildPeriodSection('Today', analytics.today, AppTheme.blue),
+            const SizedBox(height: 16),
+            _buildPeriodSection('All Time', analytics.allTime, AppTheme.gray600),
+          ],
+        ],
+      ],
+    );
+  }
+
+  Widget _buildPeriodSection(String title, AnalyticsPeriod period, Color accentColor) {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(title, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: accentColor)),
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                _MiniStatCard(label: 'Total', value: '${period.totalCustomers}', icon: '🧑‍🤝‍🧑', color: accentColor),
+                const SizedBox(width: 8),
+                _MiniStatCard(label: 'Served', value: '${period.customersServed}', icon: '✅', color: AppTheme.green),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                _MiniStatCard(
+                  label: 'Avg wait',
+                  value: period.avgWaitSeconds != null ? '${period.avgWaitMinutes}m' : '—',
+                  icon: '⏱',
+                  color: AppTheme.orange,
+                ),
+                const SizedBox(width: 8),
+                _MiniStatCard(
+                  label: 'Service rate',
+                  value: '${(period.serviceRate * 100).toInt()}%',
+                  icon: '📊',
+                  color: period.serviceRate >= 0.8 ? AppTheme.green : AppTheme.orange,
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                _MiniStatCard(
+                  label: 'Peak hour',
+                  value: period.peakHourDisplay,
+                  icon: '🕐',
+                  color: AppTheme.blue,
+                ),
+                const SizedBox(width: 8),
+                _MiniStatCard(
+                  label: 'No shows',
+                  value: '${period.noShows}',
+                  icon: '⚠',
+                  color: period.noShows > 0 ? AppTheme.red : AppTheme.gray400,
+                ),
+              ],
+            ),
           ],
         ),
       ),
@@ -263,6 +362,38 @@ class _StatBox extends StatelessWidget {
             Text(value, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w900, color: Colors.white)),
             const SizedBox(height: 2),
             Text(label, style: const TextStyle(fontSize: 11, color: Colors.white70)),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _MiniStatCard extends StatelessWidget {
+  final String label;
+  final String value;
+  final String icon;
+  final Color color;
+
+  const _MiniStatCard({required this.label, required this.value, required this.icon, required this.color});
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
+        decoration: BoxDecoration(
+          color: color.withValues(alpha: 0.08),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: color.withValues(alpha: 0.15)),
+        ),
+        child: Column(
+          children: [
+            Text(icon, style: const TextStyle(fontSize: 18)),
+            const SizedBox(height: 4),
+            Text(value, style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: color)),
+            const SizedBox(height: 2),
+            Text(label, style: TextStyle(fontSize: 11, color: AppTheme.gray400, fontWeight: FontWeight.w500)),
           ],
         ),
       ),

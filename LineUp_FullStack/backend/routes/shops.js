@@ -81,4 +81,76 @@ router.patch('/:id/status', (req, res) => {
   res.json(row);
 });
 
+router.get('/:id/analytics', (req, res) => {
+  const { id } = req.params;
+
+  const shop = db.prepare(`SELECT id, name FROM shops WHERE id = ?`).get(id);
+  if (!shop) {
+    return res.status(404).json({ error: 'Shop not found' });
+  }
+
+  function computeStats(dateFilter) {
+    const whereClause = dateFilter
+      ? `shop_id = ? AND date(joined_at) = date('now')`
+      : `shop_id = ?`;
+
+    const entries = db.prepare(
+      `SELECT * FROM queue_entries WHERE ${whereClause}`
+    ).all(id);
+
+    const totalCustomers = entries.length;
+    const customersServed = entries.filter(e => e.status === 'attended').length;
+    const noShows = entries.filter(e => e.skip_reason === 'no_show').length;
+    const skipped = entries.filter(e => e.skip_reason === 'owner_skip').length;
+    const cancelled = entries.filter(e => e.status === 'cancelled').length;
+
+    const calledEntries = entries.filter(e => e.called_at && e.joined_at);
+    let avgWaitSeconds = null;
+    if (calledEntries.length > 0) {
+      const totalWait = calledEntries.reduce((sum, e) => {
+        const joined = new Date(e.joined_at).getTime();
+        const called = new Date(e.called_at).getTime();
+        return sum + Math.max(0, (called - joined) / 1000);
+      }, 0);
+      avgWaitSeconds = Math.round(totalWait / calledEntries.length);
+    }
+
+    let peakHour = null;
+    if (entries.length > 0) {
+      const hourCounts = {};
+      entries.forEach(e => {
+        if (e.joined_at) {
+          const h = new Date(e.joined_at).getHours();
+          hourCounts[h] = (hourCounts[h] || 0) + 1;
+        }
+      });
+      const sorted = Object.entries(hourCounts).sort((a, b) => b[1] - a[1]);
+      if (sorted.length > 0) {
+        peakHour = parseInt(sorted[0][0]);
+      }
+    }
+
+    const denominator = customersServed + skipped + cancelled;
+    const serviceRate = denominator > 0 ? parseFloat((customersServed / denominator).toFixed(2)) : 0;
+
+    return {
+      totalCustomers,
+      customersServed,
+      noShows,
+      skipped,
+      cancelled,
+      avgWaitSeconds,
+      peakHour,
+      serviceRate,
+    };
+  }
+
+  res.json({
+    shopId: id,
+    shopName: shop.name,
+    today: computeStats(true),
+    allTime: computeStats(false),
+  });
+});
+
 module.exports = router;
