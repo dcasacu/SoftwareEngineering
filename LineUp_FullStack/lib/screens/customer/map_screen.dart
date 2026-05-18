@@ -6,6 +6,7 @@ import '../../providers/shops_provider.dart';
 import '../../providers/queue_provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../models/shop.dart';
+import '../../models/queue_entry.dart';
 import '../../widgets/shop_card.dart';
 import '../../widgets/category_filter.dart';
 
@@ -50,13 +51,10 @@ class _MapScreenState extends State<MapScreen> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
             decoration: BoxDecoration(
-              color: AppTheme.orange.withOpacity(0.2,
+              color: AppTheme.orange.withValues(alpha: 0.2),
               borderRadius: BorderRadius.circular(20),
             ),
-            child: const Text(
-              'Customer',
-              style: TextStyle(color: AppTheme.orange, fontWeight: FontWeight.w700, fontSize: 12),
-            ),
+            child: const Text('Customer', style: TextStyle(color: AppTheme.orange, fontWeight: FontWeight.w700, fontSize: 12)),
           ),
           const SizedBox(width: 8),
           IconButton(
@@ -93,10 +91,7 @@ class _MapContent extends StatelessWidget {
           child: TextField(
             decoration: InputDecoration(
               hintText: '🔍  Search shops...',
-              prefixIcon: null,
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
+              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
             ),
             onChanged: (v) => context.read<ShopsProvider>().setSearchQuery(v),
           ),
@@ -122,9 +117,9 @@ class _MapContent extends StatelessWidget {
                         ),
                       ),
                       ...shops.map((shop) => ShopCard(
-                        shop: shop,
-                        onTap: () => context.go('/customer/shop/${shop.id}'),
-                      )),
+                            shop: shop,
+                            onTap: () => context.go('/customer/shop/${shop.id}'),
+                          )),
                     ],
                   ),
                 ),
@@ -143,9 +138,11 @@ class _QueuesContent extends StatelessWidget {
     final queueProvider = context.watch<QueueProvider>();
     final shopsProvider = context.read<ShopsProvider>();
 
-    final activeEntries = <MapEntry<String, QueueEntry?>>{};
+    final activeEntries = <MapEntry<String, QueueEntry?>>[];
     queueProvider.myEntries.forEach((shopId, entry) {
-      if (entry != null) activeEntries[shopId] = entry;
+      if (entry != null) {
+        activeEntries.add(MapEntry(shopId, entry));
+      }
     });
 
     if (activeEntries.isEmpty) {
@@ -157,16 +154,9 @@ class _QueuesContent extends StatelessWidget {
             children: [
               const Text('🛒', style: TextStyle(fontSize: 48)),
               const SizedBox(height: 16),
-              const Text(
-                'No active queues',
-                style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16, color: AppTheme.gray600),
-              ),
+              const Text('No active queues', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16, color: AppTheme.gray600)),
               const SizedBox(height: 8),
-              const Text(
-                'Go to the Map tab to browse shops and join a queue.',
-                style: TextStyle(fontSize: 14, color: AppTheme.gray400),
-                textAlign: TextAlign.center,
-              ),
+              const Text('Go to the Map tab to browse shops and join a queue.', style: TextStyle(fontSize: 14, color: AppTheme.gray400), textAlign: TextAlign.center),
             ],
           ),
         ),
@@ -178,12 +168,22 @@ class _QueuesContent extends StatelessWidget {
       children: [
         const Text('My Queues', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: AppTheme.gray900)),
         const SizedBox(height: 12),
-        ...activeEntries.entries.map((e) {
-          final shop = shopsProvider.shops.firstWhere((s) => s.id == e.key, orElse: () => Shop(id: '', name: 'Unknown', category: '', isOpen: false, avgServiceTime: 300, ownerId: ''));
-          final entry = e.value!;
-          final queue = queueProvider.queueForShop(e.key);
+        ...activeEntries.map((e) {
+          final shopId = e.key;
+          final queueEntry = e.value!;
+          final shop = shopsProvider.shops.firstWhere(
+            (s) => s.id == shopId,
+            orElse: () => Shop(id: '', name: 'Unknown', category: '', isOpen: false, avgServiceTime: 300, ownerId: ''),
+          );
+          final queue = queueProvider.queueForShop(shopId);
+          final active = queue.where((q) => q.status == 'waiting' || q.status == 'called').toList();
+
           return Card(
             margin: const EdgeInsets.only(bottom: 12),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+              side: const BorderSide(color: AppTheme.blueLight, width: 2),
+            ),
             child: Padding(
               padding: const EdgeInsets.all(16),
               child: Column(
@@ -192,12 +192,7 @@ class _QueuesContent extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Expanded(
-                        child: Text(
-                          '${_getCategoryEmoji(shop.category)} ${shop.name}',
-                          style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 16, color: AppTheme.gray900),
-                        ),
-                      ),
+                      Expanded(child: Text('${_getCategoryEmoji(shop.category)} ${shop.name}', style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 16, color: AppTheme.gray900))),
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
                         decoration: BoxDecoration(color: AppTheme.greenLight, borderRadius: BorderRadius.circular(20)),
@@ -206,25 +201,17 @@ class _QueuesContent extends StatelessWidget {
                     ],
                   ),
                   const SizedBox(height: 14),
-                  _PositionBadge(position: entry.position, total: queue.length, avgMinutes: shop.avgServiceMinutes),
+                  _PositionBadge(position: queueEntry.position, total: active.length, avgMinutes: shop.avgServiceMinutes),
                   const SizedBox(height: 14),
                   Row(
                     children: [
-                      Expanded(
-                        child: ElevatedButton(
-                          onPressed: () => context.go('/customer/shop/${shop.id}'),
-                          child: const Text('View Shop'),
-                        ),
-                      ),
+                      Expanded(child: ElevatedButton(onPressed: () => context.go('/customer/shop/$shopId'), child: const Text('View Shop'))),
                       const SizedBox(width: 8),
                       OutlinedButton(
                         onPressed: () async {
-                          await context.read<QueueProvider>().leaveQueue(shop.id, auth.userId ?? '');
+                          await context.read<QueueProvider>().leaveQueue(shopId, auth.userId ?? '');
                         },
-                        style: OutlinedButton.styleFrom(
-                          foregroundColor: AppTheme.red,
-                          side: const BorderSide(color: AppTheme.red),
-                        ),
+                        style: OutlinedButton.styleFrom(foregroundColor: AppTheme.red, side: const BorderSide(color: AppTheme.red)),
                         child: const Text('Leave'),
                       ),
                     ],
@@ -263,7 +250,7 @@ class _PositionBadge extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppTheme.blueLight,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppTheme.blue.withOpacity(0.13),
+        border: Border.all(color: AppTheme.blue.withValues(alpha: 0.13)),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,

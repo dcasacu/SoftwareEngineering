@@ -1,5 +1,5 @@
 import 'dart:convert';
-import '../services/api_service.dart';
+import 'api_service.dart';
 import '../models/queue_entry.dart';
 
 class QueueService {

@@ -22,7 +22,7 @@ class PositionBadge extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppTheme.blueLight,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppTheme.blue.withOpacity(0.13),
+        border: Border.all(color: AppTheme.blue.withValues(alpha: 0.13)),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,

@@ -5,6 +5,7 @@ import '../../config/theme.dart';
 import '../../providers/shops_provider.dart';
 import '../../providers/queue_provider.dart';
 import '../../providers/auth_provider.dart';
+import '../../models/shop.dart';
 
 class MyQueuesScreen extends StatefulWidget {
   const MyQueuesScreen({super.key});
@@ -21,7 +22,7 @@ class _MyQueuesScreenState extends State<MyQueuesScreen> {
       final auth = context.read<AuthProvider>();
       final shopsProvider = context.read<ShopsProvider>();
       final queueProvider = context.read<QueueProvider>();
-      
+
       if (auth.userId != null) {
         for (final shop in shopsProvider.shops) {
           queueProvider.fetchMyEntry(shop.id, auth.userId!);
@@ -36,14 +37,10 @@ class _MyQueuesScreenState extends State<MyQueuesScreen> {
     final queueProvider = context.watch<QueueProvider>();
     final shopsProvider = context.watch<ShopsProvider>();
 
-    final activeEntries = queueProvider.myEntries.entries
-        .where((e) => e.value != null)
-        .toList();
+    final activeEntries = queueProvider.myEntries.entries.where((e) => e.value != null).toList();
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('My Queues'),
-      ),
+      appBar: AppBar(title: const Text('My Queues')),
       body: activeEntries.isEmpty
           ? Center(
               child: Padding(
@@ -53,16 +50,9 @@ class _MyQueuesScreenState extends State<MyQueuesScreen> {
                   children: [
                     const Text('🛒', style: TextStyle(fontSize: 48)),
                     const SizedBox(height: 16),
-                    const Text(
-                      'No active queues',
-                      style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16, color: AppTheme.gray600),
-                    ),
+                    const Text('No active queues', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16, color: AppTheme.gray600)),
                     const SizedBox(height: 8),
-                    const Text(
-                      'Go to the Map tab to browse shops and join a queue.',
-                      style: TextStyle(fontSize: 14, color: AppTheme.gray400),
-                      textAlign: TextAlign.center,
-                    ),
+                    const Text('Go to the Map tab to browse shops and join a queue.', style: TextStyle(fontSize: 14, color: AppTheme.gray400), textAlign: TextAlign.center),
                   ],
                 ),
               ),
@@ -95,22 +85,11 @@ class _MyQueuesScreenState extends State<MyQueuesScreen> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Expanded(
-                              child: Text(
-                                '${_emoji(shop.category)} ${shop.name}',
-                                style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 16, color: AppTheme.gray900),
-                              ),
-                            ),
+                            Expanded(child: Text('${_emoji(shop.category)} ${shop.name}', style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 16, color: AppTheme.gray900))),
                             Container(
                               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
-                              decoration: BoxDecoration(
-                                color: AppTheme.greenLight,
-                                borderRadius: BorderRadius.circular(20),
-                              ),
-                              child: const Text(
-                                'Active',
-                                style: TextStyle(color: AppTheme.green, fontWeight: FontWeight.w700, fontSize: 12),
-                              ),
+                              decoration: BoxDecoration(color: AppTheme.greenLight, borderRadius: BorderRadius.circular(20)),
+                              child: const Text('Active', style: TextStyle(color: AppTheme.green, fontWeight: FontWeight.w700, fontSize: 12)),
                             ),
                           ],
                         ),
@@ -118,46 +97,30 @@ class _MyQueuesScreenState extends State<MyQueuesScreen> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const Text('Your position', style: TextStyle(fontSize: 13, color: AppTheme.gray600, fontWeight: FontWeight.w600)),
-                                Text('#${queueEntry.position}', style: const TextStyle(fontSize: 38, fontWeight: FontWeight.w900, color: AppTheme.blue, height: 1)),
-                                Text('of ${active.length} in queue', style: const TextStyle(fontSize: 12, color: AppTheme.gray400)),
-                              ],
-                            ),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.end,
-                              children: [
-                                const Text('Est. wait', style: TextStyle(fontSize: 13, color: AppTheme.gray600, fontWeight: FontWeight.w600)),
-                                Text('${(queueEntry.position - 1) * shop.avgServiceMinutes}m', style: const TextStyle(fontSize: 28, fontWeight: FontWeight.w900, color: AppTheme.orange, height: 1)),
-                                const Text('minutes', style: TextStyle(fontSize: 12, color: AppTheme.gray400)),
-                              ],
-                            ),
+                            Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                              const Text('Your position', style: TextStyle(fontSize: 13, color: AppTheme.gray600, fontWeight: FontWeight.w600)),
+                              Text('#${queueEntry.position}', style: const TextStyle(fontSize: 38, fontWeight: FontWeight.w900, color: AppTheme.blue, height: 1)),
+                              Text('of ${active.length} in queue', style: const TextStyle(fontSize: 12, color: AppTheme.gray400)),
+                            ]),
+                            Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
+                              const Text('Est. wait', style: TextStyle(fontSize: 13, color: AppTheme.gray600, fontWeight: FontWeight.w600)),
+                              Text('${(queueEntry.position - 1) * shop.avgServiceMinutes}m', style: const TextStyle(fontSize: 28, fontWeight: FontWeight.w900, color: AppTheme.orange, height: 1)),
+                              const Text('minutes', style: TextStyle(fontSize: 12, color: AppTheme.gray400)),
+                            ]),
                           ],
                         ),
                         const SizedBox(height: 14),
-                        Row(
-                          children: [
-                            Expanded(
-                              child: ElevatedButton(
-                                onPressed: () => context.go('/customer/shop/$shopId'),
-                                child: const Text('View Shop'),
-                              ),
-                            ),
-                            const SizedBox(width: 8),
-                            OutlinedButton(
-                              onPressed: () async {
-                                await context.read<QueueProvider>().leaveQueue(shopId, auth.userId ?? '');
-                              },
-                              style: OutlinedButton.styleFrom(
-                                foregroundColor: AppTheme.red,
-                                side: const BorderSide(color: AppTheme.red),
-                              ),
-                              child: const Text('Leave'),
-                            ),
-                          ],
-                        ),
+                        Row(children: [
+                          Expanded(child: ElevatedButton(onPressed: () => context.go('/customer/shop/$shopId'), child: const Text('View Shop'))),
+                          const SizedBox(width: 8),
+                          OutlinedButton(
+                            onPressed: () async {
+                              await context.read<QueueProvider>().leaveQueue(shopId, auth.userId ?? '');
+                            },
+                            style: OutlinedButton.styleFrom(foregroundColor: AppTheme.red, side: const BorderSide(color: AppTheme.red)),
+                            child: const Text('Leave'),
+                          ),
+                        ]),
                       ],
                     ),
                   ),

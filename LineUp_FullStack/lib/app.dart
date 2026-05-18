@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../providers/auth_provider.dart';
-import '../providers/shops_provider.dart';
-import '../providers/queue_provider.dart';
-import '../routing/app_router.dart';
-import '../config/theme.dart';
+import 'providers/auth_provider.dart';
+import 'providers/shops_provider.dart';
+import 'providers/queue_provider.dart';
+import 'routing/app_router.dart';
+import 'config/theme.dart';
 
 class LineUpApp extends StatelessWidget {
   const LineUpApp({super.key});

@@ -88,7 +88,7 @@ class _ShopDetailScreenState extends State<ShopDetailScreen> {
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
                         decoration: BoxDecoration(
-                          color: shop.isOpen ? AppTheme.green.withOpacity(0.2 : AppTheme.red.withOpacity(0.2,
+                          color: shop.isOpen ? AppTheme.green.withValues(alpha: 0.2) : AppTheme.red.withValues(alpha: 0.2),
                           borderRadius: BorderRadius.circular(20),
                         ),
                         child: Text(
@@ -100,7 +100,7 @@ class _ShopDetailScreenState extends State<ShopDetailScreen> {
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
                         decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.2,
+                          color: Colors.white.withValues(alpha: 0.2),
                           borderRadius: BorderRadius.circular(20),
                         ),
                         child: Text(
@@ -123,11 +123,7 @@ class _ShopDetailScreenState extends State<ShopDetailScreen> {
                   if (myEntry != null) ...[
                     const Text('Your Queue Status', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: AppTheme.gray600)),
                     const SizedBox(height: 8),
-                    PositionBadge(
-                      position: myEntry.position,
-                      total: activeQueue.length,
-                      avgMinutes: shop.avgServiceMinutes,
-                    ),
+                    PositionBadge(position: myEntry.position, total: activeQueue.length, avgMinutes: shop.avgServiceMinutes),
                     const SizedBox(height: 16),
                   ],
                   Card(
@@ -141,9 +137,7 @@ class _ShopDetailScreenState extends State<ShopDetailScreen> {
                           if (activeQueue.isEmpty)
                             const Padding(
                               padding: EdgeInsets.symmetric(vertical: 16),
-                              child: Center(
-                                child: Text('No one in queue — join now!', style: TextStyle(color: AppTheme.gray400)),
-                              ),
+                              child: Center(child: Text('No one in queue — join now!', style: TextStyle(color: AppTheme.gray400))),
                             )
                           else
                             ...activeQueue.asMap().entries.map((entry) {
@@ -193,9 +187,7 @@ class _ShopDetailScreenState extends State<ShopDetailScreen> {
                     Card(
                       child: Padding(
                         padding: const EdgeInsets.all(16),
-                        child: Center(
-                          child: Text('This shop is currently closed', style: TextStyle(color: AppTheme.gray400)),
-                        ),
+                        child: Center(child: Text('This shop is currently closed', style: TextStyle(color: AppTheme.gray400))),
                       ),
                     ),
                 ],

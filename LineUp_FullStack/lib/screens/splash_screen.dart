@@ -18,10 +18,7 @@ class SplashScreen extends StatelessWidget {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Text(
-                  '🛒',
-                  style: TextStyle(fontSize: 52),
-                ),
+                const Text('🛒', style: TextStyle(fontSize: 52)),
                 const SizedBox(height: 8),
                 RichText(
                   text: const TextSpan(
@@ -33,19 +30,11 @@ class SplashScreen extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 8),
-                const Text(
-                  'Smart market queues',
-                  style: TextStyle(color: Colors.white70, fontSize: 16),
-                ),
+                const Text('Smart market queues', style: TextStyle(color: Colors.white70, fontSize: 16)),
                 const SizedBox(height: 48),
                 const Text(
                   'CHOOSE YOUR MODE',
-                  style: TextStyle(
-                    color: Colors.white60,
-                    fontSize: 12,
-                    fontWeight: FontWeight.w700,
-                    letterSpacing: 1,
-                  ),
+                  style: TextStyle(color: Colors.white60, fontSize: 12, fontWeight: FontWeight.w700, letterSpacing: 1),
                 ),
                 const SizedBox(height: 16),
                 _ModeCard(
@@ -76,10 +65,7 @@ class SplashScreen extends StatelessWidget {
                   },
                 ),
                 const SizedBox(height: 16),
-                const Text(
-                  'Demo mode · No login required',
-                  style: TextStyle(color: Colors.white38, fontSize: 12),
-                ),
+                const Text('Demo mode · No login required', style: TextStyle(color: Colors.white38, fontSize: 12)),
               ],
             ),
           ),
@@ -125,22 +111,9 @@ class _ModeCard extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    title,
-                    style: TextStyle(
-                      fontSize: 17,
-                      fontWeight: FontWeight.w800,
-                      color: textColor,
-                    ),
-                  ),
+                  Text(title, style: TextStyle(fontSize: 17, fontWeight: FontWeight.w800, color: textColor)),
                   const SizedBox(height: 2),
-                  Text(
-                    subtitle,
-                    style: TextStyle(
-                      fontSize: 13,
-                      color: textColor.withOpacity(0.7,
-                    ),
-                  ),
+                  Text(subtitle, style: TextStyle(fontSize: 13, color: textColor.withValues(alpha: 0.7))),
                 ],
               ),
             ),

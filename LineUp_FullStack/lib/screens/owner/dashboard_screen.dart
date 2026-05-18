@@ -59,13 +59,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
             decoration: BoxDecoration(
-              color: AppTheme.orange.withOpacity(0.2,
+              color: AppTheme.orange.withValues(alpha: 0.2),
               borderRadius: BorderRadius.circular(20),
             ),
-            child: const Text(
-              'Shop Owner',
-              style: TextStyle(color: AppTheme.orange, fontWeight: FontWeight.w700, fontSize: 12),
-            ),
+            child: const Text('Shop Owner', style: TextStyle(color: AppTheme.orange, fontWeight: FontWeight.w700, fontSize: 12)),
           ),
           const SizedBox(width: 8),
           IconButton(
@@ -106,7 +103,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
                           decoration: BoxDecoration(
-                            color: shop.isOpen ? AppTheme.green.withOpacity(0.2 : AppTheme.red.withOpacity(0.2,
+                            color: shop.isOpen ? AppTheme.green.withValues(alpha: 0.2) : AppTheme.red.withValues(alpha: 0.2),
                             borderRadius: BorderRadius.circular(20),
                           ),
                           child: Text(
@@ -156,15 +153,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
               Card(
                 child: Padding(
                   padding: const EdgeInsets.symmetric(vertical: 32, horizontal: 16),
-                  child: Column(
-                    children: [
-                      const Text('✅', style: TextStyle(fontSize: 40)),
-                      const SizedBox(height: 8),
-                      const Text('Queue is empty', style: TextStyle(fontWeight: FontWeight.w700, color: AppTheme.gray600)),
-                      const SizedBox(height: 4),
-                      const Text('No customers waiting right now.', style: TextStyle(fontSize: 13, color: AppTheme.gray400)),
-                    ],
-                  ),
+                  child: Column(children: [
+                    const Text('✅', style: TextStyle(fontSize: 40)),
+                    const SizedBox(height: 8),
+                    const Text('Queue is empty', style: TextStyle(fontWeight: FontWeight.w700, color: AppTheme.gray600)),
+                    const SizedBox(height: 4),
+                    const Text('No customers waiting right now.', style: TextStyle(fontSize: 13, color: AppTheme.gray400)),
+                  ]),
                 ),
               )
             else ...[
@@ -182,39 +177,23 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     children: [
                       Text('NOW SERVING', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AppTheme.orange)),
                       const SizedBox(height: 4),
-                      Text(
-                        activeQueue.first.userName ?? activeQueue.first.userId,
-                        style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w900, color: AppTheme.gray900),
-                      ),
+                      Text(activeQueue.first.userName ?? activeQueue.first.userId, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w900, color: AppTheme.gray900)),
                       const SizedBox(height: 12),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: ElevatedButton(
-                              onPressed: () async {
-                                await context.read<QueueProvider>().attend(widget.shopId);
-                              },
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: AppTheme.orange,
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                              ),
-                              child: const Text('✓ Done — Next', style: TextStyle(fontWeight: FontWeight.w700)),
-                            ),
+                      Row(children: [
+                        Expanded(
+                          child: ElevatedButton(
+                            onPressed: () async { await context.read<QueueProvider>().attend(widget.shopId); },
+                            style: ElevatedButton.styleFrom(backgroundColor: AppTheme.orange, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
+                            child: const Text('✓ Done — Next', style: TextStyle(fontWeight: FontWeight.w700)),
                           ),
-                          const SizedBox(width: 8),
-                          OutlinedButton(
-                            onPressed: () async {
-                              await context.read<QueueProvider>().skip(widget.shopId, 'owner_skip');
-                            },
-                            style: OutlinedButton.styleFrom(
-                              foregroundColor: AppTheme.red,
-                              side: const BorderSide(color: AppTheme.red),
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                            ),
-                            child: const Text('Skip'),
-                          ),
-                        ],
-                      ),
+                        ),
+                        const SizedBox(width: 8),
+                        OutlinedButton(
+                          onPressed: () async { await context.read<QueueProvider>().skip(widget.shopId, 'owner_skip'); },
+                          style: OutlinedButton.styleFrom(foregroundColor: AppTheme.red, side: const BorderSide(color: AppTheme.red), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
+                          child: const Text('Skip'),
+                        ),
+                      ]),
                     ],
                   ),
                 ),
@@ -222,14 +201,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 Container(
                   margin: const EdgeInsets.only(bottom: 12),
                   child: ElevatedButton(
-                    onPressed: () async {
-                      await context.read<QueueProvider>().callNext(widget.shopId);
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppTheme.orange,
-                      minimumSize: const Size.fromHeight(48),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                    ),
+                    onPressed: () async { await context.read<QueueProvider>().callNext(widget.shopId); },
+                    style: ElevatedButton.styleFrom(backgroundColor: AppTheme.orange, minimumSize: const Size.fromHeight(48), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
                     child: const Text('📞 Call Next Customer', style: TextStyle(fontWeight: FontWeight.w700)),
                   ),
                 ),
@@ -240,9 +213,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 isFirst: false,
                 avgMinutes: shop.avgServiceMinutes,
                 isLast: entry == activeQueue.last,
-                onSkip: () async {
-                  await context.read<QueueProvider>().skip(widget.shopId, 'owner_skip');
-                },
+                onSkip: () async { await context.read<QueueProvider>().skip(widget.shopId, 'owner_skip'); },
               )),
             ],
           ],
@@ -264,7 +235,7 @@ class _StatBox extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 10),
         decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.12,
+          color: Colors.white.withValues(alpha: 0.12),
           borderRadius: BorderRadius.circular(12),
         ),
         child: Column(
