@@ -2,59 +2,155 @@ const express = require('express');
 const router = express.Router();
 const db = require('../db');
 
-
-// ─── SHOP ENDPOINTS ───────────────────────────────────────────────────────────
-
-// Endpoint to fetch all shops with their details and owner information
 router.get('/', (req, res) => {
-  const query = `
+  const rows = db.prepare(`
     SELECT s.id, s.name, s.category, s.location_x AS locationX, s.location_y AS locationY,
-           s.is_open AS isOpen, s.avg_service_time AS avgServiceTime,
+           s.lat, s.lng, s.is_open AS isOpen, s.avg_service_time AS avgServiceTime,
            s.owner_id AS ownerId, u.name AS ownerName
     FROM shops s
     LEFT JOIN users u ON s.owner_id = u.id
-  `;
-  db.all(query, [], (err, rows) => {
-    if (err) {
-      console.error(err);
-      return res.status(500).json({ error: 'Failed to fetch shops' });
-    }
-    res.json(rows);
-  });
+  `).all();
+  res.json(rows);
 });
 
-// Search must come before /:id so Express doesn't treat 'search' as an ID param
 router.get('/search', (req, res) => {
-  // Search and filter shops based on query parameters (e.g., name, category)
+  const { q, category } = req.query;
+  let sql = `
+    SELECT s.id, s.name, s.category, s.location_x AS locationX, s.location_y AS locationY,
+           s.lat, s.lng, s.is_open AS isOpen, s.avg_service_time AS avgServiceTime,
+           s.owner_id AS ownerId, u.name AS ownerName
+    FROM shops s
+    LEFT JOIN users u ON s.owner_id = u.id
+    WHERE 1=1
+  `;
+  const params = [];
 
-  // Get query parameters: q (search term), category (filter by category)
-  // Build SQL query based on provided parameters
-  // Execute query and return results
+  if (q) {
+    sql += ` AND s.name LIKE ?`;
+    params.push(`%${q}%`);
+  }
+  if (category && category !== 'All') {
+    sql += ` AND s.category = ?`;
+    params.push(category);
+  }
+
+  const rows = db.prepare(sql).all(...params);
+  res.json(rows);
 });
 
-// Endpoint to fetch the details of a single shop by its ID. It queries the database for the shop with the specified ID and returns its details in the response.
-// If the shop is not found, it returns a 404 error. If there is a database error, it returns a 500 error.
 router.get('/:id', (req, res) => {
   const { id } = req.params;
-  const sql = `SELECT * FROM shops WHERE id = ?`;
-  db.get(sql, [id], (err, row) => {
-    if (err) {
-      console.error(err);
-      return res.status(500).json({ error: 'Failed to fetch shop details' });
-    }
-    if (!row) {
-      return res.status(404).json({ error: 'Shop not found' });
-    }
-    res.json(row);
-  });
+  const row = db.prepare(`
+    SELECT s.id, s.name, s.category, s.location_x AS locationX, s.location_y AS locationY,
+           s.lat, s.lng, s.is_open AS isOpen, s.avg_service_time AS avgServiceTime,
+           s.owner_id AS ownerId, u.name AS ownerName
+    FROM shops s
+    LEFT JOIN users u ON s.owner_id = u.id
+    WHERE s.id = ?
+  `).get(id);
+  if (!row) {
+    return res.status(404).json({ error: 'Shop not found' });
+  }
+  res.json(row);
 });
 
 router.patch('/:id/status', (req, res) => {
-  // Change queue status, i.e., open and close queue
+  const { id } = req.params;
+  const { isOpen } = req.body;
 
-  // Get shop ID from params and new status (isOpen) from request body
-  // Update the shop's is_open status in the database
-  // Return the updated shop details in the response
+  if (typeof isOpen !== 'boolean' && isOpen !== 0 && isOpen !== 1) {
+    return res.status(400).json({ error: 'isOpen boolean is required' });
+  }
+
+  const isOpenVal = isOpen ? 1 : 0;
+
+  const result = db.prepare(`UPDATE shops SET is_open = ? WHERE id = ?`).run(isOpenVal, id);
+  if (result.changes === 0) {
+    return res.status(404).json({ error: 'Shop not found' });
+  }
+
+  const row = db.prepare(`
+    SELECT s.id, s.name, s.category, s.location_x AS locationX, s.location_y AS locationY,
+           s.lat, s.lng, s.is_open AS isOpen, s.avg_service_time AS avgServiceTime,
+           s.owner_id AS ownerId, u.name AS ownerName
+    FROM shops s
+    LEFT JOIN users u ON s.owner_id = u.id
+    WHERE s.id = ?
+  `).get(id);
+
+  res.json(row);
 });
 
-module.exports = router; // Export the router so it can be used in the main server file to handle shop-related routes.
+router.get('/:id/analytics', (req, res) => {
+  const { id } = req.params;
+
+  const shop = db.prepare(`SELECT id, name FROM shops WHERE id = ?`).get(id);
+  if (!shop) {
+    return res.status(404).json({ error: 'Shop not found' });
+  }
+
+  function computeStats(dateFilter) {
+    const whereClause = dateFilter
+      ? `shop_id = ? AND date(joined_at) = date('now')`
+      : `shop_id = ?`;
+
+    const entries = db.prepare(
+      `SELECT * FROM queue_entries WHERE ${whereClause}`
+    ).all(id);
+
+    const totalCustomers = entries.length;
+    const customersServed = entries.filter(e => e.status === 'attended').length;
+    const noShows = entries.filter(e => e.skip_reason === 'no_show').length;
+    const skipped = entries.filter(e => e.skip_reason === 'owner_skip').length;
+    const cancelled = entries.filter(e => e.status === 'cancelled').length;
+
+    const calledEntries = entries.filter(e => e.called_at && e.joined_at);
+    let avgWaitSeconds = null;
+    if (calledEntries.length > 0) {
+      const totalWait = calledEntries.reduce((sum, e) => {
+        const joined = new Date(e.joined_at).getTime();
+        const called = new Date(e.called_at).getTime();
+        return sum + Math.max(0, (called - joined) / 1000);
+      }, 0);
+      avgWaitSeconds = Math.round(totalWait / calledEntries.length);
+    }
+
+    let peakHour = null;
+    if (entries.length > 0) {
+      const hourCounts = {};
+      entries.forEach(e => {
+        if (e.joined_at) {
+          const h = new Date(e.joined_at).getHours();
+          hourCounts[h] = (hourCounts[h] || 0) + 1;
+        }
+      });
+      const sorted = Object.entries(hourCounts).sort((a, b) => b[1] - a[1]);
+      if (sorted.length > 0) {
+        peakHour = parseInt(sorted[0][0]);
+      }
+    }
+
+    const denominator = customersServed + skipped + cancelled;
+    const serviceRate = denominator > 0 ? parseFloat((customersServed / denominator).toFixed(2)) : 0;
+
+    return {
+      totalCustomers,
+      customersServed,
+      noShows,
+      skipped,
+      cancelled,
+      avgWaitSeconds,
+      peakHour,
+      serviceRate,
+    };
+  }
+
+  res.json({
+    shopId: id,
+    shopName: shop.name,
+    today: computeStats(true),
+    allTime: computeStats(false),
+  });
+});
+
+module.exports = router;

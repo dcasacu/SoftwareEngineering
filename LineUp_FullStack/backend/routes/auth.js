@@ -2,48 +2,41 @@ const express = require('express');
 const router = express.Router();
 const db = require('../db');
 
-
-// ─── AUTH ENDPOINTS ───────────────────────────────────────────────────────────
-
-// Endpoint to generate an anonymous user ID when the app is opened.
-// It creates a unique ID based on the current timestamp and returns it in the response.
 router.post('/anon', (req, res) => {
   const anonUserId = `anon-${Date.now()}`;
-  db.run(`INSERT INTO users (id, role) VALUES (?, 'anon')`, [anonUserId], function (err) {
-    if (err) {
-      console.error(err);
-      return res.status(500).json({ error: 'Failed to create anonymous user' });
-    }
+  try {
+    db.prepare(`INSERT INTO users (id, role) VALUES (?, 'anon')`).run(anonUserId);
     res.json({ id: anonUserId });
-  });
-}); 
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to create anonymous user' });
+  }
+});
 
-// Endpoint to upgrade an anonymous user to a full account. It requires the anonymous user ID, name, and email in the request body.
-// If any of these fields are missing, it returns a 400 error. It updates the user's record in the database to set the name, email, and change the role from 'anon' to 'customer'.
-// If the update is successful, it returns the updated user information in the response. If the anonymous user is not found or already upgraded, it returns a 404 error.
-// If there is a database error, it returns a 500 error.
 router.post('/register', (req, res) => {
-  const { anonUserId, name, email } = req.body;
+  const { anonUserId, name, email, password } = req.body;
 
-  if (!anonUserId || !name || !email) {
-    return res.status(400).json({ error: 'anonUserId, name, and email are required' });
+  if (!anonUserId || !name || !email || !password) {
+    return res.status(400).json({ error: 'anonUserId, name, email, and password are required' });
   }
 
-  db.run(`UPDATE users SET name = ?, email = ?, role = 'customer' WHERE id = ? AND role = 'anon'`, [name, email, anonUserId], function (err) {
-    if (err) {
-      console.error(err);
-      return res.status(500).json({ error: 'Failed to upgrade anonymous user' });
-    }
-    if (this.changes === 0) {
+  const bcrypt = require('bcryptjs');
+  const hashedPassword = bcrypt.hashSync(password, 10);
+
+  try {
+    const result = db.prepare(
+      `UPDATE users SET name = ?, email = ?, password = ?, role = 'customer' WHERE id = ? AND role = 'anon'`
+    ).run(name, email, hashedPassword, anonUserId);
+    if (result.changes === 0) {
       return res.status(404).json({ error: 'Anonymous user not found or already upgraded' });
     }
     res.json({ id: anonUserId, name, email, role: 'customer' });
-  });
-
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to upgrade anonymous user' });
+  }
 });
 
-// Endpoint for user login. It requires email and password in the request body. If either field is missing, it returns a 400 error.
-// TODO: Implement login logic (password verification).
 router.post('/login', (req, res) => {
   const { email, password } = req.body;
 
@@ -51,41 +44,56 @@ router.post('/login', (req, res) => {
     return res.status(400).json({ error: 'Email and password are required' });
   }
 
-  // TODO: Implement login logic (password verification).
+  const bcrypt = require('bcryptjs');
+  const user = db.get(`SELECT * FROM users WHERE email = ?`, [email]);
 
+  if (!user) {
+    return res.status(401).json({ error: 'Invalid email or password' });
+  }
+  if (!user.password) {
+    return res.status(401).json({ error: 'Invalid email or password' });
+  }
+
+  const valid = bcrypt.compareSync(password, user.password);
+  if (!valid) {
+    return res.status(401).json({ error: 'Invalid email or password' });
+  }
+
+  res.json({ id: user.id, name: user.name, email: user.email, role: user.role });
 });
 
 router.post('/logout', (req, res) => {
-  // Endpoint for user logout. It requires the user ID in the request body. If the user ID is missing, it returns a 400 error.
-  const { userId } = req.body;
-
-  if (!userId) {
-    return res.status(400).json({ error: 'userId is required' });
-  }
-
-  // TODO: Implement logout logic (e.g., invalidate the user's session).
+  res.json({ success: true });
 });
 
 router.delete('/anon/:id', (req, res) => {
-  // Endpoint to delete an anonymous user account. It requires the anonymous user ID as a URL parameter. If the user ID is missing, it returns a 400 error.
   const { id } = req.params;
-
-  if (!id) {
-    return res.status(400).json({ error: 'userId is required' });
+  try {
+    db.prepare(`DELETE FROM queue_entries WHERE user_id = ?`).run(id);
+    const result = db.prepare(`DELETE FROM users WHERE id = ? AND role = 'anon'`).run(id);
+    if (result.changes === 0) {
+      return res.status(404).json({ error: 'Anonymous user not found' });
+    }
+    res.json({ success: true });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to delete anonymous user' });
   }
-
-  // TODO: Implement anonymous user deletion logic.
 });
 
 router.delete('/account/:id', (req, res) => {
-  // Endpoint to delete a full user account. It requires the user ID as a URL parameter. If the user ID is missing, it returns a 400 error.
   const { id } = req.params;
-
-  if (!id) {
-    return res.status(400).json({ error: 'userId is required' });
+  try {
+    db.prepare(`DELETE FROM queue_entries WHERE user_id = ?`).run(id);
+    const result = db.prepare(`DELETE FROM users WHERE id = ?`).run(id);
+    if (result.changes === 0) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    res.json({ success: true });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to delete user' });
   }
-
-  // TODO: Implement full user deletion logic.
 });
 
-module.exports = router; // Export the router so it can be used in the main server file to handle authentication-related routes.
+module.exports = router;

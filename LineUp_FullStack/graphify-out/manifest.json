@@ -1,0 +1,682 @@
+{
+  "/Users/bielmongeortiz/Desktop/UNI/3r Curs/3r Trimestre/Enginyeria del Software/SoftwareGithub/SoftwareEngineering/LineUp_FullStack/package.json": {
+    "mtime": 1779095979.6277237,
+    "ast_hash": "79c491f8bd34b0f24bb0aa46d8b54c07",
+    "semantic_hash": "79c491f8bd34b0f24bb0aa46d8b54c07"
+  },
+  "/Users/bielmongeortiz/Desktop/UNI/3r Curs/3r Trimestre/Enginyeria del Software/SoftwareGithub/SoftwareEngineering/LineUp_FullStack/macos/RunnerTests/RunnerTests.swift": {
+    "mtime": 1779094904.5702415,
+    "ast_hash": "97d3a20fd20a063c192e886d1822b4a8",
+    "semantic_hash": "97d3a20fd20a063c192e886d1822b4a8"
+  },
+  "/Users/bielmongeortiz/Desktop/UNI/3r Curs/3r Trimestre/Enginyeria del Software/SoftwareGithub/SoftwareEngineering/LineUp_FullStack/macos/Runner/MainFlutterWindow.swift": {
+    "mtime": 1777568241.0,
+    "ast_hash": "4a747b1f256d62a2bbb79bd976891eb5",
+    "semantic_hash": "4a747b1f256d62a2bbb79bd976891eb5"
+  },
+  "/Users/bielmongeortiz/Desktop/UNI/3r Curs/3r Trimestre/Enginyeria del Software/SoftwareGithub/SoftwareEngineering/LineUp_FullStack/macos/Runner/AppDelegate.swift": {
+    "mtime": 1777568241.0,
+    "ast_hash": "2a7411ae3e7c6715525b94b6f8d2e80b",
+    "semantic_hash": "2a7411ae3e7c6715525b94b6f8d2e80b"
+  },
+  "/Users/bielmongeortiz/Desktop/UNI/3r Curs/3r Trimestre/Enginyeria del Software/SoftwareGithub/SoftwareEngineering/LineUp_FullStack/macos/Runner/Assets.xcassets/AppIcon.appiconset/Contents.json": {
+    "mtime": 1777568241.0,
+    "ast_hash": "5bd47c3ef1d1a261037c87fb3ddb9cfd",
+    "semantic_hash": "5bd47c3ef1d1a261037c87fb3ddb9cfd"
+  },
+  "/Users/bielmongeortiz/Desktop/UNI/3r Curs/3r Trimestre/Enginyeria del Software/SoftwareGithub/SoftwareEngineering/LineUp_FullStack/macos/Flutter/GeneratedPluginRegistrant.swift": {
+    "mtime": 1779101195.9221017,
+    "ast_hash": "eab4b8518c44db57ef95ae00ed496591",
+    "semantic_hash": "eab4b8518c44db57ef95ae00ed496591"
+  },
+  "/Users/bielmongeortiz/Desktop/UNI/3r Curs/3r Trimestre/Enginyeria del Software/SoftwareGithub/SoftwareEngineering/LineUp_FullStack/macos/Flutter/ephemeral/flutter_export_environment.sh": {
+    "mtime": 1779094905.461662,
+    "ast_hash": "55dbdf62f05a0a100d3620b8e817602a",
+    "semantic_hash": "55dbdf62f05a0a100d3620b8e817602a"
+  },
+  "/Users/bielmongeortiz/Desktop/UNI/3r Curs/3r Trimestre/Enginyeria del Software/SoftwareGithub/SoftwareEngineering/LineUp_FullStack/test/widget_test.dart": {
+    "mtime": 1779095427.866097,
+    "ast_hash": "0fe5490a6ed77ab08d4b6daa37c57b14",
+    "semantic_hash": "0fe5490a6ed77ab08d4b6daa37c57b14"
+  },
+  "/Users/bielmongeortiz/Desktop/UNI/3r Curs/3r Trimestre/Enginyeria del Software/SoftwareGithub/SoftwareEngineering/LineUp_FullStack/web/manifest.json": {
+    "mtime": 1779094904.564969,
+    "ast_hash": "d8df86b901cdf0b969787dd2193de1f2",
+    "semantic_hash": "d8df86b901cdf0b969787dd2193de1f2"
+  },
+  "/Users/bielmongeortiz/Desktop/UNI/3r Curs/3r Trimestre/Enginyeria del Software/SoftwareGithub/SoftwareEngineering/LineUp_FullStack/backend/server.js": {
+    "mtime": 1779092598.1898925,
+    "ast_hash": "78d98411ef4c0d5fd90c3163c463408c",
+    "semantic_hash": "78d98411ef4c0d5fd90c3163c463408c"
+  },
+  "/Users/bielmongeortiz/Desktop/UNI/3r Curs/3r Trimestre/Enginyeria del Software/SoftwareGithub/SoftwareEngineering/LineUp_FullStack/backend/db.js": {
+    "mtime": 1779095989.3753994,
+    "ast_hash": "3a0c7158b24ca28e271bfd47e28ac6ed",
+    "semantic_hash": "3a0c7158b24ca28e271bfd47e28ac6ed"
+  },
+  "/Users/bielmongeortiz/Desktop/UNI/3r Curs/3r Trimestre/Enginyeria del Software/SoftwareGithub/SoftwareEngineering/LineUp_FullStack/backend/old-server.js": {
+    "mtime": 1779040804.2528057,
+    "ast_hash": "2a019c23141e7076b3b98be435e60f24",
+    "semantic_hash": "2a019c23141e7076b3b98be435e60f24"
+  },
+  "/Users/bielmongeortiz/Desktop/UNI/3r Curs/3r Trimestre/Enginyeria del Software/SoftwareGithub/SoftwareEngineering/LineUp_FullStack/backend/init-db.js": {
+    "mtime": 1779096142.901986,
+    "ast_hash": "b8f749432a9bf17995146b821fbec114",
+    "semantic_hash": "b8f749432a9bf17995146b821fbec114"
+  },
+  "/Users/bielmongeortiz/Desktop/UNI/3r Curs/3r Trimestre/Enginyeria del Software/SoftwareGithub/SoftwareEngineering/LineUp_FullStack/backend/routes/auth.js": {
+    "mtime": 1779097622.4968848,
+    "ast_hash": "95075ca867c685cfd302193805c61254",
+    "semantic_hash": "95075ca867c685cfd302193805c61254"
+  },
+  "/Users/bielmongeortiz/Desktop/UNI/3r Curs/3r Trimestre/Enginyeria del Software/SoftwareGithub/SoftwareEngineering/LineUp_FullStack/backend/routes/queue.js": {
+    "mtime": 1779097690.8264248,
+    "ast_hash": "78d8b6a235e84007517015f262623d8f",
+    "semantic_hash": "78d8b6a235e84007517015f262623d8f"
+  },
+  "/Users/bielmongeortiz/Desktop/UNI/3r Curs/3r Trimestre/Enginyeria del Software/SoftwareGithub/SoftwareEngineering/LineUp_FullStack/backend/routes/shops.js": {
+    "mtime": 1779102133.4244423,
+    "ast_hash": "8e8b63d4f3d4401e0c06cb477cef6cdd",
+    "semantic_hash": "8e8b63d4f3d4401e0c06cb477cef6cdd"
+  },
+  "/Users/bielmongeortiz/Desktop/UNI/3r Curs/3r Trimestre/Enginyeria del Software/SoftwareGithub/SoftwareEngineering/LineUp_FullStack/ios/RunnerTests/RunnerTests.swift": {
+    "mtime": 1779094904.5336509,
+    "ast_hash": "a225a382d14d7b16b6f602a5c1d49331",
+    "semantic_hash": "a225a382d14d7b16b6f602a5c1d49331"
+  },
+  "/Users/bielmongeortiz/Desktop/UNI/3r Curs/3r Trimestre/Enginyeria del Software/SoftwareGithub/SoftwareEngineering/LineUp_FullStack/ios/Runner/Runner-Bridging-Header.h": {
+    "mtime": 1777568241.0,
+    "ast_hash": "e07862ac930ed4d8479185d52c6cc66d",
+    "semantic_hash": "e07862ac930ed4d8479185d52c6cc66d"
+  },
+  "/Users/bielmongeortiz/Desktop/UNI/3r Curs/3r Trimestre/Enginyeria del Software/SoftwareGithub/SoftwareEngineering/LineUp_FullStack/ios/Runner/GeneratedPluginRegistrant.h": {
+    "mtime": 1779094905.5021622,
+    "ast_hash": "decb9041b5e91a07e66f4664e5dac408",
+    "semantic_hash": "decb9041b5e91a07e66f4664e5dac408"
+  },
+  "/Users/bielmongeortiz/Desktop/UNI/3r Curs/3r Trimestre/Enginyeria del Software/SoftwareGithub/SoftwareEngineering/LineUp_FullStack/ios/Runner/AppDelegate.swift": {
+    "mtime": 1777568241.0,
+    "ast_hash": "2bd8469f2a4b701ff582f6574e58b13c",
+    "semantic_hash": "2bd8469f2a4b701ff582f6574e58b13c"
+  },
+  "/Users/bielmongeortiz/Desktop/UNI/3r Curs/3r Trimestre/Enginyeria del Software/SoftwareGithub/SoftwareEngineering/LineUp_FullStack/ios/Runner/GeneratedPluginRegistrant.m": {
+    "mtime": 1779101195.921454,
+    "ast_hash": "6bc5ca3ae8ed6cdb3a44f8c1ed32403d",
+    "semantic_hash": "6bc5ca3ae8ed6cdb3a44f8c1ed32403d"
+  },
+  "/Users/bielmongeortiz/Desktop/UNI/3r Curs/3r Trimestre/Enginyeria del Software/SoftwareGithub/SoftwareEngineering/LineUp_FullStack/ios/Runner/SceneDelegate.swift": {
+    "mtime": 1777568241.0,
+    "ast_hash": "748d701e783e68faf618c00464257a19",
+    "semantic_hash": "748d701e783e68faf618c00464257a19"
+  },
+  "/Users/bielmongeortiz/Desktop/UNI/3r Curs/3r Trimestre/Enginyeria del Software/SoftwareGithub/SoftwareEngineering/LineUp_FullStack/ios/Runner/Assets.xcassets/LaunchImage.imageset/Contents.json": {
+    "mtime": 1777568241.0,
+    "ast_hash": "770f4f65e02ca2fc57f46f4f4148d15d",
+    "semantic_hash": "770f4f65e02ca2fc57f46f4f4148d15d"
+  },
+  "/Users/bielmongeortiz/Desktop/UNI/3r Curs/3r Trimestre/Enginyeria del Software/SoftwareGithub/SoftwareEngineering/LineUp_FullStack/ios/Runner/Assets.xcassets/AppIcon.appiconset/Contents.json": {
+    "mtime": 1777568241.0,
+    "ast_hash": "c3cdf9688b604d14f2e76a8287e16167",
+    "semantic_hash": "c3cdf9688b604d14f2e76a8287e16167"
+  },
+  "/Users/bielmongeortiz/Desktop/UNI/3r Curs/3r Trimestre/Enginyeria del Software/SoftwareGithub/SoftwareEngineering/LineUp_FullStack/ios/Flutter/flutter_export_environment.sh": {
+    "mtime": 1779094905.4565072,
+    "ast_hash": "8fca92a222b39f3a590b6d61be23a843",
+    "semantic_hash": "8fca92a222b39f3a590b6d61be23a843"
+  },
+  "/Users/bielmongeortiz/Desktop/UNI/3r Curs/3r Trimestre/Enginyeria del Software/SoftwareGithub/SoftwareEngineering/LineUp_FullStack/ios/Flutter/ephemeral/flutter_lldb_helper.py": {
+    "mtime": 1779094905.4313674,
+    "ast_hash": "98fc75412162af387e2e3461e4e58094",
+    "semantic_hash": "98fc75412162af387e2e3461e4e58094"
+  },
+  "/Users/bielmongeortiz/Desktop/UNI/3r Curs/3r Trimestre/Enginyeria del Software/SoftwareGithub/SoftwareEngineering/LineUp_FullStack/linux/runner/main.cc": {
+    "mtime": 1777568241.0,
+    "ast_hash": "0643b8609698e96b3abd63c210361a87",
+    "semantic_hash": "0643b8609698e96b3abd63c210361a87"
+  },
+  "/Users/bielmongeortiz/Desktop/UNI/3r Curs/3r Trimestre/Enginyeria del Software/SoftwareGithub/SoftwareEngineering/LineUp_FullStack/linux/runner/my_application.h": {
+    "mtime": 1777568241.0,
+    "ast_hash": "326a85d68857137fdfe8698a0c071baf",
+    "semantic_hash": "326a85d68857137fdfe8698a0c071baf"
+  },
+  "/Users/bielmongeortiz/Desktop/UNI/3r Curs/3r Trimestre/Enginyeria del Software/SoftwareGithub/SoftwareEngineering/LineUp_FullStack/linux/runner/my_application.cc": {
+    "mtime": 1779094904.609351,
+    "ast_hash": "602ee647210ff3efe245e88cf2140dd5",
+    "semantic_hash": "602ee647210ff3efe245e88cf2140dd5"
+  },
+  "/Users/bielmongeortiz/Desktop/UNI/3r Curs/3r Trimestre/Enginyeria del Software/SoftwareGithub/SoftwareEngineering/LineUp_FullStack/linux/flutter/generated_plugin_registrant.cc": {
+    "mtime": 1779101195.9165714,
+    "ast_hash": "e0d80c289a78afb0e5bf28f4e2a91ba3",
+    "semantic_hash": "e0d80c289a78afb0e5bf28f4e2a91ba3"
+  },
+  "/Users/bielmongeortiz/Desktop/UNI/3r Curs/3r Trimestre/Enginyeria del Software/SoftwareGithub/SoftwareEngineering/LineUp_FullStack/linux/flutter/generated_plugin_registrant.h": {
+    "mtime": 1779094905.4981146,
+    "ast_hash": "d295462c9da9f7fef22dc86c34492318",
+    "semantic_hash": "d295462c9da9f7fef22dc86c34492318"
+  },
+  "/Users/bielmongeortiz/Desktop/UNI/3r Curs/3r Trimestre/Enginyeria del Software/SoftwareGithub/SoftwareEngineering/LineUp_FullStack/android/gradlew": {
+    "mtime": 1779094904.6181984,
+    "ast_hash": "7f1cd7eb3f75a1dc85cd37753972a6e2",
+    "semantic_hash": "7f1cd7eb3f75a1dc85cd37753972a6e2"
+  },
+  "/Users/bielmongeortiz/Desktop/UNI/3r Curs/3r Trimestre/Enginyeria del Software/SoftwareGithub/SoftwareEngineering/LineUp_FullStack/android/build.gradle.kts": {
+    "mtime": 1779094904.5997717,
+    "ast_hash": "f11f360aed44d4f6871b398346af14f0",
+    "semantic_hash": "f11f360aed44d4f6871b398346af14f0"
+  },
+  "/Users/bielmongeortiz/Desktop/UNI/3r Curs/3r Trimestre/Enginyeria del Software/SoftwareGithub/SoftwareEngineering/LineUp_FullStack/android/settings.gradle.kts": {
+    "mtime": 1779094904.5979712,
+    "ast_hash": "094e3cafe85d4dbf756dfe0bd754c6cb",
+    "semantic_hash": "094e3cafe85d4dbf756dfe0bd754c6cb"
+  },
+  "/Users/bielmongeortiz/Desktop/UNI/3r Curs/3r Trimestre/Enginyeria del Software/SoftwareGithub/SoftwareEngineering/LineUp_FullStack/android/app/build.gradle.kts": {
+    "mtime": 1779094904.6001492,
+    "ast_hash": "62198bdb51d245c82d3526cdf1604a13",
+    "semantic_hash": "62198bdb51d245c82d3526cdf1604a13"
+  },
+  "/Users/bielmongeortiz/Desktop/UNI/3r Curs/3r Trimestre/Enginyeria del Software/SoftwareGithub/SoftwareEngineering/LineUp_FullStack/android/app/src/main/java/io/flutter/plugins/GeneratedPluginRegistrant.java": {
+    "mtime": 1779101195.913956,
+    "ast_hash": "763fc130d44dcfd6e0848becd4eb0183",
+    "semantic_hash": "763fc130d44dcfd6e0848becd4eb0183"
+  },
+  "/Users/bielmongeortiz/Desktop/UNI/3r Curs/3r Trimestre/Enginyeria del Software/SoftwareGithub/SoftwareEngineering/LineUp_FullStack/android/app/src/main/kotlin/com/lineup/lineup_fullstack_temp/MainActivity.kt": {
+    "mtime": 1779094904.6009817,
+    "ast_hash": "03643c87f7ce89ec111b22762b333c31",
+    "semantic_hash": "03643c87f7ce89ec111b22762b333c31"
+  },
+  "/Users/bielmongeortiz/Desktop/UNI/3r Curs/3r Trimestre/Enginyeria del Software/SoftwareGithub/SoftwareEngineering/LineUp_FullStack/lib/main.dart": {
+    "mtime": 1779093973.427327,
+    "ast_hash": "e30b73168e84ad1c356539f44a4ea21c",
+    "semantic_hash": "e30b73168e84ad1c356539f44a4ea21c"
+  },
+  "/Users/bielmongeortiz/Desktop/UNI/3r Curs/3r Trimestre/Enginyeria del Software/SoftwareGithub/SoftwareEngineering/LineUp_FullStack/lib/app.dart": {
+    "mtime": 1779102200.595237,
+    "ast_hash": "dd94f7c4e1341f36dd1a7904e7676e38",
+    "semantic_hash": "dd94f7c4e1341f36dd1a7904e7676e38"
+  },
+  "/Users/bielmongeortiz/Desktop/UNI/3r Curs/3r Trimestre/Enginyeria del Software/SoftwareGithub/SoftwareEngineering/LineUp_FullStack/lib/config/api_config.dart": {
+    "mtime": 1779096775.7367887,
+    "ast_hash": "08b9899020735287343c78602159f973",
+    "semantic_hash": "08b9899020735287343c78602159f973"
+  },
+  "/Users/bielmongeortiz/Desktop/UNI/3r Curs/3r Trimestre/Enginyeria del Software/SoftwareGithub/SoftwareEngineering/LineUp_FullStack/lib/config/theme.dart": {
+    "mtime": 1779095013.5593548,
+    "ast_hash": "3e1c022c061d326b978718f48eb6cf61",
+    "semantic_hash": "3e1c022c061d326b978718f48eb6cf61"
+  },
+  "/Users/bielmongeortiz/Desktop/UNI/3r Curs/3r Trimestre/Enginyeria del Software/SoftwareGithub/SoftwareEngineering/LineUp_FullStack/lib/providers/analytics_provider.dart": {
+    "mtime": 1779102188.7328222,
+    "ast_hash": "9225a52c0b256e7c39afec7677a0ef41",
+    "semantic_hash": "9225a52c0b256e7c39afec7677a0ef41"
+  },
+  "/Users/bielmongeortiz/Desktop/UNI/3r Curs/3r Trimestre/Enginyeria del Software/SoftwareGithub/SoftwareEngineering/LineUp_FullStack/lib/providers/auth_provider.dart": {
+    "mtime": 1779093973.4206088,
+    "ast_hash": "23623eb1d86cb90e779ba71546535032",
+    "semantic_hash": "23623eb1d86cb90e779ba71546535032"
+  },
+  "/Users/bielmongeortiz/Desktop/UNI/3r Curs/3r Trimestre/Enginyeria del Software/SoftwareGithub/SoftwareEngineering/LineUp_FullStack/lib/providers/shops_provider.dart": {
+    "mtime": 1779093973.4211595,
+    "ast_hash": "dd793e9563e2071e0dbd687232a7510f",
+    "semantic_hash": "dd793e9563e2071e0dbd687232a7510f"
+  },
+  "/Users/bielmongeortiz/Desktop/UNI/3r Curs/3r Trimestre/Enginyeria del Software/SoftwareGithub/SoftwareEngineering/LineUp_FullStack/lib/providers/queue_provider.dart": {
+    "mtime": 1779100818.350025,
+    "ast_hash": "5e0c0115fc646b62e28fe201fa0375a1",
+    "semantic_hash": "5e0c0115fc646b62e28fe201fa0375a1"
+  },
+  "/Users/bielmongeortiz/Desktop/UNI/3r Curs/3r Trimestre/Enginyeria del Software/SoftwareGithub/SoftwareEngineering/LineUp_FullStack/lib/utils/storage.dart": {
+    "mtime": 1779093973.4221838,
+    "ast_hash": "e726659eba30c1d3cca8be735812eaf5",
+    "semantic_hash": "e726659eba30c1d3cca8be735812eaf5"
+  },
+  "/Users/bielmongeortiz/Desktop/UNI/3r Curs/3r Trimestre/Enginyeria del Software/SoftwareGithub/SoftwareEngineering/LineUp_FullStack/lib/models/user.dart": {
+    "mtime": 1779093973.4225173,
+    "ast_hash": "6b21a2b06d1a5bfb47255c3f7ffae26c",
+    "semantic_hash": "6b21a2b06d1a5bfb47255c3f7ffae26c"
+  },
+  "/Users/bielmongeortiz/Desktop/UNI/3r Curs/3r Trimestre/Enginyeria del Software/SoftwareGithub/SoftwareEngineering/LineUp_FullStack/lib/models/shop.dart": {
+    "mtime": 1779093973.423047,
+    "ast_hash": "9b3ca7ce438df6676dcfc3b5d46bc130",
+    "semantic_hash": "9b3ca7ce438df6676dcfc3b5d46bc130"
+  },
+  "/Users/bielmongeortiz/Desktop/UNI/3r Curs/3r Trimestre/Enginyeria del Software/SoftwareGithub/SoftwareEngineering/LineUp_FullStack/lib/models/shop_analytics.dart": {
+    "mtime": 1779102336.0814025,
+    "ast_hash": "2dd5e3633c3583f40ffae8d27d6b8496",
+    "semantic_hash": "2dd5e3633c3583f40ffae8d27d6b8496"
+  },
+  "/Users/bielmongeortiz/Desktop/UNI/3r Curs/3r Trimestre/Enginyeria del Software/SoftwareGithub/SoftwareEngineering/LineUp_FullStack/lib/models/queue_entry.dart": {
+    "mtime": 1779093973.4234953,
+    "ast_hash": "693fa735dbed88db789fc55221dd8d95",
+    "semantic_hash": "693fa735dbed88db789fc55221dd8d95"
+  },
+  "/Users/bielmongeortiz/Desktop/UNI/3r Curs/3r Trimestre/Enginyeria del Software/SoftwareGithub/SoftwareEngineering/LineUp_FullStack/lib/screens/splash_screen.dart": {
+    "mtime": 1779097052.829011,
+    "ast_hash": "3f0856ff6e487b6e32fa652d330e452a",
+    "semantic_hash": "3f0856ff6e487b6e32fa652d330e452a"
+  },
+  "/Users/bielmongeortiz/Desktop/UNI/3r Curs/3r Trimestre/Enginyeria del Software/SoftwareGithub/SoftwareEngineering/LineUp_FullStack/lib/screens/owner/dashboard_screen.dart": {
+    "mtime": 1779102274.2011595,
+    "ast_hash": "683935c5dc70029d5a4c59d68cce123c",
+    "semantic_hash": "683935c5dc70029d5a4c59d68cce123c"
+  },
+  "/Users/bielmongeortiz/Desktop/UNI/3r Curs/3r Trimestre/Enginyeria del Software/SoftwareGithub/SoftwareEngineering/LineUp_FullStack/lib/screens/customer/my_queues_screen.dart": {
+    "mtime": 1779095191.8344932,
+    "ast_hash": "a6ab12c4b3272bc437e7926ca8ec2327",
+    "semantic_hash": "a6ab12c4b3272bc437e7926ca8ec2327"
+  },
+  "/Users/bielmongeortiz/Desktop/UNI/3r Curs/3r Trimestre/Enginyeria del Software/SoftwareGithub/SoftwareEngineering/LineUp_FullStack/lib/screens/customer/map_screen.dart": {
+    "mtime": 1779101285.82719,
+    "ast_hash": "06aefb2b9e9d07371b4464a743a1b1d7",
+    "semantic_hash": "06aefb2b9e9d07371b4464a743a1b1d7"
+  },
+  "/Users/bielmongeortiz/Desktop/UNI/3r Curs/3r Trimestre/Enginyeria del Software/SoftwareGithub/SoftwareEngineering/LineUp_FullStack/lib/screens/customer/shop_detail_screen.dart": {
+    "mtime": 1779101175.3617816,
+    "ast_hash": "7828d9ece354a7e7b0bc92d075a9ef88",
+    "semantic_hash": "7828d9ece354a7e7b0bc92d075a9ef88"
+  },
+  "/Users/bielmongeortiz/Desktop/UNI/3r Curs/3r Trimestre/Enginyeria del Software/SoftwareGithub/SoftwareEngineering/LineUp_FullStack/lib/routing/app_router.dart": {
+    "mtime": 1779095488.3845317,
+    "ast_hash": "c3b870b49a045ec1737769e98ee93f16",
+    "semantic_hash": "c3b870b49a045ec1737769e98ee93f16"
+  },
+  "/Users/bielmongeortiz/Desktop/UNI/3r Curs/3r Trimestre/Enginyeria del Software/SoftwareGithub/SoftwareEngineering/LineUp_FullStack/lib/services/analytics_service.dart": {
+    "mtime": 1779102172.587698,
+    "ast_hash": "66b9831bf8af4bd23a6fe62c5b4739c0",
+    "semantic_hash": "66b9831bf8af4bd23a6fe62c5b4739c0"
+  },
+  "/Users/bielmongeortiz/Desktop/UNI/3r Curs/3r Trimestre/Enginyeria del Software/SoftwareGithub/SoftwareEngineering/LineUp_FullStack/lib/services/auth_service.dart": {
+    "mtime": 1779095288.1931849,
+    "ast_hash": "f83e4fcdfaad12924b8a83e40faadd00",
+    "semantic_hash": "f83e4fcdfaad12924b8a83e40faadd00"
+  },
+  "/Users/bielmongeortiz/Desktop/UNI/3r Curs/3r Trimestre/Enginyeria del Software/SoftwareGithub/SoftwareEngineering/LineUp_FullStack/lib/services/notification_service.dart": {
+    "mtime": 1779101231.5673215,
+    "ast_hash": "2793e035ede86ac7447daee4d0a902d8",
+    "semantic_hash": "2793e035ede86ac7447daee4d0a902d8"
+  },
+  "/Users/bielmongeortiz/Desktop/UNI/3r Curs/3r Trimestre/Enginyeria del Software/SoftwareGithub/SoftwareEngineering/LineUp_FullStack/lib/services/api_service.dart": {
+    "mtime": 1779095277.1347017,
+    "ast_hash": "a90738ba598ac1fc2a14688674640134",
+    "semantic_hash": "a90738ba598ac1fc2a14688674640134"
+  },
+  "/Users/bielmongeortiz/Desktop/UNI/3r Curs/3r Trimestre/Enginyeria del Software/SoftwareGithub/SoftwareEngineering/LineUp_FullStack/lib/services/queue_service.dart": {
+    "mtime": 1779095303.2463264,
+    "ast_hash": "0ecd74548032006034f295ca3167a765",
+    "semantic_hash": "0ecd74548032006034f295ca3167a765"
+  },
+  "/Users/bielmongeortiz/Desktop/UNI/3r Curs/3r Trimestre/Enginyeria del Software/SoftwareGithub/SoftwareEngineering/LineUp_FullStack/lib/services/shop_service.dart": {
+    "mtime": 1779095294.576968,
+    "ast_hash": "307113b56fe72f20b0b8f47f49d6247f",
+    "semantic_hash": "307113b56fe72f20b0b8f47f49d6247f"
+  },
+  "/Users/bielmongeortiz/Desktop/UNI/3r Curs/3r Trimestre/Enginyeria del Software/SoftwareGithub/SoftwareEngineering/LineUp_FullStack/lib/widgets/position_badge.dart": {
+    "mtime": 1779095271.9173238,
+    "ast_hash": "54bbdd8a5c11af4d655159383d69bc0a",
+    "semantic_hash": "54bbdd8a5c11af4d655159383d69bc0a"
+  },
+  "/Users/bielmongeortiz/Desktop/UNI/3r Curs/3r Trimestre/Enginyeria del Software/SoftwareGithub/SoftwareEngineering/LineUp_FullStack/lib/widgets/queue_notification_overlay.dart": {
+    "mtime": 1779100770.3218791,
+    "ast_hash": "c8bf426fd8d1d786d150646ab82e245e",
+    "semantic_hash": "c8bf426fd8d1d786d150646ab82e245e"
+  },
+  "/Users/bielmongeortiz/Desktop/UNI/3r Curs/3r Trimestre/Enginyeria del Software/SoftwareGithub/SoftwareEngineering/LineUp_FullStack/lib/widgets/category_filter.dart": {
+    "mtime": 1779093973.4311235,
+    "ast_hash": "22e7db59c12d53c3acf6c9224d364351",
+    "semantic_hash": "22e7db59c12d53c3acf6c9224d364351"
+  },
+  "/Users/bielmongeortiz/Desktop/UNI/3r Curs/3r Trimestre/Enginyeria del Software/SoftwareGithub/SoftwareEngineering/LineUp_FullStack/lib/widgets/toast_overlay.dart": {
+    "mtime": 1779093973.4315147,
+    "ast_hash": "387d110fcb2ffdb7a037eadfb73c7ac5",
+    "semantic_hash": "387d110fcb2ffdb7a037eadfb73c7ac5"
+  },
+  "/Users/bielmongeortiz/Desktop/UNI/3r Curs/3r Trimestre/Enginyeria del Software/SoftwareGithub/SoftwareEngineering/LineUp_FullStack/lib/widgets/shop_card.dart": {
+    "mtime": 1779093973.431956,
+    "ast_hash": "bb891e882f28134010b8b1a87f19eb8a",
+    "semantic_hash": "bb891e882f28134010b8b1a87f19eb8a"
+  },
+  "/Users/bielmongeortiz/Desktop/UNI/3r Curs/3r Trimestre/Enginyeria del Software/SoftwareGithub/SoftwareEngineering/LineUp_FullStack/lib/widgets/queue_list_tile.dart": {
+    "mtime": 1779093973.432363,
+    "ast_hash": "365e8977471100d2eb609fefedad0190",
+    "semantic_hash": "365e8977471100d2eb609fefedad0190"
+  },
+  "/Users/bielmongeortiz/Desktop/UNI/3r Curs/3r Trimestre/Enginyeria del Software/SoftwareGithub/SoftwareEngineering/LineUp_FullStack/.dart_tool/package_config.json": {
+    "mtime": 1779101195.6929548,
+    "ast_hash": "373e4b5c6c8d810f527ba732a90cb582",
+    "semantic_hash": "373e4b5c6c8d810f527ba732a90cb582"
+  },
+  "/Users/bielmongeortiz/Desktop/UNI/3r Curs/3r Trimestre/Enginyeria del Software/SoftwareGithub/SoftwareEngineering/LineUp_FullStack/.dart_tool/package_graph.json": {
+    "mtime": 1779101195.6936033,
+    "ast_hash": "ae27c42141409a3192a8b2af920af4ec",
+    "semantic_hash": "ae27c42141409a3192a8b2af920af4ec"
+  },
+  "/Users/bielmongeortiz/Desktop/UNI/3r Curs/3r Trimestre/Enginyeria del Software/SoftwareGithub/SoftwareEngineering/LineUp_FullStack/.dart_tool/hooks_runner/objective_c/337ce265dc/input.json": {
+    "mtime": 1779101352.3853867,
+    "ast_hash": "3a2901f2a26dd0661a0be7c81972544b",
+    "semantic_hash": "3a2901f2a26dd0661a0be7c81972544b"
+  },
+  "/Users/bielmongeortiz/Desktop/UNI/3r Curs/3r Trimestre/Enginyeria del Software/SoftwareGithub/SoftwareEngineering/LineUp_FullStack/.dart_tool/hooks_runner/objective_c/337ce265dc/output.json": {
+    "mtime": 1779101352.474535,
+    "ast_hash": "257a63c08873385be543d5eb2a0906ab",
+    "semantic_hash": "257a63c08873385be543d5eb2a0906ab"
+  },
+  "/Users/bielmongeortiz/Desktop/UNI/3r Curs/3r Trimestre/Enginyeria del Software/SoftwareGithub/SoftwareEngineering/LineUp_FullStack/.dart_tool/hooks_runner/objective_c/337ce265dc/hook.dependencies_hash_file.json": {
+    "mtime": 1779101352.3841474,
+    "ast_hash": "952615d627bffba9762116df5a24928c",
+    "semantic_hash": "952615d627bffba9762116df5a24928c"
+  },
+  "/Users/bielmongeortiz/Desktop/UNI/3r Curs/3r Trimestre/Enginyeria del Software/SoftwareGithub/SoftwareEngineering/LineUp_FullStack/.dart_tool/hooks_runner/objective_c/337ce265dc/dependencies.dependencies_hash_file.json": {
+    "mtime": 1779101352.4939806,
+    "ast_hash": "64c93a102a2156de7b67be7542cc9770",
+    "semantic_hash": "64c93a102a2156de7b67be7542cc9770"
+  },
+  "/Users/bielmongeortiz/Desktop/UNI/3r Curs/3r Trimestre/Enginyeria del Software/SoftwareGithub/SoftwareEngineering/LineUp_FullStack/.dart_tool/dartpad/web_plugin_registrant.dart": {
+    "mtime": 1779101195.8763735,
+    "ast_hash": "aaad93d81fbe87d6bdf6d24feb1840f3",
+    "semantic_hash": "aaad93d81fbe87d6bdf6d24feb1840f3"
+  },
+  "/Users/bielmongeortiz/Desktop/UNI/3r Curs/3r Trimestre/Enginyeria del Software/SoftwareGithub/SoftwareEngineering/LineUp_FullStack/windows/runner/flutter_window.cpp": {
+    "mtime": 1777568241.0,
+    "ast_hash": "9b92b95a9eecce25e3e9d356688d0cb6",
+    "semantic_hash": "9b92b95a9eecce25e3e9d356688d0cb6"
+  },
+  "/Users/bielmongeortiz/Desktop/UNI/3r Curs/3r Trimestre/Enginyeria del Software/SoftwareGithub/SoftwareEngineering/LineUp_FullStack/windows/runner/utils.h": {
+    "mtime": 1777568241.0,
+    "ast_hash": "c741fb9cddbf3a62f4688b6cca39ddcc",
+    "semantic_hash": "c741fb9cddbf3a62f4688b6cca39ddcc"
+  },
+  "/Users/bielmongeortiz/Desktop/UNI/3r Curs/3r Trimestre/Enginyeria del Software/SoftwareGithub/SoftwareEngineering/LineUp_FullStack/windows/runner/utils.cpp": {
+    "mtime": 1777568241.0,
+    "ast_hash": "9b5697b276c8ad67a02ec12ad2c09851",
+    "semantic_hash": "9b5697b276c8ad67a02ec12ad2c09851"
+  },
+  "/Users/bielmongeortiz/Desktop/UNI/3r Curs/3r Trimestre/Enginyeria del Software/SoftwareGithub/SoftwareEngineering/LineUp_FullStack/windows/runner/win32_window.h": {
+    "mtime": 1777568241.0,
+    "ast_hash": "5a4cf051798d7e6931ee0405a4523c8f",
+    "semantic_hash": "5a4cf051798d7e6931ee0405a4523c8f"
+  },
+  "/Users/bielmongeortiz/Desktop/UNI/3r Curs/3r Trimestre/Enginyeria del Software/SoftwareGithub/SoftwareEngineering/LineUp_FullStack/windows/runner/win32_window.cpp": {
+    "mtime": 1777568241.0,
+    "ast_hash": "928e86a2be27eca688669dce6c9177d9",
+    "semantic_hash": "928e86a2be27eca688669dce6c9177d9"
+  },
+  "/Users/bielmongeortiz/Desktop/UNI/3r Curs/3r Trimestre/Enginyeria del Software/SoftwareGithub/SoftwareEngineering/LineUp_FullStack/windows/runner/resource.h": {
+    "mtime": 1777568241.0,
+    "ast_hash": "c8f809a4f8d3f2f625e358fd90f72fee",
+    "semantic_hash": "c8f809a4f8d3f2f625e358fd90f72fee"
+  },
+  "/Users/bielmongeortiz/Desktop/UNI/3r Curs/3r Trimestre/Enginyeria del Software/SoftwareGithub/SoftwareEngineering/LineUp_FullStack/windows/runner/main.cpp": {
+    "mtime": 1779094904.5237336,
+    "ast_hash": "e9af4433336ae37fe9847047f2a5d526",
+    "semantic_hash": "e9af4433336ae37fe9847047f2a5d526"
+  },
+  "/Users/bielmongeortiz/Desktop/UNI/3r Curs/3r Trimestre/Enginyeria del Software/SoftwareGithub/SoftwareEngineering/LineUp_FullStack/windows/runner/flutter_window.h": {
+    "mtime": 1777568241.0,
+    "ast_hash": "79bea736711adda00c49419a39a4a0b4",
+    "semantic_hash": "79bea736711adda00c49419a39a4a0b4"
+  },
+  "/Users/bielmongeortiz/Desktop/UNI/3r Curs/3r Trimestre/Enginyeria del Software/SoftwareGithub/SoftwareEngineering/LineUp_FullStack/windows/flutter/generated_plugin_registrant.cc": {
+    "mtime": 1779101195.9188454,
+    "ast_hash": "28292371fda84a2f4e6317c0c4bfc4fa",
+    "semantic_hash": "28292371fda84a2f4e6317c0c4bfc4fa"
+  },
+  "/Users/bielmongeortiz/Desktop/UNI/3r Curs/3r Trimestre/Enginyeria del Software/SoftwareGithub/SoftwareEngineering/LineUp_FullStack/windows/flutter/generated_plugin_registrant.h": {
+    "mtime": 1779094905.5004117,
+    "ast_hash": "0ea33875f9f8e118f9c2ded03e2e2835",
+    "semantic_hash": "0ea33875f9f8e118f9c2ded03e2e2835"
+  },
+  "/Users/bielmongeortiz/Desktop/UNI/3r Curs/3r Trimestre/Enginyeria del Software/SoftwareGithub/SoftwareEngineering/LineUp_FullStack/README.md": {
+    "mtime": 1779094904.6031184,
+    "ast_hash": "d0501fa13065beef18ec94cbadb9687e",
+    "semantic_hash": "d0501fa13065beef18ec94cbadb9687e"
+  },
+  "/Users/bielmongeortiz/Desktop/UNI/3r Curs/3r Trimestre/Enginyeria del Software/SoftwareGithub/SoftwareEngineering/LineUp_FullStack/pubspec.yaml": {
+    "mtime": 1779100634.1443574,
+    "ast_hash": "0a3d63b8afd755fa78e2d5fc02165ff9",
+    "semantic_hash": "0a3d63b8afd755fa78e2d5fc02165ff9"
+  },
+  "/Users/bielmongeortiz/Desktop/UNI/3r Curs/3r Trimestre/Enginyeria del Software/SoftwareGithub/SoftwareEngineering/LineUp_FullStack/analysis_options.yaml": {
+    "mtime": 1779094904.6048882,
+    "ast_hash": "66d03d7647c8e438164feaf5b922d44a",
+    "semantic_hash": "66d03d7647c8e438164feaf5b922d44a"
+  },
+  "/Users/bielmongeortiz/Desktop/UNI/3r Curs/3r Trimestre/Enginyeria del Software/SoftwareGithub/SoftwareEngineering/LineUp_FullStack/web/index.html": {
+    "mtime": 1779094904.5642982,
+    "ast_hash": "d5476a94a6a09c7e1d554c09a1733925",
+    "semantic_hash": "d5476a94a6a09c7e1d554c09a1733925"
+  },
+  "/Users/bielmongeortiz/Desktop/UNI/3r Curs/3r Trimestre/Enginyeria del Software/SoftwareGithub/SoftwareEngineering/LineUp_FullStack/ios/Runner/Assets.xcassets/LaunchImage.imageset/README.md": {
+    "mtime": 1777568241.0,
+    "ast_hash": "e175e436acacf76c814d83532d0b662c",
+    "semantic_hash": "e175e436acacf76c814d83532d0b662c"
+  },
+  "/Users/bielmongeortiz/Desktop/UNI/3r Curs/3r Trimestre/Enginyeria del Software/SoftwareGithub/SoftwareEngineering/LineUp_FullStack/linux/CMakeLists.txt": {
+    "mtime": 1779094904.6112854,
+    "ast_hash": "6c9b11af0219c0018aca33e358f21d54",
+    "semantic_hash": "6c9b11af0219c0018aca33e358f21d54"
+  },
+  "/Users/bielmongeortiz/Desktop/UNI/3r Curs/3r Trimestre/Enginyeria del Software/SoftwareGithub/SoftwareEngineering/LineUp_FullStack/linux/runner/CMakeLists.txt": {
+    "mtime": 1777568241.0,
+    "ast_hash": "6d75431dc21756981b53a7494c836311",
+    "semantic_hash": "6d75431dc21756981b53a7494c836311"
+  },
+  "/Users/bielmongeortiz/Desktop/UNI/3r Curs/3r Trimestre/Enginyeria del Software/SoftwareGithub/SoftwareEngineering/LineUp_FullStack/linux/flutter/CMakeLists.txt": {
+    "mtime": 1777568241.0,
+    "ast_hash": "46690fb8ffaf7d227d8bc4713f31140d",
+    "semantic_hash": "46690fb8ffaf7d227d8bc4713f31140d"
+  },
+  "/Users/bielmongeortiz/Desktop/UNI/3r Curs/3r Trimestre/Enginyeria del Software/SoftwareGithub/SoftwareEngineering/LineUp_FullStack/.dart_tool/hooks_runner/objective_c/337ce265dc/stdout.txt": {
+    "mtime": 1779101352.3869069,
+    "ast_hash": "e7009cdbb3b0ed371354028b0094c778",
+    "semantic_hash": "e7009cdbb3b0ed371354028b0094c778"
+  },
+  "/Users/bielmongeortiz/Desktop/UNI/3r Curs/3r Trimestre/Enginyeria del Software/SoftwareGithub/SoftwareEngineering/LineUp_FullStack/.dart_tool/hooks_runner/objective_c/337ce265dc/stderr.txt": {
+    "mtime": 1779101352.386267,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "/Users/bielmongeortiz/Desktop/UNI/3r Curs/3r Trimestre/Enginyeria del Software/SoftwareGithub/SoftwareEngineering/LineUp_FullStack/.dart_tool/chrome-device/Default/Service Worker/CacheStorage/28da9c56fde4021055a681112c092453f74d8dd8/index.txt": {
+    "mtime": 1779102427.6496446,
+    "ast_hash": "7d22ea632152f6ccfd8b2b954834a85e",
+    "semantic_hash": "7d22ea632152f6ccfd8b2b954834a85e"
+  },
+  "/Users/bielmongeortiz/Desktop/UNI/3r Curs/3r Trimestre/Enginyeria del Software/SoftwareGithub/SoftwareEngineering/LineUp_FullStack/windows/CMakeLists.txt": {
+    "mtime": 1779094904.5294619,
+    "ast_hash": "95e53407d6c62d6483b15b4a2192a08f",
+    "semantic_hash": "95e53407d6c62d6483b15b4a2192a08f"
+  },
+  "/Users/bielmongeortiz/Desktop/UNI/3r Curs/3r Trimestre/Enginyeria del Software/SoftwareGithub/SoftwareEngineering/LineUp_FullStack/windows/runner/CMakeLists.txt": {
+    "mtime": 1777568241.0,
+    "ast_hash": "e99a99b5cc82a168fc557eb23b8d5a96",
+    "semantic_hash": "e99a99b5cc82a168fc557eb23b8d5a96"
+  },
+  "/Users/bielmongeortiz/Desktop/UNI/3r Curs/3r Trimestre/Enginyeria del Software/SoftwareGithub/SoftwareEngineering/LineUp_FullStack/windows/flutter/CMakeLists.txt": {
+    "mtime": 1777568241.0,
+    "ast_hash": "0c500410e3259a9a053797dc1c28070e",
+    "semantic_hash": "0c500410e3259a9a053797dc1c28070e"
+  },
+  "/Users/bielmongeortiz/Desktop/UNI/3r Curs/3r Trimestre/Enginyeria del Software/SoftwareGithub/SoftwareEngineering/LineUp_FullStack/macos/Runner/Assets.xcassets/AppIcon.appiconset/app_icon_16.png": {
+    "mtime": 1779094616.866039,
+    "ast_hash": "8bf511604bc6ed0a6aeb380c5113fdcf",
+    "semantic_hash": "8bf511604bc6ed0a6aeb380c5113fdcf"
+  },
+  "/Users/bielmongeortiz/Desktop/UNI/3r Curs/3r Trimestre/Enginyeria del Software/SoftwareGithub/SoftwareEngineering/LineUp_FullStack/macos/Runner/Assets.xcassets/AppIcon.appiconset/app_icon_1024.png": {
+    "mtime": 1779094616.8670366,
+    "ast_hash": "c9becc9105f8cabce934d20c7bfb6aac",
+    "semantic_hash": "c9becc9105f8cabce934d20c7bfb6aac"
+  },
+  "/Users/bielmongeortiz/Desktop/UNI/3r Curs/3r Trimestre/Enginyeria del Software/SoftwareGithub/SoftwareEngineering/LineUp_FullStack/macos/Runner/Assets.xcassets/AppIcon.appiconset/app_icon_256.png": {
+    "mtime": 1779094616.8672922,
+    "ast_hash": "dfe2c93d1536ae02f085cc63faa3430e",
+    "semantic_hash": "dfe2c93d1536ae02f085cc63faa3430e"
+  },
+  "/Users/bielmongeortiz/Desktop/UNI/3r Curs/3r Trimestre/Enginyeria del Software/SoftwareGithub/SoftwareEngineering/LineUp_FullStack/macos/Runner/Assets.xcassets/AppIcon.appiconset/app_icon_64.png": {
+    "mtime": 1779094616.8655488,
+    "ast_hash": "04e7b6ef05346c70b663ca1d97de3ad5",
+    "semantic_hash": "04e7b6ef05346c70b663ca1d97de3ad5"
+  },
+  "/Users/bielmongeortiz/Desktop/UNI/3r Curs/3r Trimestre/Enginyeria del Software/SoftwareGithub/SoftwareEngineering/LineUp_FullStack/macos/Runner/Assets.xcassets/AppIcon.appiconset/app_icon_512.png": {
+    "mtime": 1779094616.8658948,
+    "ast_hash": "0ad44039155424738917502c69667699",
+    "semantic_hash": "0ad44039155424738917502c69667699"
+  },
+  "/Users/bielmongeortiz/Desktop/UNI/3r Curs/3r Trimestre/Enginyeria del Software/SoftwareGithub/SoftwareEngineering/LineUp_FullStack/macos/Runner/Assets.xcassets/AppIcon.appiconset/app_icon_128.png": {
+    "mtime": 1779094616.8657396,
+    "ast_hash": "3ded30823804caaa5ccc944067c54a36",
+    "semantic_hash": "3ded30823804caaa5ccc944067c54a36"
+  },
+  "/Users/bielmongeortiz/Desktop/UNI/3r Curs/3r Trimestre/Enginyeria del Software/SoftwareGithub/SoftwareEngineering/LineUp_FullStack/macos/Runner/Assets.xcassets/AppIcon.appiconset/app_icon_32.png": {
+    "mtime": 1779094616.866195,
+    "ast_hash": "8e0ae58e362a6636bdfccbc04da2c58c",
+    "semantic_hash": "8e0ae58e362a6636bdfccbc04da2c58c"
+  },
+  "/Users/bielmongeortiz/Desktop/UNI/3r Curs/3r Trimestre/Enginyeria del Software/SoftwareGithub/SoftwareEngineering/LineUp_FullStack/web/favicon.png": {
+    "mtime": 1777568241.0,
+    "ast_hash": "5dcef449791fa27946b3d35ad8803796",
+    "semantic_hash": "5dcef449791fa27946b3d35ad8803796"
+  },
+  "/Users/bielmongeortiz/Desktop/UNI/3r Curs/3r Trimestre/Enginyeria del Software/SoftwareGithub/SoftwareEngineering/LineUp_FullStack/web/icons/Icon-192.png": {
+    "mtime": 1777568241.0,
+    "ast_hash": "ac9a721a12bbc803b44f645561ecb1e1",
+    "semantic_hash": "ac9a721a12bbc803b44f645561ecb1e1"
+  },
+  "/Users/bielmongeortiz/Desktop/UNI/3r Curs/3r Trimestre/Enginyeria del Software/SoftwareGithub/SoftwareEngineering/LineUp_FullStack/web/icons/Icon-maskable-192.png": {
+    "mtime": 1779094616.8790605,
+    "ast_hash": "c457ef57daa1d16f64b27b786ec2ea3c",
+    "semantic_hash": "c457ef57daa1d16f64b27b786ec2ea3c"
+  },
+  "/Users/bielmongeortiz/Desktop/UNI/3r Curs/3r Trimestre/Enginyeria del Software/SoftwareGithub/SoftwareEngineering/LineUp_FullStack/web/icons/Icon-maskable-512.png": {
+    "mtime": 1779094616.8788576,
+    "ast_hash": "301a7604d45b3e739efc881eb04896ea",
+    "semantic_hash": "301a7604d45b3e739efc881eb04896ea"
+  },
+  "/Users/bielmongeortiz/Desktop/UNI/3r Curs/3r Trimestre/Enginyeria del Software/SoftwareGithub/SoftwareEngineering/LineUp_FullStack/web/icons/Icon-512.png": {
+    "mtime": 1777568241.0,
+    "ast_hash": "96e752610906ba2a93c65f8abe1645f1",
+    "semantic_hash": "96e752610906ba2a93c65f8abe1645f1"
+  },
+  "/Users/bielmongeortiz/Desktop/UNI/3r Curs/3r Trimestre/Enginyeria del Software/SoftwareGithub/SoftwareEngineering/LineUp_FullStack/ios/Runner/Assets.xcassets/LaunchImage.imageset/LaunchImage@2x.png": {
+    "mtime": 1779094616.8677783,
+    "ast_hash": "978c1bee49d7ad5fc1a4d81099b13e18",
+    "semantic_hash": "978c1bee49d7ad5fc1a4d81099b13e18"
+  },
+  "/Users/bielmongeortiz/Desktop/UNI/3r Curs/3r Trimestre/Enginyeria del Software/SoftwareGithub/SoftwareEngineering/LineUp_FullStack/ios/Runner/Assets.xcassets/LaunchImage.imageset/LaunchImage@3x.png": {
+    "mtime": 1779094616.8676374,
+    "ast_hash": "978c1bee49d7ad5fc1a4d81099b13e18",
+    "semantic_hash": "978c1bee49d7ad5fc1a4d81099b13e18"
+  },
+  "/Users/bielmongeortiz/Desktop/UNI/3r Curs/3r Trimestre/Enginyeria del Software/SoftwareGithub/SoftwareEngineering/LineUp_FullStack/ios/Runner/Assets.xcassets/LaunchImage.imageset/LaunchImage.png": {
+    "mtime": 1779094616.8679156,
+    "ast_hash": "978c1bee49d7ad5fc1a4d81099b13e18",
+    "semantic_hash": "978c1bee49d7ad5fc1a4d81099b13e18"
+  },
+  "/Users/bielmongeortiz/Desktop/UNI/3r Curs/3r Trimestre/Enginyeria del Software/SoftwareGithub/SoftwareEngineering/LineUp_FullStack/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-76x76@2x.png": {
+    "mtime": 1779094616.8698182,
+    "ast_hash": "643842917530acf4c5159ae851b0baf2",
+    "semantic_hash": "643842917530acf4c5159ae851b0baf2"
+  },
+  "/Users/bielmongeortiz/Desktop/UNI/3r Curs/3r Trimestre/Enginyeria del Software/SoftwareGithub/SoftwareEngineering/LineUp_FullStack/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-29x29@1x.png": {
+    "mtime": 1779094616.8697,
+    "ast_hash": "be8887071dd7ec39cb754d236aa9584f",
+    "semantic_hash": "be8887071dd7ec39cb754d236aa9584f"
+  },
+  "/Users/bielmongeortiz/Desktop/UNI/3r Curs/3r Trimestre/Enginyeria del Software/SoftwareGithub/SoftwareEngineering/LineUp_FullStack/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-40x40@1x.png": {
+    "mtime": 1779094616.8683307,
+    "ast_hash": "2247a840b6ee72b8a069208af170e5b1",
+    "semantic_hash": "2247a840b6ee72b8a069208af170e5b1"
+  },
+  "/Users/bielmongeortiz/Desktop/UNI/3r Curs/3r Trimestre/Enginyeria del Software/SoftwareGithub/SoftwareEngineering/LineUp_FullStack/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-20x20@1x.png": {
+    "mtime": 1779094616.8691118,
+    "ast_hash": "a2f8558fb1d42514111fbbb19fb67314",
+    "semantic_hash": "a2f8558fb1d42514111fbbb19fb67314"
+  },
+  "/Users/bielmongeortiz/Desktop/UNI/3r Curs/3r Trimestre/Enginyeria del Software/SoftwareGithub/SoftwareEngineering/LineUp_FullStack/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-1024x1024@1x.png": {
+    "mtime": 1779094616.8689928,
+    "ast_hash": "c785f8932297af4acd5f5ccb7630f01c",
+    "semantic_hash": "c785f8932297af4acd5f5ccb7630f01c"
+  },
+  "/Users/bielmongeortiz/Desktop/UNI/3r Curs/3r Trimestre/Enginyeria del Software/SoftwareGithub/SoftwareEngineering/LineUp_FullStack/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-83.5x83.5@2x.png": {
+    "mtime": 1779094616.8694687,
+    "ast_hash": "665cb5e3c5729da6d639d26eff47a503",
+    "semantic_hash": "665cb5e3c5729da6d639d26eff47a503"
+  },
+  "/Users/bielmongeortiz/Desktop/UNI/3r Curs/3r Trimestre/Enginyeria del Software/SoftwareGithub/SoftwareEngineering/LineUp_FullStack/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-20x20@3x.png": {
+    "mtime": 1779094616.8693492,
+    "ast_hash": "1b3b1538136316263c7092951e923e9d",
+    "semantic_hash": "1b3b1538136316263c7092951e923e9d"
+  },
+  "/Users/bielmongeortiz/Desktop/UNI/3r Curs/3r Trimestre/Enginyeria del Software/SoftwareGithub/SoftwareEngineering/LineUp_FullStack/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-20x20@2x.png": {
+    "mtime": 1779094616.8686948,
+    "ast_hash": "2247a840b6ee72b8a069208af170e5b1",
+    "semantic_hash": "2247a840b6ee72b8a069208af170e5b1"
+  },
+  "/Users/bielmongeortiz/Desktop/UNI/3r Curs/3r Trimestre/Enginyeria del Software/SoftwareGithub/SoftwareEngineering/LineUp_FullStack/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-29x29@3x.png": {
+    "mtime": 1779094616.8692343,
+    "ast_hash": "2b1452c4c1bda6177b4fbbb832df217f",
+    "semantic_hash": "2b1452c4c1bda6177b4fbbb832df217f"
+  },
+  "/Users/bielmongeortiz/Desktop/UNI/3r Curs/3r Trimestre/Enginyeria del Software/SoftwareGithub/SoftwareEngineering/LineUp_FullStack/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-40x40@2x.png": {
+    "mtime": 1779094616.8695865,
+    "ast_hash": "8245359312aea1b0d2412f79a07b0ca5",
+    "semantic_hash": "8245359312aea1b0d2412f79a07b0ca5"
+  },
+  "/Users/bielmongeortiz/Desktop/UNI/3r Curs/3r Trimestre/Enginyeria del Software/SoftwareGithub/SoftwareEngineering/LineUp_FullStack/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-60x60@3x.png": {
+    "mtime": 1779094616.8681014,
+    "ast_hash": "e419d22a37bc40ba185aca1acb6d4ac6",
+    "semantic_hash": "e419d22a37bc40ba185aca1acb6d4ac6"
+  },
+  "/Users/bielmongeortiz/Desktop/UNI/3r Curs/3r Trimestre/Enginyeria del Software/SoftwareGithub/SoftwareEngineering/LineUp_FullStack/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-60x60@2x.png": {
+    "mtime": 1779094616.8688107,
+    "ast_hash": "5b3c0902200ce596e9848f22e1f0fe0e",
+    "semantic_hash": "5b3c0902200ce596e9848f22e1f0fe0e"
+  },
+  "/Users/bielmongeortiz/Desktop/UNI/3r Curs/3r Trimestre/Enginyeria del Software/SoftwareGithub/SoftwareEngineering/LineUp_FullStack/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-76x76@1x.png": {
+    "mtime": 1779094616.8685725,
+    "ast_hash": "36c0d7a7132bdde18898ffdfcfcdc4d2",
+    "semantic_hash": "36c0d7a7132bdde18898ffdfcfcdc4d2"
+  },
+  "/Users/bielmongeortiz/Desktop/UNI/3r Curs/3r Trimestre/Enginyeria del Software/SoftwareGithub/SoftwareEngineering/LineUp_FullStack/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-40x40@3x.png": {
+    "mtime": 1779094616.868447,
+    "ast_hash": "5b3c0902200ce596e9848f22e1f0fe0e",
+    "semantic_hash": "5b3c0902200ce596e9848f22e1f0fe0e"
+  },
+  "/Users/bielmongeortiz/Desktop/UNI/3r Curs/3r Trimestre/Enginyeria del Software/SoftwareGithub/SoftwareEngineering/LineUp_FullStack/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-29x29@2x.png": {
+    "mtime": 1779094616.8682122,
+    "ast_hash": "043119ef4faa026ff82bd03f241e5338",
+    "semantic_hash": "043119ef4faa026ff82bd03f241e5338"
+  },
+  "/Users/bielmongeortiz/Desktop/UNI/3r Curs/3r Trimestre/Enginyeria del Software/SoftwareGithub/SoftwareEngineering/LineUp_FullStack/android/app/src/main/res/mipmap-mdpi/ic_launcher.png": {
+    "mtime": 1777568241.0,
+    "ast_hash": "6270344430679711b81476e29878caa7",
+    "semantic_hash": "6270344430679711b81476e29878caa7"
+  },
+  "/Users/bielmongeortiz/Desktop/UNI/3r Curs/3r Trimestre/Enginyeria del Software/SoftwareGithub/SoftwareEngineering/LineUp_FullStack/android/app/src/main/res/mipmap-hdpi/ic_launcher.png": {
+    "mtime": 1777568241.0,
+    "ast_hash": "13e9c72ec37fac220397aa819fa1ef2d",
+    "semantic_hash": "13e9c72ec37fac220397aa819fa1ef2d"
+  },
+  "/Users/bielmongeortiz/Desktop/UNI/3r Curs/3r Trimestre/Enginyeria del Software/SoftwareGithub/SoftwareEngineering/LineUp_FullStack/android/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png": {
+    "mtime": 1777568241.0,
+    "ast_hash": "57838d52c318faff743130c3fcfae0c6",
+    "semantic_hash": "57838d52c318faff743130c3fcfae0c6"
+  },
+  "/Users/bielmongeortiz/Desktop/UNI/3r Curs/3r Trimestre/Enginyeria del Software/SoftwareGithub/SoftwareEngineering/LineUp_FullStack/android/app/src/main/res/mipmap-xxhdpi/ic_launcher.png": {
+    "mtime": 1777568241.0,
+    "ast_hash": "afe1b655b9f32da22f9a4301bb8e6ba8",
+    "semantic_hash": "afe1b655b9f32da22f9a4301bb8e6ba8"
+  },
+  "/Users/bielmongeortiz/Desktop/UNI/3r Curs/3r Trimestre/Enginyeria del Software/SoftwareGithub/SoftwareEngineering/LineUp_FullStack/android/app/src/main/res/mipmap-xhdpi/ic_launcher.png": {
+    "mtime": 1777568241.0,
+    "ast_hash": "a0a8db5985280b3679d99a820ae2db79",
+    "semantic_hash": "a0a8db5985280b3679d99a820ae2db79"
+  },
+  "/Users/bielmongeortiz/Desktop/UNI/3r Curs/3r Trimestre/Enginyeria del Software/SoftwareGithub/SoftwareEngineering/LineUp_FullStack/assets/join.wav": {
+    "mtime": 1779100670.5510244,
+    "ast_hash": "e2e4656ddb639f28c259b37b6fe0efcf",
+    "semantic_hash": "e2e4656ddb639f28c259b37b6fe0efcf"
+  },
+  "/Users/bielmongeortiz/Desktop/UNI/3r Curs/3r Trimestre/Enginyeria del Software/SoftwareGithub/SoftwareEngineering/LineUp_FullStack/assets/notification.wav": {
+    "mtime": 1779100670.4910407,
+    "ast_hash": "2754a42e5f6cbd897d0d6ed1cb481270",
+    "semantic_hash": "2754a42e5f6cbd897d0d6ed1cb481270"
+  }
+}
