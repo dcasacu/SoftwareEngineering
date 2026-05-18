@@ -38,6 +38,67 @@ class _DashboardScreenState extends State<DashboardScreen> {
     }
   }
 
+  Future<void> _showCloseStatsDialog(Map<String, dynamic> stats) async {
+    final customersServed = stats['customersServed'] as int? ?? 0;
+    final customersSkipped = stats['customersSkipped'] as int? ?? 0;
+    final noShows = stats['noShows'] as int? ?? 0;
+    final ownerSkips = stats['ownerSkips'] as int? ?? 0;
+    final cancelled = stats['cancelled'] as int? ?? 0;
+    final avgWaitSeconds = stats['avgWaitSeconds'] as int?;
+    final peakHour = stats['peakHour'] as int?;
+    final total = customersServed + customersSkipped + cancelled;
+
+    return showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: const Row(children: [
+          Text('📊', style: TextStyle(fontSize: 22)),
+          SizedBox(width: 8),
+          Text('Session Summary'),
+        ]),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _DialogStat(label: 'Total customers', value: '$total', icon: '🧑‍🤝‍🧑', color: AppTheme.blue),
+              _DialogStat(label: 'Served', value: '$customersServed', icon: '✅', color: AppTheme.green),
+              _DialogStat(label: 'Skipped', value: '$customersSkipped', icon: '⏭', color: AppTheme.orange),
+              _DialogStat(label: 'No shows', value: '$noShows', icon: '⚠', color: AppTheme.red),
+              _DialogStat(label: 'Cancelled', value: '$cancelled', icon: '❌', color: AppTheme.gray400),
+              _DialogStat(
+                label: 'Avg wait',
+                value: avgWaitSeconds != null ? '${avgWaitSeconds ~/ 60}m' : '—',
+                icon: '⏱',
+                color: AppTheme.orange,
+              ),
+              _DialogStat(
+                label: 'Peak hour',
+                value: peakHour != null ? _formatHour(peakHour) : '—',
+                icon: '🕐',
+                color: AppTheme.blue,
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: const Text('Close'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  String _formatHour(int hour) {
+    if (hour == 0) return '12:00 AM';
+    if (hour < 12) return '$hour:00 AM';
+    if (hour == 12) return '12:00 PM';
+    return '${hour - 12}:00 PM';
+  }
+
   @override
   Widget build(BuildContext context) {
     final shopsProvider = context.watch<ShopsProvider>();
@@ -151,8 +212,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   final queueProv = context.read<QueueProvider>();
                   final analyticsProv = context.read<AnalyticsProvider>();
                   if (shop.isOpen) {
-                    await queueProv.closeQueue(widget.shopId);
-                    if (queueProv.error != null) _showError(queueProv.error);
+                    final stats = await queueProv.closeQueue(widget.shopId);
+                    if (queueProv.error != null) {
+                      _showError(queueProv.error);
+                    } else if (stats != null) {
+                      await _showCloseStatsDialog(stats);
+                    }
                     await queueProv.fetchQueue(widget.shopId);
                     await shopsProv.selectShop(widget.shopId);
                     await analyticsProv.fetchAnalytics(widget.shopId);
@@ -283,10 +348,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
           else if (analytics == null)
             const Center(child: Padding(padding: EdgeInsets.all(32), child: Text('No analytics data available', style: TextStyle(color: AppTheme.gray400))))
           else ...[
-            if (analytics.today != null) ...[
-              _buildPeriodSection('Today', analytics.today!, AppTheme.blue),
-              const SizedBox(height: 16),
-            ],
             _buildPeriodSection('All Time', analytics.allTime, AppTheme.gray600),
           ],
         ],
@@ -407,6 +468,31 @@ class _MiniStatCard extends StatelessWidget {
             Text(label, style: TextStyle(fontSize: 11, color: AppTheme.gray400, fontWeight: FontWeight.w500)),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _DialogStat extends StatelessWidget {
+  final String label;
+  final String value;
+  final String icon;
+  final Color color;
+
+  const _DialogStat({required this.label, required this.value, required this.icon, required this.color});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        children: [
+          Text(icon, style: const TextStyle(fontSize: 18)),
+          const SizedBox(width: 12),
+          Text(label, style: const TextStyle(fontSize: 14, color: AppTheme.gray600)),
+          const Spacer(),
+          Text(value, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: color)),
+        ],
       ),
     );
   }

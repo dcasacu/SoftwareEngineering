@@ -158,29 +158,7 @@ router.get('/:id/analytics', (req, res) => {
   }
 
   function getTodayStats() {
-    const stats = db.prepare(
-      `SELECT * FROM queue_stats WHERE shop_id = ? AND date = date('now') ORDER BY id DESC LIMIT 1`
-    ).get(id);
-
-    if (!stats) {
-      return null;
-    }
-
-    const serviceRate = (() => {
-      const denominator = stats.customers_served + stats.skips + stats.cancelled;
-      return denominator > 0 ? parseFloat((stats.customers_served / denominator).toFixed(2)) : 0;
-    })();
-
-    return {
-      totalCustomers: stats.customers_served + stats.customers_skipped + stats.cancelled,
-      customersServed: stats.customers_served,
-      noShows: stats.no_shows,
-      skipped: stats.skips,
-      cancelled: stats.cancelled,
-      avgWaitSeconds: stats.avg_wait_seconds,
-      peakHour: stats.peak_hour,
-      serviceRate,
-    };
+    return null;
   }
 
   res.json({
