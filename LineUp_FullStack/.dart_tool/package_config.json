@@ -110,8 +110,14 @@
       "languageVersion": "3.6"
     },
     {
+      "name": "dbus",
+      "rootUri": "file:///Users/bielmongeortiz/.pub-cache/hosted/pub.dev/dbus-0.7.12",
+      "packageUri": "lib/",
+      "languageVersion": "2.17"
+    },
+    {
       "name": "device_info_plus",
-      "rootUri": "file:///Users/bielmongeortiz/.pub-cache/hosted/pub.dev/device_info_plus-11.5.0",
+      "rootUri": "file:///Users/bielmongeortiz/.pub-cache/hosted/pub.dev/device_info_plus-12.4.0",
       "packageUri": "lib/",
       "languageVersion": "3.7"
     },
@@ -176,20 +182,32 @@
       "languageVersion": "3.9"
     },
     {
+      "name": "geoclue",
+      "rootUri": "file:///Users/bielmongeortiz/.pub-cache/hosted/pub.dev/geoclue-0.1.1",
+      "packageUri": "lib/",
+      "languageVersion": "2.16"
+    },
+    {
       "name": "geolocator",
-      "rootUri": "file:///Users/bielmongeortiz/.pub-cache/hosted/pub.dev/geolocator-13.0.4",
+      "rootUri": "file:///Users/bielmongeortiz/.pub-cache/hosted/pub.dev/geolocator-14.0.2",
       "packageUri": "lib/",
       "languageVersion": "3.5"
     },
     {
       "name": "geolocator_android",
-      "rootUri": "file:///Users/bielmongeortiz/.pub-cache/hosted/pub.dev/geolocator_android-4.6.2",
+      "rootUri": "file:///Users/bielmongeortiz/.pub-cache/hosted/pub.dev/geolocator_android-5.0.2",
       "packageUri": "lib/",
       "languageVersion": "3.5"
     },
     {
       "name": "geolocator_apple",
       "rootUri": "file:///Users/bielmongeortiz/.pub-cache/hosted/pub.dev/geolocator_apple-2.3.13",
+      "packageUri": "lib/",
+      "languageVersion": "3.5"
+    },
+    {
+      "name": "geolocator_linux",
+      "rootUri": "file:///Users/bielmongeortiz/.pub-cache/hosted/pub.dev/geolocator_linux-0.2.4",
       "packageUri": "lib/",
       "languageVersion": "3.5"
     },
@@ -222,6 +240,12 @@
       "rootUri": "file:///Users/bielmongeortiz/.pub-cache/hosted/pub.dev/go_router-17.2.3",
       "packageUri": "lib/",
       "languageVersion": "3.9"
+    },
+    {
+      "name": "gsettings",
+      "rootUri": "file:///Users/bielmongeortiz/.pub-cache/hosted/pub.dev/gsettings-0.2.8",
+      "packageUri": "lib/",
+      "languageVersion": "2.12"
     },
     {
       "name": "hooks",
@@ -344,6 +368,18 @@
       "languageVersion": "3.4"
     },
     {
+      "name": "package_info_plus",
+      "rootUri": "file:///Users/bielmongeortiz/.pub-cache/hosted/pub.dev/package_info_plus-9.0.1",
+      "packageUri": "lib/",
+      "languageVersion": "3.3"
+    },
+    {
+      "name": "package_info_plus_platform_interface",
+      "rootUri": "file:///Users/bielmongeortiz/.pub-cache/hosted/pub.dev/package_info_plus_platform_interface-3.2.1",
+      "packageUri": "lib/",
+      "languageVersion": "2.18"
+    },
+    {
       "name": "path",
       "rootUri": "file:///Users/bielmongeortiz/.pub-cache/hosted/pub.dev/path-1.9.1",
       "packageUri": "lib/",
@@ -384,6 +420,12 @@
       "rootUri": "file:///Users/bielmongeortiz/.pub-cache/hosted/pub.dev/path_provider_windows-2.3.0",
       "packageUri": "lib/",
       "languageVersion": "3.2"
+    },
+    {
+      "name": "petitparser",
+      "rootUri": "file:///Users/bielmongeortiz/.pub-cache/hosted/pub.dev/petitparser-7.0.2",
+      "packageUri": "lib/",
+      "languageVersion": "3.8"
     },
     {
       "name": "platform",
@@ -597,15 +639,15 @@
     },
     {
       "name": "vibration",
-      "rootUri": "file:///Users/bielmongeortiz/.pub-cache/hosted/pub.dev/vibration-2.1.0",
+      "rootUri": "file:///Users/bielmongeortiz/.pub-cache/hosted/pub.dev/vibration-3.1.8",
       "packageUri": "lib/",
-      "languageVersion": "2.12"
+      "languageVersion": "3.0"
     },
     {
       "name": "vibration_platform_interface",
-      "rootUri": "file:///Users/bielmongeortiz/.pub-cache/hosted/pub.dev/vibration_platform_interface-0.0.3",
+      "rootUri": "file:///Users/bielmongeortiz/.pub-cache/hosted/pub.dev/vibration_platform_interface-0.1.2",
       "packageUri": "lib/",
-      "languageVersion": "2.12"
+      "languageVersion": "3.0"
     },
     {
       "name": "vm_service",
@@ -642,6 +684,12 @@
       "rootUri": "file:///Users/bielmongeortiz/.pub-cache/hosted/pub.dev/xdg_directories-1.1.0",
       "packageUri": "lib/",
       "languageVersion": "3.3"
+    },
+    {
+      "name": "xml",
+      "rootUri": "file:///Users/bielmongeortiz/.pub-cache/hosted/pub.dev/xml-6.6.1",
+      "packageUri": "lib/",
+      "languageVersion": "3.8"
     },
     {
       "name": "yaml",

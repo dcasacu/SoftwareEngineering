@@ -94,7 +94,10 @@ class QueueProvider extends ChangeNotifier {
   }
 
   Future<void> joinQueue(String shopId, String userId) async {
+    if (_myEntries[shopId] != null) return;
+
     _isLoading = true;
+    _error = null;
     notifyListeners();
 
     try {
@@ -105,6 +108,7 @@ class QueueProvider extends ChangeNotifier {
       _restartPolling();
     } catch (e) {
       _error = e.toString();
+      await fetchMyEntry(shopId, userId);
     }
 
     _isLoading = false;

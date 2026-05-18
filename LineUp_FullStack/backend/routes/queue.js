@@ -41,14 +41,38 @@ router.post('/:id/join', (req, res) => {
     return res.status(400).json({ error: 'userId is required' });
   }
 
+  const existing = db.prepare(`
+    SELECT id, shop_id AS shopId, user_id AS userId, position, status,
+           joined_at AS joinedAt, called_at AS calledAt
+    FROM queue_entries
+    WHERE shop_id = ? AND user_id = ? AND status IN ('waiting', 'called')
+  `).get(id, userId);
+
+  if (existing) {
+    return res.status(409).json({ error: 'User already in queue', entry: existing });
+  }
+
   const row = db.prepare(`SELECT MAX(position) AS maxPos FROM queue_entries WHERE shop_id = ? AND status = 'waiting'`).get(id);
   const nextPosition = (row?.maxPos || 0) + 1;
   const entryId = `${id}-entry-${Date.now()}`;
 
-  db.prepare(
-    `INSERT INTO queue_entries (id, shop_id, user_id, position, status) VALUES (?, ?, ?, ?, 'waiting')`
-  ).run(entryId, id, userId, nextPosition);
-  res.json({ id: entryId, shopId: id, userId, position: nextPosition, status: 'waiting' });
+  try {
+    db.prepare(
+      `INSERT INTO queue_entries (id, shop_id, user_id, position, status) VALUES (?, ?, ?, ?, 'waiting')`
+    ).run(entryId, id, userId, nextPosition);
+    res.json({ id: entryId, shopId: id, userId, position: nextPosition, status: 'waiting' });
+  } catch (e) {
+    if (e.message && e.message.includes('UNIQUE constraint')) {
+      const entry = db.prepare(`
+        SELECT id, shop_id AS shopId, user_id AS userId, position, status,
+               joined_at AS joinedAt, called_at AS calledAt
+        FROM queue_entries
+        WHERE shop_id = ? AND user_id = ? AND status IN ('waiting', 'called')
+      `).get(id, userId);
+      return res.status(409).json({ error: 'User already in queue', entry });
+    }
+    throw e;
+  }
 });
 
 router.post('/:id/leave', (req, res) => {
