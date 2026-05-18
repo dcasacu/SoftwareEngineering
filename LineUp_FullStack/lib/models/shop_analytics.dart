@@ -1,21 +1,22 @@
 class ShopAnalytics {
   final String shopId;
   final String shopName;
-  final AnalyticsPeriod today;
+  final AnalyticsPeriod? today;
   final AnalyticsPeriod allTime;
 
   ShopAnalytics({
     required this.shopId,
     required this.shopName,
-    required this.today,
+    this.today,
     required this.allTime,
   });
 
   factory ShopAnalytics.fromJson(Map<String, dynamic> json) {
+    final todayData = json['today'] as Map<String, dynamic>?;
     return ShopAnalytics(
       shopId: json['shopId'] as String? ?? json['shop_id'] as String? ?? '',
       shopName: json['shopName'] as String? ?? json['shop_name'] as String? ?? '',
-      today: AnalyticsPeriod.fromJson(json['today'] as Map<String, dynamic>),
+      today: todayData != null ? AnalyticsPeriod.fromJson(todayData) : null,
       allTime: AnalyticsPeriod.fromJson(json['allTime'] as Map<String, dynamic>),
     );
   }

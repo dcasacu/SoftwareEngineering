@@ -89,45 +89,57 @@ router.get('/:id/analytics', (req, res) => {
     return res.status(404).json({ error: 'Shop not found' });
   }
 
-  function computeStats(dateFilter) {
-    const whereClause = dateFilter
-      ? `shop_id = ? AND date(joined_at) = date('now')`
-      : `shop_id = ?`;
-
-    const entries = db.prepare(
-      `SELECT * FROM queue_entries WHERE ${whereClause}`
+  function computeAllTimeStats() {
+    const statsRows = db.prepare(
+      `SELECT * FROM queue_stats WHERE shop_id = ?`
     ).all(id);
 
-    const totalCustomers = entries.length;
-    const customersServed = entries.filter(e => e.status === 'attended').length;
-    const noShows = entries.filter(e => e.skip_reason === 'no_show').length;
-    const skipped = entries.filter(e => e.skip_reason === 'owner_skip').length;
-    const cancelled = entries.filter(e => e.status === 'cancelled').length;
-
-    const calledEntries = entries.filter(e => e.called_at && e.joined_at);
-    let avgWaitSeconds = null;
-    if (calledEntries.length > 0) {
-      const totalWait = calledEntries.reduce((sum, e) => {
-        const joined = new Date(e.joined_at).getTime();
-        const called = new Date(e.called_at).getTime();
-        return sum + Math.max(0, (called - joined) / 1000);
-      }, 0);
-      avgWaitSeconds = Math.round(totalWait / calledEntries.length);
+    if (statsRows.length === 0) {
+      return {
+        totalCustomers: 0,
+        customersServed: 0,
+        noShows: 0,
+        skipped: 0,
+        cancelled: 0,
+        avgWaitSeconds: null,
+        peakHour: null,
+        serviceRate: 0,
+      };
     }
 
-    let peakHour = null;
-    if (entries.length > 0) {
-      const hourCounts = {};
-      entries.forEach(e => {
-        if (e.joined_at) {
-          const h = new Date(e.joined_at).getHours();
-          hourCounts[h] = (hourCounts[h] || 0) + 1;
-        }
-      });
-      const sorted = Object.entries(hourCounts).sort((a, b) => b[1] - a[1]);
-      if (sorted.length > 0) {
-        peakHour = parseInt(sorted[0][0]);
+    let totalCustomers = 0;
+    let customersServed = 0;
+    let noShows = 0;
+    let skipped = 0;
+    let cancelled = 0;
+    let totalWait = 0;
+    let waitCount = 0;
+    const hourCounts = {};
+
+    for (const s of statsRows) {
+      totalCustomers += s.customers_served + s.customers_skipped + s.cancelled;
+      customersServed += s.customers_served;
+      noShows += s.no_shows;
+      skipped += s.skips;
+      cancelled += s.cancelled;
+
+      if (s.avg_wait_seconds !== null) {
+        const servedPlusSkipped = s.customers_served + s.customers_skipped;
+        totalWait += s.avg_wait_seconds * servedPlusSkipped;
+        waitCount += servedPlusSkipped;
       }
+
+      if (s.peak_hour !== null) {
+        hourCounts[s.peak_hour] = (hourCounts[s.peak_hour] || 0) + 1;
+      }
+    }
+
+    const avgWaitSeconds = waitCount > 0 ? Math.round(totalWait / waitCount) : null;
+
+    let peakHour = null;
+    if (Object.keys(hourCounts).length > 0) {
+      const sorted = Object.entries(hourCounts).sort((a, b) => b[1] - a[1]);
+      peakHour = parseInt(sorted[0][0]);
     }
 
     const denominator = customersServed + skipped + cancelled;
@@ -145,11 +157,15 @@ router.get('/:id/analytics', (req, res) => {
     };
   }
 
+  function getTodayStats() {
+    return null;
+  }
+
   res.json({
     shopId: id,
     shopName: shop.name,
-    today: computeStats(true),
-    allTime: computeStats(false),
+    today: getTodayStats(),
+    allTime: computeAllTimeStats(),
   });
 });
 

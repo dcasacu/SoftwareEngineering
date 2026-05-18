@@ -159,13 +159,15 @@ class QueueProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> closeQueue(String shopId) async {
+  Future<Map<String, dynamic>?> closeQueue(String shopId) async {
     try {
-      await QueueService.closeQueue(shopId);
+      final stats = await QueueService.closeQueue(shopId);
       _shopQueues[shopId] = [];
       notifyListeners();
+      return stats;
     } catch (e) {
       _error = e.toString();
+      return null;
     }
   }
 

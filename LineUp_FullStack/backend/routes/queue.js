@@ -199,6 +199,8 @@ router.post('/:id/close', (req, res) => {
      VALUES (?, ?, date('now'), ?, ?, ?, ?, ?, ?, ?)`
   ).run(statsId, id, customersServed, customersSkipped, noShows, ownerSkips, cancelled, avgWaitSeconds, peakHour);
 
+  db.prepare(`DELETE FROM queue_entries WHERE shop_id = ? AND date(joined_at) = date('now')`).run(id);
+
   db.prepare(`UPDATE shops SET is_open = 0 WHERE id = ?`).run(id);
   res.json({ success: true, stats: { customersServed, customersSkipped, noShows, ownerSkips, cancelled, avgWaitSeconds, peakHour } });
 });

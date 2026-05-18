@@ -98,5 +98,30 @@ db.exec(`
     ('qe4', 'shop3', 'cust4', 1, 'called', datetime('now', '-25 minutes'))
 `);
 
+function date(daysOffset) {
+  const d = new Date();
+  d.setDate(d.getDate() + daysOffset);
+  return d.toISOString().split('T')[0];
+}
+
+const insertStats = db.prepare('INSERT OR IGNORE INTO queue_stats (id, shop_id, date, customers_served, customers_skipped, no_shows, skips, cancelled, avg_wait_seconds, peak_hour) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)');
+const insertManyStats = db.transaction((rows) => { for (const row of rows) insertStats.run(...row); });
+
+insertManyStats([
+  ['stats-shop1-d1', 'shop1', date(-7), 12, 2, 1, 3, 0, 420, 10],
+  ['stats-shop1-d2', 'shop1', date(-6), 15, 1, 2, 1, 1, 380, 11],
+  ['stats-shop1-d3', 'shop1', date(-5), 8, 3, 0, 2, 0, 510, 9],
+  ['stats-shop1-d4', 'shop1', date(-4), 18, 0, 1, 0, 1, 350, 12],
+  ['stats-shop1-d5', 'shop1', date(-3), 10, 2, 3, 1, 0, 460, 10],
+  ['stats-shop2-d1', 'shop2', date(-7), 20, 1, 0, 2, 0, 240, 8],
+  ['stats-shop2-d2', 'shop2', date(-5), 25, 0, 1, 0, 1, 210, 9],
+  ['stats-shop2-d3', 'shop2', date(-3), 17, 2, 2, 1, 0, 270, 10],
+  ['stats-shop3-d1', 'shop3', date(-6), 6, 1, 1, 0, 0, 600, 13],
+  ['stats-shop3-d2', 'shop3', date(-4), 9, 0, 0, 1, 1, 540, 12],
+  ['stats-shop5-d1', 'shop5', date(-5), 30, 1, 0, 0, 0, 150, 11],
+  ['stats-shop5-d2', 'shop5', date(-2), 28, 0, 2, 1, 0, 160, 10],
+  ['stats-shop6-d1', 'shop6', date(-4), 14, 1, 0, 1, 0, 300, 14],
+]);
+
 db.close();
 console.log('Database initialized successfully');
