@@ -149,9 +149,18 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 onPressed: () async {
                   final shopsProv = context.read<ShopsProvider>();
                   final queueProv = context.read<QueueProvider>();
-                  await shopsProv.toggleShopStatus(widget.shopId, !shop.isOpen);
-                  if (shopsProv.error != null) _showError(shopsProv.error);
-                  await queueProv.fetchQueue(widget.shopId);
+                  final analyticsProv = context.read<AnalyticsProvider>();
+                  if (shop.isOpen) {
+                    await queueProv.closeQueue(widget.shopId);
+                    if (queueProv.error != null) _showError(queueProv.error);
+                    await queueProv.fetchQueue(widget.shopId);
+                    await shopsProv.selectShop(widget.shopId);
+                    await analyticsProv.fetchAnalytics(widget.shopId);
+                  } else {
+                    await shopsProv.toggleShopStatus(widget.shopId, true);
+                    if (shopsProv.error != null) _showError(shopsProv.error);
+                    await queueProv.fetchQueue(widget.shopId);
+                  }
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: shop.isOpen ? AppTheme.red : AppTheme.orange,
@@ -274,8 +283,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
           else if (analytics == null)
             const Center(child: Padding(padding: EdgeInsets.all(32), child: Text('No analytics data available', style: TextStyle(color: AppTheme.gray400))))
           else ...[
-            _buildPeriodSection('Today', analytics.today, AppTheme.blue),
-            const SizedBox(height: 16),
+            if (analytics.today != null) ...[
+              _buildPeriodSection('Today', analytics.today!, AppTheme.blue),
+              const SizedBox(height: 16),
+            ],
             _buildPeriodSection('All Time', analytics.allTime, AppTheme.gray600),
           ],
         ],
