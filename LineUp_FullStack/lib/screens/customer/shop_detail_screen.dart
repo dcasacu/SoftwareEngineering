@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -5,8 +6,11 @@ import '../../config/theme.dart';
 import '../../providers/shops_provider.dart';
 import '../../providers/queue_provider.dart';
 import '../../providers/auth_provider.dart';
+import '../../models/shop.dart';
+import '../../services/notification_service.dart';
 import '../../widgets/position_badge.dart';
 import '../../widgets/queue_list_tile.dart';
+import '../../widgets/queue_notification_overlay.dart';
 
 class ShopDetailScreen extends StatefulWidget {
   final String shopId;
@@ -18,15 +22,8 @@ class ShopDetailScreen extends StatefulWidget {
 }
 
 class _ShopDetailScreenState extends State<ShopDetailScreen> {
-  String? _error;
+  StreamSubscription<CalledNotification>? _calledSub;
 
-  void _showError(String? msg) {
-    if (msg != null && msg.isNotEmpty && mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(msg), backgroundColor: Colors.redAccent),
-      );
-    }
-  }
   @override
   void initState() {
     super.initState();
@@ -37,8 +34,24 @@ class _ShopDetailScreenState extends State<ShopDetailScreen> {
       queueProvider.fetchQueue(widget.shopId);
       if (auth.userId != null) {
         queueProvider.fetchMyEntry(widget.shopId, auth.userId!);
+        queueProvider.startPolling(auth.userId!);
       }
+      _calledSub = queueProvider.calledStream.listen((notification) {
+        final shopsProv = context.read<ShopsProvider>();
+        final shop = shopsProv.shops.firstWhere(
+          (s) => s.id == notification.shopId,
+          orElse: () => Shop(id: '', name: 'Unknown Shop', category: '', isOpen: false, avgServiceTime: 300, ownerId: ''),
+        );
+        NotificationService.feedbackYourTurn();
+        QueueNotificationOverlay.show(context, shop.name);
+      });
     });
+  }
+
+  @override
+  void dispose() {
+    _calledSub?.cancel();
+    super.dispose();
   }
 
   String _getCategoryEmoji(String cat) {
@@ -168,11 +181,27 @@ class _ShopDetailScreenState extends State<ShopDetailScreen> {
                   if (shop.isOpen) ...[
                     if (myEntry != null)
                       OutlinedButton(
-onPressed: () async {
-                           await context.read<QueueProvider>().leaveQueue(widget.shopId, auth.userId ?? '');
-                           final q = context.read<QueueProvider>();
-                           if (q.error != null) _showError(q.error);
-                           else if (context.mounted) context.go('/customer/map');
+                        onPressed: () async {
+                          final shopName = shop.name;
+                          await context.read<QueueProvider>().leaveQueue(widget.shopId, auth.userId ?? '');
+                          final q = context.read<QueueProvider>();
+                          if (q.error != null && context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text(q.error!), backgroundColor: AppTheme.red),
+                            );
+                          } else {
+                            NotificationService.feedbackLeave();
+                            if (context.mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text('You left the queue at $shopName'),
+                                  backgroundColor: AppTheme.orange,
+                                  duration: const Duration(seconds: 3),
+                                ),
+                              );
+                              context.go('/customer/map');
+                            }
+                          }
                         },
                         style: OutlinedButton.styleFrom(
                           foregroundColor: AppTheme.red,
@@ -183,12 +212,30 @@ onPressed: () async {
                         child: const Text('Leave Queue', style: TextStyle(fontWeight: FontWeight.w700)),
                       )
                     else
-ElevatedButton(
-                         onPressed: () async {
-                           final qp = context.read<QueueProvider>();
-                           await qp.joinQueue(widget.shopId, auth.userId ?? '');
-                           if (qp.error != null) _showError(qp.error);
-                         },
+                      ElevatedButton(
+                        onPressed: () async {
+                          final qp = context.read<QueueProvider>();
+                          final shopName = shop.name;
+                          await qp.joinQueue(widget.shopId, auth.userId ?? '');
+                          if (qp.error != null && context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text(qp.error!), backgroundColor: AppTheme.red),
+                            );
+                          } else {
+                            final entry = qp.myEntryForShop(widget.shopId);
+                            final pos = entry?.position ?? 1;
+                            NotificationService.feedbackJoin();
+                            if (context.mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text('🛒 Joined queue at $shopName! You\'re #$pos'),
+                                  backgroundColor: AppTheme.green,
+                                  duration: const Duration(seconds: 4),
+                                ),
+                              );
+                            }
+                          }
+                        },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppTheme.orange,
                           minimumSize: const Size.fromHeight(48),

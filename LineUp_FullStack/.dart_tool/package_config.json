@@ -20,6 +20,48 @@
       "languageVersion": "3.4"
     },
     {
+      "name": "audioplayers",
+      "rootUri": "file:///Users/bielmongeortiz/.pub-cache/hosted/pub.dev/audioplayers-6.6.0",
+      "packageUri": "lib/",
+      "languageVersion": "3.6"
+    },
+    {
+      "name": "audioplayers_android",
+      "rootUri": "file:///Users/bielmongeortiz/.pub-cache/hosted/pub.dev/audioplayers_android-5.2.1",
+      "packageUri": "lib/",
+      "languageVersion": "3.6"
+    },
+    {
+      "name": "audioplayers_darwin",
+      "rootUri": "file:///Users/bielmongeortiz/.pub-cache/hosted/pub.dev/audioplayers_darwin-6.4.0",
+      "packageUri": "lib/",
+      "languageVersion": "3.6"
+    },
+    {
+      "name": "audioplayers_linux",
+      "rootUri": "file:///Users/bielmongeortiz/.pub-cache/hosted/pub.dev/audioplayers_linux-4.2.1",
+      "packageUri": "lib/",
+      "languageVersion": "3.6"
+    },
+    {
+      "name": "audioplayers_platform_interface",
+      "rootUri": "file:///Users/bielmongeortiz/.pub-cache/hosted/pub.dev/audioplayers_platform_interface-7.1.1",
+      "packageUri": "lib/",
+      "languageVersion": "3.6"
+    },
+    {
+      "name": "audioplayers_web",
+      "rootUri": "file:///Users/bielmongeortiz/.pub-cache/hosted/pub.dev/audioplayers_web-5.2.0",
+      "packageUri": "lib/",
+      "languageVersion": "3.6"
+    },
+    {
+      "name": "audioplayers_windows",
+      "rootUri": "file:///Users/bielmongeortiz/.pub-cache/hosted/pub.dev/audioplayers_windows-4.3.0",
+      "packageUri": "lib/",
+      "languageVersion": "3.6"
+    },
+    {
       "name": "boolean_selector",
       "rootUri": "file:///Users/bielmongeortiz/.pub-cache/hosted/pub.dev/boolean_selector-2.1.2",
       "packageUri": "lib/",
@@ -66,6 +108,18 @@
       "rootUri": "file:///Users/bielmongeortiz/.pub-cache/hosted/pub.dev/dart_polylabel2-1.0.0",
       "packageUri": "lib/",
       "languageVersion": "3.6"
+    },
+    {
+      "name": "device_info_plus",
+      "rootUri": "file:///Users/bielmongeortiz/.pub-cache/hosted/pub.dev/device_info_plus-11.5.0",
+      "packageUri": "lib/",
+      "languageVersion": "3.7"
+    },
+    {
+      "name": "device_info_plus_platform_interface",
+      "rootUri": "file:///Users/bielmongeortiz/.pub-cache/hosted/pub.dev/device_info_plus_platform_interface-7.0.3",
+      "packageUri": "lib/",
+      "languageVersion": "3.7"
     },
     {
       "name": "fake_async",
@@ -452,6 +506,12 @@
       "languageVersion": "3.1"
     },
     {
+      "name": "synchronized",
+      "rootUri": "file:///Users/bielmongeortiz/.pub-cache/hosted/pub.dev/synchronized-3.4.0+1",
+      "packageUri": "lib/",
+      "languageVersion": "3.11"
+    },
+    {
       "name": "term_glyph",
       "rootUri": "file:///Users/bielmongeortiz/.pub-cache/hosted/pub.dev/term_glyph-1.2.2",
       "packageUri": "lib/",
@@ -536,6 +596,18 @@
       "languageVersion": "3.1"
     },
     {
+      "name": "vibration",
+      "rootUri": "file:///Users/bielmongeortiz/.pub-cache/hosted/pub.dev/vibration-2.1.0",
+      "packageUri": "lib/",
+      "languageVersion": "2.12"
+    },
+    {
+      "name": "vibration_platform_interface",
+      "rootUri": "file:///Users/bielmongeortiz/.pub-cache/hosted/pub.dev/vibration_platform_interface-0.0.3",
+      "packageUri": "lib/",
+      "languageVersion": "2.12"
+    },
+    {
       "name": "vm_service",
       "rootUri": "file:///Users/bielmongeortiz/.pub-cache/hosted/pub.dev/vm_service-15.2.0",
       "packageUri": "lib/",
@@ -546,6 +618,18 @@
       "rootUri": "file:///Users/bielmongeortiz/.pub-cache/hosted/pub.dev/web-1.1.1",
       "packageUri": "lib/",
       "languageVersion": "3.4"
+    },
+    {
+      "name": "win32",
+      "rootUri": "file:///Users/bielmongeortiz/.pub-cache/hosted/pub.dev/win32-5.15.0",
+      "packageUri": "lib/",
+      "languageVersion": "3.8"
+    },
+    {
+      "name": "win32_registry",
+      "rootUri": "file:///Users/bielmongeortiz/.pub-cache/hosted/pub.dev/win32_registry-2.1.0",
+      "packageUri": "lib/",
+      "languageVersion": "3.7"
     },
     {
       "name": "wkt_parser",

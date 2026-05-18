@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:go_router/go_router.dart';
@@ -11,7 +12,9 @@ import '../../providers/queue_provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../models/shop.dart';
 import '../../models/queue_entry.dart';
+import '../../services/notification_service.dart';
 import '../../widgets/category_filter.dart';
+import '../../widgets/queue_notification_overlay.dart';
 
 class MapScreen extends StatefulWidget {
   const MapScreen({super.key});
@@ -22,13 +25,34 @@ class MapScreen extends StatefulWidget {
 
 class _MapScreenState extends State<MapScreen> {
   int _currentIndex = 0;
+  StreamSubscription<CalledNotification>? _calledSub;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<ShopsProvider>().fetchShops();
+      final auth = context.read<AuthProvider>();
+      final queueProv = context.read<QueueProvider>();
+      if (auth.userId != null) {
+        queueProv.startPolling(auth.userId!);
+      }
+      _calledSub = queueProv.calledStream.listen((notification) {
+        final shopsProv = context.read<ShopsProvider>();
+        final shop = shopsProv.shops.firstWhere(
+          (s) => s.id == notification.shopId,
+          orElse: () => Shop(id: '', name: 'Unknown Shop', category: '', isOpen: false, avgServiceTime: 300, ownerId: ''),
+        );
+        NotificationService.feedbackYourTurn();
+        QueueNotificationOverlay.show(context, shop.name);
+      });
     });
+  }
+
+  @override
+  void dispose() {
+    _calledSub?.cancel();
+    super.dispose();
   }
 
   @override
@@ -348,6 +372,17 @@ class _MapViewState extends State<_MapView> {
                 if (queueProv.error != null && context.mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(content: Text(queueProv.error!), backgroundColor: AppTheme.red),
+                  );
+                } else if (context.mounted) {
+                  final entry = queueProv.myEntryForShop(_selectedShop!.id);
+                  final pos = entry?.position ?? 1;
+                  NotificationService.feedbackJoin();
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('🛒 Joined queue at ${_selectedShop!.name}! You\'re #$pos'),
+                      backgroundColor: AppTheme.green,
+                      duration: const Duration(seconds: 4),
+                    ),
                   );
                 }
               }
@@ -691,8 +726,38 @@ class _ShopListTile extends StatelessWidget {
   }
 }
 
-class _QueuesContent extends StatelessWidget {
+class _QueuesContent extends StatefulWidget {
   const _QueuesContent();
+
+  @override
+  State<_QueuesContent> createState() => _QueuesContentState();
+}
+
+class _QueuesContentState extends State<_QueuesContent> {
+  StreamSubscription<CalledNotification>? _calledSub;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final queueProv = context.read<QueueProvider>();
+      _calledSub = queueProv.calledStream.listen((notification) {
+        final shopsProv = context.read<ShopsProvider>();
+        final shop = shopsProv.shops.firstWhere(
+          (s) => s.id == notification.shopId,
+          orElse: () => Shop(id: '', name: 'Unknown Shop', category: '', isOpen: false, avgServiceTime: 300, ownerId: ''),
+        );
+        NotificationService.feedbackYourTurn();
+        QueueNotificationOverlay.show(context, shop.name);
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    _calledSub?.cancel();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -771,7 +836,25 @@ class _QueuesContent extends StatelessWidget {
                       const SizedBox(width: 8),
                       OutlinedButton(
                         onPressed: () async {
+                          final shopName = shop.name;
                           await context.read<QueueProvider>().leaveQueue(shopId, auth.userId ?? '');
+                          final q = context.read<QueueProvider>();
+                          if (q.error != null && context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text(q.error!), backgroundColor: AppTheme.red),
+                            );
+                          } else {
+                            NotificationService.feedbackLeave();
+                            if (context.mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text('You left the queue at $shopName'),
+                                  backgroundColor: AppTheme.orange,
+                                  duration: const Duration(seconds: 3),
+                                ),
+                              );
+                            }
+                          }
                         },
                         style: OutlinedButton.styleFrom(foregroundColor: AppTheme.red, side: const BorderSide(color: AppTheme.red)),
                         child: const Text('Leave'),
