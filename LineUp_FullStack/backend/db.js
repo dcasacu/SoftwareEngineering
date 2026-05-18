@@ -1,17 +1,11 @@
-
-// Create a new SQLite database connection. If the database file does not exist, it will be created. If there is an error while opening the database,
-// it will be logged and the process will exit with an error code. Otherwise, a success message will be logged.
-const sqlite3 = require('sqlite3').verbose();
+const Database = require('better-sqlite3');
 const path = require('path');
 
-const dbPath = path.join(__dirname, 'lineup.db'); // Path to the SQLite database file
+const dbPath = path.join(__dirname, 'lineup.db');
 
-const db = new sqlite3.Database(dbPath, (err) => {
-  if (err) {
-    console.error('Error opening database:', err);
-    process.exit(1);
-  }
-  console.log('Connected to SQLite database');
-});
+const db = new Database(dbPath);
 
-module.exports = db; // Export the database connection so it can be used in other parts of the application, such as in route handlers for authentication and queue management.
+db.pragma('journal_mode = WAL');
+db.pragma('foreign_keys = ON');
+
+module.exports = db;

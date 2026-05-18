@@ -1,17 +1,16 @@
 const express = require('express');
 const router = express.Router();
 const db = require('../db');
-const bcrypt = require('bcryptjs');
 
 router.post('/anon', (req, res) => {
   const anonUserId = `anon-${Date.now()}`;
-  db.run(`INSERT INTO users (id, role) VALUES (?, 'anon')`, [anonUserId], function (err) {
-    if (err) {
-      console.error(err);
-      return res.status(500).json({ error: 'Failed to create anonymous user' });
-    }
+  try {
+    db.run(`INSERT INTO users (id, role) VALUES (?, 'anon')`, [anonUserId]);
     res.json({ id: anonUserId });
-  });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to create anonymous user' });
+  }
 });
 
 router.post('/register', (req, res) => {
@@ -21,22 +20,22 @@ router.post('/register', (req, res) => {
     return res.status(400).json({ error: 'anonUserId, name, email, and password are required' });
   }
 
+  const bcrypt = require('bcryptjs');
   const hashedPassword = bcrypt.hashSync(password, 10);
 
-  db.run(
-    `UPDATE users SET name = ?, email = ?, password = ?, role = 'customer' WHERE id = ? AND role = 'anon'`,
-    [name, email, hashedPassword, anonUserId],
-    function (err) {
-      if (err) {
-        console.error(err);
-        return res.status(500).json({ error: 'Failed to upgrade anonymous user' });
-      }
-      if (this.changes === 0) {
-        return res.status(404).json({ error: 'Anonymous user not found or already upgraded' });
-      }
-      res.json({ id: anonUserId, name, email, role: 'customer' });
+  try {
+    const result = db.run(
+      `UPDATE users SET name = ?, email = ?, password = ?, role = 'customer' WHERE id = ? AND role = 'anon'`,
+      [name, email, hashedPassword, anonUserId]
+    );
+    if (result.changes === 0) {
+      return res.status(404).json({ error: 'Anonymous user not found or already upgraded' });
     }
-  );
+    res.json({ id: anonUserId, name, email, role: 'customer' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to upgrade anonymous user' });
+  }
 });
 
 router.post('/login', (req, res) => {
@@ -46,30 +45,22 @@ router.post('/login', (req, res) => {
     return res.status(400).json({ error: 'Email and password are required' });
   }
 
-  db.get(`SELECT * FROM users WHERE email = ?`, [email], (err, user) => {
-    if (err) {
-      console.error(err);
-      return res.status(500).json({ error: 'Failed to find user' });
-    }
-    if (!user) {
-      return res.status(401).json({ error: 'Invalid email or password' });
-    }
-    if (!user.password) {
-      return res.status(401).json({ error: 'Invalid email or password' });
-    }
+  const bcrypt = require('bcryptjs');
+  const user = db.get(`SELECT * FROM users WHERE email = ?`, [email]);
 
-    const valid = bcrypt.compareSync(password, user.password);
-    if (!valid) {
-      return res.status(401).json({ error: 'Invalid email or password' });
-    }
+  if (!user) {
+    return res.status(401).json({ error: 'Invalid email or password' });
+  }
+  if (!user.password) {
+    return res.status(401).json({ error: 'Invalid email or password' });
+  }
 
-    res.json({
-      id: user.id,
-      name: user.name,
-      email: user.email,
-      role: user.role,
-    });
-  });
+  const valid = bcrypt.compareSync(password, user.password);
+  if (!valid) {
+    return res.status(401).json({ error: 'Invalid email or password' });
+  }
+
+  res.json({ id: user.id, name: user.name, email: user.email, role: user.role });
 });
 
 router.post('/logout', (req, res) => {
@@ -78,46 +69,32 @@ router.post('/logout', (req, res) => {
 
 router.delete('/anon/:id', (req, res) => {
   const { id } = req.params;
-
-  db.run(`DELETE FROM queue_entries WHERE user_id = ?`, [id], function (err) {
-    if (err) {
-      console.error(err);
-      return res.status(500).json({ error: 'Failed to delete queue entries' });
+  try {
+    db.run(`DELETE FROM queue_entries WHERE user_id = ?`, [id]);
+    const result = db.run(`DELETE FROM users WHERE id = ? AND role = 'anon'`, [id]);
+    if (result.changes === 0) {
+      return res.status(404).json({ error: 'Anonymous user not found' });
     }
-
-    db.run(`DELETE FROM users WHERE id = ? AND role = 'anon'`, [id], function (err2) {
-      if (err2) {
-        console.error(err2);
-        return res.status(500).json({ error: 'Failed to delete anonymous user' });
-      }
-      if (this.changes === 0) {
-        return res.status(404).json({ error: 'Anonymous user not found' });
-      }
-      res.json({ success: true });
-    });
-  });
+    res.json({ success: true });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to delete anonymous user' });
+  }
 });
 
 router.delete('/account/:id', (req, res) => {
   const { id } = req.params;
-
-  db.run(`DELETE FROM queue_entries WHERE user_id = ?`, [id], function (err) {
-    if (err) {
-      console.error(err);
-      return res.status(500).json({ error: 'Failed to delete queue entries' });
+  try {
+    db.run(`DELETE FROM queue_entries WHERE user_id = ?`, [id]);
+    const result = db.run(`DELETE FROM users WHERE id = ?`, [id]);
+    if (result.changes === 0) {
+      return res.status(404).json({ error: 'User not found' });
     }
-
-    db.run(`DELETE FROM users WHERE id = ?`, [id], function (err2) {
-      if (err2) {
-        console.error(err2);
-        return res.status(500).json({ error: 'Failed to delete user' });
-      }
-      if (this.changes === 0) {
-        return res.status(404).json({ error: 'User not found' });
-      }
-      res.json({ success: true });
-    });
-  });
+    res.json({ success: true });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to delete user' });
+  }
 });
 
 module.exports = router;
