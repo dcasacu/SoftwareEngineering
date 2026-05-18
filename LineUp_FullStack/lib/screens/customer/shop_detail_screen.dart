@@ -213,7 +213,7 @@ class _ShopDetailScreenState extends State<ShopDetailScreen> {
                       )
                     else
                       ElevatedButton(
-                        onPressed: () async {
+                        onPressed: queueProvider.isLoading ? null : () async {
                           final qp = context.read<QueueProvider>();
                           final shopName = shop.name;
                           await qp.joinQueue(widget.shopId, auth.userId ?? '');

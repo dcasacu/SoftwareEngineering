@@ -29,6 +29,10 @@ class QueueService {
     if (response.statusCode == 200 || response.statusCode == 201) {
       return QueueEntry.fromJson(jsonDecode(response.body));
     }
+    if (response.statusCode == 409) {
+      final body = jsonDecode(response.body);
+      return QueueEntry.fromJson(body['entry']);
+    }
     throw Exception('Failed to join queue');
   }
 

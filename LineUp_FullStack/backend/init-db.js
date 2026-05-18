@@ -52,6 +52,10 @@ db.exec(`
     peak_hour INTEGER,
     FOREIGN KEY (shop_id) REFERENCES shops(id)
   );
+
+  CREATE UNIQUE INDEX IF NOT EXISTS one_active_entry_per_user_shop
+  ON queue_entries(shop_id, user_id)
+  WHERE status IN ('waiting', 'called');
 `);
 
 const insertUser = db.prepare('INSERT OR IGNORE INTO users (id, name, email, role) VALUES (?, ?, ?, ?)');
