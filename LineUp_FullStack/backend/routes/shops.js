@@ -64,11 +64,21 @@ router.patch('/:id/status', (req, res) => {
 
   const isOpenVal = isOpen ? 1 : 0;
 
-  const result = db.run(`UPDATE shops SET is_open = ? WHERE id = ?`, [isOpenVal, id]);
+  const result = db.prepare(`UPDATE shops SET is_open = ? WHERE id = ?`).run(isOpenVal, id);
   if (result.changes === 0) {
     return res.status(404).json({ error: 'Shop not found' });
   }
-  res.json({ id, isOpen: !!isOpenVal });
+
+  const row = db.prepare(`
+    SELECT s.id, s.name, s.category, s.location_x AS locationX, s.location_y AS locationY,
+           s.lat, s.lng, s.is_open AS isOpen, s.avg_service_time AS avgServiceTime,
+           s.owner_id AS ownerId, u.name AS ownerName
+    FROM shops s
+    LEFT JOIN users u ON s.owner_id = u.id
+    WHERE s.id = ?
+  `).get(id);
+
+  res.json(row);
 });
 
 module.exports = router;

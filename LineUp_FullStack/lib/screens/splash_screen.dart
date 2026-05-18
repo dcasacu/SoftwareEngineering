@@ -4,8 +4,15 @@ import 'package:provider/provider.dart';
 import '../config/theme.dart';
 import '../providers/auth_provider.dart';
 
-class SplashScreen extends StatelessWidget {
+class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
+
+  @override
+  State<SplashScreen> createState() => _SplashScreenState();
+}
+
+class _SplashScreenState extends State<SplashScreen> {
+  String? _error;
 
   @override
   Widget build(BuildContext context) {
@@ -44,9 +51,17 @@ class SplashScreen extends StatelessWidget {
                   color: Colors.white,
                   textColor: AppTheme.gray900,
                   onTap: () async {
+                    setState(() => _error = null);
                     final auth = context.read<AuthProvider>();
                     if (auth.userId == null) {
-                      await auth.createAnonUser();
+                      try {
+                        await auth.createAnonUser();
+                      } catch (e) {
+                        if (mounted) {
+                          setState(() => _error = 'Could not connect to server. Make sure the backend is running on port 4000.');
+                        }
+                        return;
+                      }
                     }
                     if (context.mounted) {
                       context.go('/customer/map');
@@ -64,6 +79,10 @@ class SplashScreen extends StatelessWidget {
                     context.go('/owner/dashboard');
                   },
                 ),
+                if (_error != null) ...[
+                  const SizedBox(height: 16),
+                  Text(_error!, style: const TextStyle(color: Colors.redAccent, fontSize: 13), textAlign: TextAlign.center),
+                ],
                 const SizedBox(height: 16),
                 const Text('Demo mode · No login required', style: TextStyle(color: Colors.white38, fontSize: 12)),
               ],

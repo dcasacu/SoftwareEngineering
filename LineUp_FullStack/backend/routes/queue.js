@@ -45,10 +45,9 @@ router.post('/:id/join', (req, res) => {
   const nextPosition = (row?.maxPos || 0) + 1;
   const entryId = `${id}-entry-${Date.now()}`;
 
-  db.run(
-    `INSERT INTO queue_entries (id, shop_id, user_id, position, status) VALUES (?, ?, ?, ?, 'waiting')`,
-    [entryId, id, userId, nextPosition]
-  );
+  db.prepare(
+    `INSERT INTO queue_entries (id, shop_id, user_id, position, status) VALUES (?, ?, ?, ?, 'waiting')`
+  ).run(entryId, id, userId, nextPosition);
   res.json({ id: entryId, shopId: id, userId, position: nextPosition, status: 'waiting' });
 });
 
@@ -66,8 +65,8 @@ router.post('/:id/leave', (req, res) => {
   }
 
   const userPosition = entry.position;
-  db.run(`UPDATE queue_entries SET status = 'cancelled' WHERE shop_id = ? AND user_id = ? AND status = 'waiting'`, [id, userId]);
-  db.run(`UPDATE queue_entries SET position = position - 1 WHERE shop_id = ? AND position > ? AND status = 'waiting'`, [id, userPosition]);
+  db.prepare(`UPDATE queue_entries SET status = 'cancelled' WHERE shop_id = ? AND user_id = ? AND status = 'waiting'`).run(id, userId);
+  db.prepare(`UPDATE queue_entries SET position = position - 1 WHERE shop_id = ? AND position > ? AND status = 'waiting'`).run(id, userPosition);
   res.json({ success: true });
 });
 
@@ -85,7 +84,7 @@ router.post('/:id/call-next', (req, res) => {
     return res.status(404).json({ error: 'No waiting entries in queue' });
   }
 
-  db.run(`UPDATE queue_entries SET status = 'called', called_at = datetime('now') WHERE id = ?`, [entry.id]);
+  db.prepare(`UPDATE queue_entries SET status = 'called', called_at = datetime('now') WHERE id = ?`).run(entry.id);
   res.json({ id: entry.id, shopId: entry.shop_id, userId: entry.user_id, position: entry.position, status: 'called' });
 });
 
@@ -103,8 +102,8 @@ router.post('/:id/attend', (req, res) => {
     return res.status(404).json({ error: 'No called entries found' });
   }
 
-  db.run(`UPDATE queue_entries SET status = 'attended' WHERE id = ?`, [entry.id]);
-  db.run(`UPDATE queue_entries SET position = position - 1 WHERE shop_id = ? AND position > ? AND status IN ('waiting', 'called')`, [id, entry.position]);
+  db.prepare(`UPDATE queue_entries SET status = 'attended' WHERE id = ?`).run(entry.id);
+  db.prepare(`UPDATE queue_entries SET position = position - 1 WHERE shop_id = ? AND position > ? AND status IN ('waiting', 'called')`).run(id, entry.position);
   res.json({ id: entry.id, shopId: entry.shop_id, userId: entry.user_id, position: entry.position, status: 'attended' });
 });
 
@@ -127,8 +126,8 @@ router.post('/:id/skip', (req, res) => {
     return res.status(404).json({ error: 'No called entries found' });
   }
 
-  db.run(`UPDATE queue_entries SET status = 'skipped', skip_reason = ? WHERE id = ?`, [reason, entry.id]);
-  db.run(`UPDATE queue_entries SET position = position - 1 WHERE shop_id = ? AND position > ? AND status IN ('waiting', 'called')`, [id, entry.position]);
+  db.prepare(`UPDATE queue_entries SET status = 'skipped', skip_reason = ? WHERE id = ?`).run(reason, entry.id);
+  db.prepare(`UPDATE queue_entries SET position = position - 1 WHERE shop_id = ? AND position > ? AND status IN ('waiting', 'called')`).run(id, entry.position);
   res.json({ id: entry.id, shopId: entry.shop_id, userId: entry.user_id, position: entry.position, status: 'skipped', skipReason: reason });
 });
 
@@ -171,13 +170,12 @@ router.post('/:id/close', (req, res) => {
   }
 
   const statsId = `stats-${id}-${Date.now()}`;
-  db.run(
+  db.prepare(
     `INSERT INTO queue_stats (id, shop_id, date, customers_served, customers_skipped, no_shows, skips, cancelled, avg_wait_seconds, peak_hour)
-     VALUES (?, ?, date('now'), ?, ?, ?, ?, ?, ?, ?)`,
-    [statsId, id, customersServed, customersSkipped, noShows, ownerSkips, cancelled, avgWaitSeconds, peakHour]
-  );
+     VALUES (?, ?, date('now'), ?, ?, ?, ?, ?, ?, ?)`
+  ).run(statsId, id, customersServed, customersSkipped, noShows, ownerSkips, cancelled, avgWaitSeconds, peakHour);
 
-  db.run(`UPDATE shops SET is_open = 0 WHERE id = ?`, [id]);
+  db.prepare(`UPDATE shops SET is_open = 0 WHERE id = ?`).run(id);
   res.json({ success: true, stats: { customersServed, customersSkipped, noShows, ownerSkips, cancelled, avgWaitSeconds, peakHour } });
 });
 

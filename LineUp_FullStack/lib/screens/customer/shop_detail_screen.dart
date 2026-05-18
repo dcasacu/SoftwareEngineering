@@ -18,6 +18,15 @@ class ShopDetailScreen extends StatefulWidget {
 }
 
 class _ShopDetailScreenState extends State<ShopDetailScreen> {
+  String? _error;
+
+  void _showError(String? msg) {
+    if (msg != null && msg.isNotEmpty && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(msg), backgroundColor: Colors.redAccent),
+      );
+    }
+  }
   @override
   void initState() {
     super.initState();
@@ -159,9 +168,11 @@ class _ShopDetailScreenState extends State<ShopDetailScreen> {
                   if (shop.isOpen) ...[
                     if (myEntry != null)
                       OutlinedButton(
-                        onPressed: () async {
-                          await context.read<QueueProvider>().leaveQueue(widget.shopId, auth.userId ?? '');
-                          if (context.mounted) context.go('/customer/map');
+onPressed: () async {
+                           await context.read<QueueProvider>().leaveQueue(widget.shopId, auth.userId ?? '');
+                           final q = context.read<QueueProvider>();
+                           if (q.error != null) _showError(q.error);
+                           else if (context.mounted) context.go('/customer/map');
                         },
                         style: OutlinedButton.styleFrom(
                           foregroundColor: AppTheme.red,
@@ -172,10 +183,12 @@ class _ShopDetailScreenState extends State<ShopDetailScreen> {
                         child: const Text('Leave Queue', style: TextStyle(fontWeight: FontWeight.w700)),
                       )
                     else
-                      ElevatedButton(
-                        onPressed: () async {
-                          await context.read<QueueProvider>().joinQueue(widget.shopId, auth.userId ?? '');
-                        },
+ElevatedButton(
+                         onPressed: () async {
+                           final qp = context.read<QueueProvider>();
+                           await qp.joinQueue(widget.shopId, auth.userId ?? '');
+                           if (qp.error != null) _showError(qp.error);
+                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppTheme.orange,
                           minimumSize: const Size.fromHeight(48),

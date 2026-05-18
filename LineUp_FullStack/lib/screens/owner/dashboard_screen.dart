@@ -16,6 +16,15 @@ class DashboardScreen extends StatefulWidget {
 }
 
 class _DashboardScreenState extends State<DashboardScreen> {
+  String? _error;
+
+  void _showError(String? error) {
+    if (error != null && error.isNotEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(error), backgroundColor: AppTheme.red),
+      );
+    }
+  }
   @override
   void initState() {
     super.initState();
@@ -128,12 +137,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
               ),
             ),
             const SizedBox(height: 16),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: () async {
-                  await context.read<ShopsProvider>().toggleShopStatus(widget.shopId, !shop.isOpen);
-                  await context.read<QueueProvider>().fetchQueue(widget.shopId);
+SizedBox(
+               width: double.infinity,
+               child: ElevatedButton(
+                 onPressed: () async {
+                   final shopsProv = context.read<ShopsProvider>();
+                   final queueProv = context.read<QueueProvider>();
+                   await shopsProv.toggleShopStatus(widget.shopId, !shop.isOpen);
+                   if (shopsProv.error != null) _showError(shopsProv.error);
+                   await queueProv.fetchQueue(widget.shopId);
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: shop.isOpen ? AppTheme.red : AppTheme.orange,
@@ -201,7 +213,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 Container(
                   margin: const EdgeInsets.only(bottom: 12),
                   child: ElevatedButton(
-                    onPressed: () async { await context.read<QueueProvider>().callNext(widget.shopId); },
+                    onPressed: () async { 
+                             await context.read<QueueProvider>().callNext(widget.shopId);
+                             final q = context.read<QueueProvider>();
+                             if (q.error != null) _showError(q.error);
+                           },
                     style: ElevatedButton.styleFrom(backgroundColor: AppTheme.orange, minimumSize: const Size.fromHeight(48), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
                     child: const Text('📞 Call Next Customer', style: TextStyle(fontWeight: FontWeight.w700)),
                   ),
@@ -213,7 +229,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 isFirst: false,
                 avgMinutes: shop.avgServiceMinutes,
                 isLast: entry == activeQueue.last,
-                onSkip: () async { await context.read<QueueProvider>().skip(widget.shopId, 'owner_skip'); },
+                onSkip: () async {
+                  await context.read<QueueProvider>().skip(widget.shopId, 'owner_skip');
+                  final q = context.read<QueueProvider>();
+                  if (q.error != null) _showError(q.error);
+                },
               )),
             ],
           ],

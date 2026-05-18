@@ -5,7 +5,7 @@ const db = require('../db');
 router.post('/anon', (req, res) => {
   const anonUserId = `anon-${Date.now()}`;
   try {
-    db.run(`INSERT INTO users (id, role) VALUES (?, 'anon')`, [anonUserId]);
+    db.prepare(`INSERT INTO users (id, role) VALUES (?, 'anon')`).run(anonUserId);
     res.json({ id: anonUserId });
   } catch (err) {
     console.error(err);
@@ -24,10 +24,9 @@ router.post('/register', (req, res) => {
   const hashedPassword = bcrypt.hashSync(password, 10);
 
   try {
-    const result = db.run(
-      `UPDATE users SET name = ?, email = ?, password = ?, role = 'customer' WHERE id = ? AND role = 'anon'`,
-      [name, email, hashedPassword, anonUserId]
-    );
+    const result = db.prepare(
+      `UPDATE users SET name = ?, email = ?, password = ?, role = 'customer' WHERE id = ? AND role = 'anon'`
+    ).run(name, email, hashedPassword, anonUserId);
     if (result.changes === 0) {
       return res.status(404).json({ error: 'Anonymous user not found or already upgraded' });
     }
@@ -70,8 +69,8 @@ router.post('/logout', (req, res) => {
 router.delete('/anon/:id', (req, res) => {
   const { id } = req.params;
   try {
-    db.run(`DELETE FROM queue_entries WHERE user_id = ?`, [id]);
-    const result = db.run(`DELETE FROM users WHERE id = ? AND role = 'anon'`, [id]);
+    db.prepare(`DELETE FROM queue_entries WHERE user_id = ?`).run(id);
+    const result = db.prepare(`DELETE FROM users WHERE id = ? AND role = 'anon'`).run(id);
     if (result.changes === 0) {
       return res.status(404).json({ error: 'Anonymous user not found' });
     }
@@ -85,8 +84,8 @@ router.delete('/anon/:id', (req, res) => {
 router.delete('/account/:id', (req, res) => {
   const { id } = req.params;
   try {
-    db.run(`DELETE FROM queue_entries WHERE user_id = ?`, [id]);
-    const result = db.run(`DELETE FROM users WHERE id = ?`, [id]);
+    db.prepare(`DELETE FROM queue_entries WHERE user_id = ?`).run(id);
+    const result = db.prepare(`DELETE FROM users WHERE id = ?`).run(id);
     if (result.changes === 0) {
       return res.status(404).json({ error: 'User not found' });
     }
