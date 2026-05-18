@@ -2,11 +2,6 @@ const express = require('express');
 const router = express.Router();
 const db = require('../db');
 
-
-// ─── QUEUE ENDPOINTS ──────────────────────────────────────────────────────────
-
-
-// Endpoint to fetch the queue entries for a specific shop, including user details and ordered by position
 router.get('/:id/queue', (req, res) => {
   const { id } = req.params;
   const query = `
@@ -27,15 +22,32 @@ router.get('/:id/queue', (req, res) => {
 });
 
 router.get('/:id/queue/my-entry', (req, res) => {
-  // Get the user's queue entry for a specific shop
+  const { id } = req.params;
+  const { userId } = req.query;
 
-  // Get shop ID from params and userId from query parameters
-  // Query the database for the queue entry matching the shop ID and user ID
-  // Return the queue entry details in the response
+  if (!userId) {
+    return res.status(400).json({ error: 'userId query parameter is required' });
+  }
+
+  const query = `
+    SELECT q.id, q.shop_id AS shopId, q.user_id AS userId, u.name AS userName,
+           q.position, q.status, q.joined_at AS joinedAt, q.called_at AS calledAt
+    FROM queue_entries q
+    LEFT JOIN users u ON q.user_id = u.id
+    WHERE q.shop_id = ? AND q.user_id = ? AND q.status IN ('waiting', 'called')
+  `;
+  db.get(query, [id, userId], (err, row) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).json({ error: 'Failed to fetch queue entry' });
+    }
+    if (!row) {
+      return res.json(null);
+    }
+    res.json(row);
+  });
 });
 
-
-// Endpoint to allow a user to join the queue for a specific shop. It calculates the next position in the queue and inserts a new entry into the database.
 router.post('/:id/join', (req, res) => {
   const { id } = req.params;
   const { userId } = req.body;
@@ -44,20 +56,20 @@ router.post('/:id/join', (req, res) => {
     return res.status(400).json({ error: 'userId is required' });
   }
 
-  const getPositionSql = `SELECT MAX(position) AS maxPos FROM queue_entries WHERE shop_id = ? AND status = 'waiting'`; // Get the maximum position currently in the queue for the specified shop.
+  const getPositionSql = `SELECT MAX(position) AS maxPos FROM queue_entries WHERE shop_id = ? AND status = 'waiting'`;
 
   db.get(getPositionSql, [id], (err, row) => {
     if (err) {
       console.error(err);
       return res.status(500).json({ error: 'Failed to calculate position' });
-    } // If there are no entries in the queue, maxPos will be null, so we default to 0 and add 1 for the new position.
+    }
 
-    const nextPosition = (row?.maxPos || 0) + 1; // Get max position or 0, then add 1 for the new entry's position.
-    const entryId = `${id}-entry-${Date.now()}`; // Generate a unique ID for the new queue entry based on the shop ID and current timestamp.
+    const nextPosition = (row?.maxPos || 0) + 1;
+    const entryId = `${id}-entry-${Date.now()}`;
 
     db.run(
       `INSERT INTO queue_entries (id, shop_id, user_id, position, status) VALUES (?, ?, ?, ?, 'waiting')`,
-      [entryId, id, userId, nextPosition], 
+      [entryId, id, userId, nextPosition],
       function (insertErr) {
         if (insertErr) {
           console.error(insertErr);
@@ -65,13 +77,10 @@ router.post('/:id/join', (req, res) => {
         }
         res.json({ id: entryId, shopId: id, userId, position: nextPosition, status: 'waiting' });
       }
-    ); // Insert a new entry into the queue_entries table with the generated ID, shop ID, user ID, calculated position, and a default status of 'waiting'.
-       // If the insertion is successful, it returns the details of the new queue entry in the response. If there is an error during insertion, it logs the error and returns a 500 error response.
+    );
   });
 });
 
-
-// Endpoint to allow a user to leave the queue for a specific shop. It updates the user's queue entry status to 'cancelled' and updates the positions of the remaining entries accordingly.
 router.post('/:id/leave', (req, res) => {
   const { id } = req.params;
   const { userId } = req.body;
@@ -81,9 +90,6 @@ router.post('/:id/leave', (req, res) => {
   }
 
   const cancelSql = `UPDATE queue_entries SET status = 'cancelled' WHERE shop_id = ? AND user_id = ? AND status = 'waiting'`;
-  // No need to update the leaver's position to null since we will filter out cancelled entries when fetching the queue.
-  // This way we can keep a record of cancellations for stats purposes without affecting the positions of other entries in the queue.
-
   const updateSql = `
     UPDATE queue_entries
     SET position = position - 1
@@ -101,45 +107,255 @@ router.post('/:id/leave', (req, res) => {
 
     const userPosition = row.position;
 
-    db.run(cancelSql, [id, userId], function (cancelErr) { // Run cancel
+    db.run(cancelSql, [id, userId], function (cancelErr) {
       if (cancelErr) {
         console.error(cancelErr);
         return res.status(500).json({ error: 'Failed to leave queue' });
       }
 
-      db.run(updateSql, [id, userPosition], function (updateErr) { // Run update after cancel
+      db.run(updateSql, [id, userPosition], function (updateErr) {
         if (updateErr) {
           console.error(updateErr);
           return res.status(500).json({ error: 'Failed to update queue positions' });
         }
-
         res.json({ success: true });
       });
     });
   });
 });
 
-router.post('/:id/attend', (req, res) => {
-  // Find the user with shop ID and status = "called", edit to "attended"
+router.post('/:id/call-next', (req, res) => {
+  const { id } = req.params;
+
+  const findNextSql = `
+    SELECT * FROM queue_entries
+    WHERE shop_id = ? AND status = 'waiting'
+    ORDER BY position ASC
+    LIMIT 1
+  `;
+
+  db.get(findNextSql, [id], (err, entry) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).json({ error: 'Failed to find next entry' });
+    }
+    if (!entry) {
+      return res.status(404).json({ error: 'No waiting entries in queue' });
+    }
+
+    db.run(
+      `UPDATE queue_entries SET status = 'called', called_at = datetime('now') WHERE id = ?`,
+      [entry.id],
+      function (updateErr) {
+        if (updateErr) {
+          console.error(updateErr);
+          return res.status(500).json({ error: 'Failed to call next customer' });
+        }
+        res.json({
+          id: entry.id,
+          shopId: entry.shop_id,
+          userId: entry.user_id,
+          position: entry.position,
+          status: 'called',
+        });
+      }
+    );
+  });
 });
 
-router.post('/:id/call-next', (req, res) => {
-  // Call after attend, skip or cancel
-  // Get shop ID as param
-  // Find last "waiting" entry for the shop, ordered by position, edit the status to 'called' and update called_at timestamp
+router.post('/:id/attend', (req, res) => {
+  const { id } = req.params;
+
+  const findCalledSql = `
+    SELECT * FROM queue_entries
+    WHERE shop_id = ? AND status = 'called'
+    ORDER BY position ASC
+    LIMIT 1
+  `;
+
+  db.get(findCalledSql, [id], (err, entry) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).json({ error: 'Failed to find called entry' });
+    }
+    if (!entry) {
+      return res.status(404).json({ error: 'No called entries found' });
+    }
+
+    db.run(
+      `UPDATE queue_entries SET status = 'attended' WHERE id = ?`,
+      [entry.id],
+      function (updateErr) {
+        if (updateErr) {
+          console.error(updateErr);
+          return res.status(500).json({ error: 'Failed to mark as attended' });
+        }
+
+        db.run(
+          `UPDATE queue_entries SET position = position - 1
+           WHERE shop_id = ? AND position > ? AND status IN ('waiting', 'called')`,
+          [id, entry.position],
+          function (reorderErr) {
+            if (reorderErr) {
+              console.error(reorderErr);
+            }
+            res.json({
+              id: entry.id,
+              shopId: entry.shop_id,
+              userId: entry.user_id,
+              position: entry.position,
+              status: 'attended',
+            });
+          }
+        );
+      }
+    );
+  });
 });
 
 router.post('/:id/skip', (req, res) => {
-  // Find the user with shop ID and status = "called", edit to "skipped", and set the reason to either "no_show" or "owner_skip"
-  // meaning owner skips them either bc they didn't show up or some other reason
+  const { id } = req.params;
   const { reason } = req.body;
-  // Validate reason is either "no_show" or "owner_skip"
-  // Update the queue entry with the new status and skip reason
+
+  if (!reason || !['no_show', 'owner_skip'].includes(reason)) {
+    return res.status(400).json({ error: 'reason must be "no_show" or "owner_skip"' });
+  }
+
+  const findCalledSql = `
+    SELECT * FROM queue_entries
+    WHERE shop_id = ? AND status = 'called'
+    ORDER BY position ASC
+    LIMIT 1
+  `;
+
+  db.get(findCalledSql, [id], (err, entry) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).json({ error: 'Failed to find called entry' });
+    }
+    if (!entry) {
+      return res.status(404).json({ error: 'No called entries found' });
+    }
+
+    db.run(
+      `UPDATE queue_entries SET status = 'skipped', skip_reason = ? WHERE id = ?`,
+      [reason, entry.id],
+      function (updateErr) {
+        if (updateErr) {
+          console.error(updateErr);
+          return res.status(500).json({ error: 'Failed to skip entry' });
+        }
+
+        db.run(
+          `UPDATE queue_entries SET position = position - 1
+           WHERE shop_id = ? AND position > ? AND status IN ('waiting', 'called')`,
+          [id, entry.position],
+          function (reorderErr) {
+            if (reorderErr) {
+              console.error(reorderErr);
+            }
+            res.json({
+              id: entry.id,
+              shopId: entry.shop_id,
+              userId: entry.user_id,
+              position: entry.position,
+              status: 'skipped',
+              skipReason: reason,
+            });
+          }
+        );
+      }
+    );
+  });
 });
 
 router.post('/:id/close', (req, res) => {
-  // Close queue for the day and upload stats to the queue_stats table. This will be called at the end of the day by the shop owner.
-  // It will calculate the total customers served, skipped, no-shows, average wait time, and peak hour, and insert a new entry into the queue_stats table for that shop and date.
+  const { id } = req.params;
+
+  db.get(`SELECT * FROM shops WHERE id = ?`, [id], (err, shop) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).json({ error: 'Failed to find shop' });
+    }
+    if (!shop) {
+      return res.status(404).json({ error: 'Shop not found' });
+    }
+
+    db.all(
+      `SELECT * FROM queue_entries WHERE shop_id = ?`,
+      [id],
+      (err, entries) => {
+        if (err) {
+          console.error(err);
+          return res.status(500).json({ error: 'Failed to fetch queue entries' });
+        }
+
+        const customersServed = entries.filter(e => e.status === 'attended').length;
+        const customersSkipped = entries.filter(e => e.status === 'skipped').length;
+        const noShows = entries.filter(e => e.skip_reason === 'no_show').length;
+        const ownerSkips = entries.filter(e => e.skip_reason === 'owner_skip').length;
+        const cancelled = entries.filter(e => e.status === 'cancelled').length;
+
+        const calledEntries = entries.filter(e => e.called_at && e.joined_at);
+        let avgWaitSeconds = null;
+        if (calledEntries.length > 0) {
+          const totalWait = calledEntries.reduce((sum, e) => {
+            const joined = new Date(e.joined_at).getTime();
+            const called = new Date(e.called_at).getTime();
+            return sum + Math.max(0, (called - joined) / 1000);
+          }, 0);
+          avgWaitSeconds = Math.round(totalWait / calledEntries.length);
+        }
+
+        const waitingWithHours = entries.filter(e => e.joined_at);
+        let peakHour = null;
+        if (waitingWithHours.length > 0) {
+          const hourCounts = {};
+          waitingWithHours.forEach(e => {
+            const h = new Date(e.joined_at).getHours();
+            hourCounts[h] = (hourCounts[h] || 0) + 1;
+          });
+          peakHour = parseInt(Object.entries(hourCounts).sort((a, b) => b[1] - a[1])[0][0]);
+        }
+
+        const statsId = `stats-${id}-${Date.now()}`;
+        db.run(
+          `INSERT INTO queue_stats (id, shop_id, date, customers_served, customers_skipped, no_shows, skips, cancelled, avg_wait_seconds, peak_hour)
+           VALUES (?, ?, date('now'), ?, ?, ?, ?, ?, ?, ?)`,
+          [statsId, id, customersServed, customersSkipped, noShows, ownerSkips, cancelled, avgWaitSeconds, peakHour],
+          function (statsErr) {
+            if (statsErr) {
+              console.error(statsErr);
+              return res.status(500).json({ error: 'Failed to save stats' });
+            }
+
+            db.run(
+              `UPDATE shops SET is_open = 0 WHERE id = ?`,
+              [id],
+              function (closeErr) {
+                if (closeErr) {
+                  console.error(closeErr);
+                  return res.status(500).json({ error: 'Failed to close shop' });
+                }
+                res.json({
+                  success: true,
+                  stats: {
+                    customersServed,
+                    customersSkipped,
+                    noShows,
+                    ownerSkips,
+                    cancelled,
+                    avgWaitSeconds,
+                    peakHour,
+                  },
+                });
+              }
+            );
+          }
+        );
+      }
+    );
+  });
 });
 
-module.exports = router; // Export the router so it can be used in the main server file to handle queue-related routes.
+module.exports = router;

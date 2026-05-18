@@ -9,7 +9,7 @@ const db = require('../db');
 router.get('/', (req, res) => {
   const query = `
     SELECT s.id, s.name, s.category, s.location_x AS locationX, s.location_y AS locationY,
-           s.is_open AS isOpen, s.avg_service_time AS avgServiceTime,
+           s.lat, s.lng, s.is_open AS isOpen, s.avg_service_time AS avgServiceTime,
            s.owner_id AS ownerId, u.name AS ownerName
     FROM shops s
     LEFT JOIN users u ON s.owner_id = u.id
@@ -25,18 +25,47 @@ router.get('/', (req, res) => {
 
 // Search must come before /:id so Express doesn't treat 'search' as an ID param
 router.get('/search', (req, res) => {
-  // Search and filter shops based on query parameters (e.g., name, category)
+  const { q, category } = req.query;
+  let sql = `
+    SELECT s.id, s.name, s.category, s.location_x AS locationX, s.location_y AS locationY,
+           s.lat, s.lng, s.is_open AS isOpen, s.avg_service_time AS avgServiceTime,
+           s.owner_id AS ownerId, u.name AS ownerName
+    FROM shops s
+    LEFT JOIN users u ON s.owner_id = u.id
+    WHERE 1=1
+  `;
+  const params = [];
 
-  // Get query parameters: q (search term), category (filter by category)
-  // Build SQL query based on provided parameters
-  // Execute query and return results
+  if (q) {
+    sql += ` AND s.name LIKE ?`;
+    params.push(`%${q}%`);
+  }
+  if (category && category !== 'All') {
+    sql += ` AND s.category = ?`;
+    params.push(category);
+  }
+
+  db.all(sql, params, (err, rows) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).json({ error: 'Failed to search shops' });
+    }
+    res.json(rows);
+  });
 });
 
 // Endpoint to fetch the details of a single shop by its ID. It queries the database for the shop with the specified ID and returns its details in the response.
 // If the shop is not found, it returns a 404 error. If there is a database error, it returns a 500 error.
 router.get('/:id', (req, res) => {
   const { id } = req.params;
-  const sql = `SELECT * FROM shops WHERE id = ?`;
+  const sql = `
+    SELECT s.id, s.name, s.category, s.location_x AS locationX, s.location_y AS locationY,
+           s.lat, s.lng, s.is_open AS isOpen, s.avg_service_time AS avgServiceTime,
+           s.owner_id AS ownerId, u.name AS ownerName
+    FROM shops s
+    LEFT JOIN users u ON s.owner_id = u.id
+    WHERE s.id = ?
+  `;
   db.get(sql, [id], (err, row) => {
     if (err) {
       console.error(err);
@@ -50,11 +79,29 @@ router.get('/:id', (req, res) => {
 });
 
 router.patch('/:id/status', (req, res) => {
-  // Change queue status, i.e., open and close queue
+  const { id } = req.params;
+  const { isOpen } = req.body;
 
-  // Get shop ID from params and new status (isOpen) from request body
-  // Update the shop's is_open status in the database
-  // Return the updated shop details in the response
+  if (typeof isOpen !== 'boolean' && isOpen !== 0 && isOpen !== 1) {
+    return res.status(400).json({ error: 'isOpen boolean is required' });
+  }
+
+  const isOpenVal = isOpen ? 1 : 0;
+
+  db.run(
+    `UPDATE shops SET is_open = ? WHERE id = ?`,
+    [isOpenVal, id],
+    function (err) {
+      if (err) {
+        console.error(err);
+        return res.status(500).json({ error: 'Failed to update shop status' });
+      }
+      if (this.changes === 0) {
+        return res.status(404).json({ error: 'Shop not found' });
+      }
+      res.json({ id, isOpen: !!isOpenVal });
+    }
+  );
 });
 
 module.exports = router; // Export the router so it can be used in the main server file to handle shop-related routes.
