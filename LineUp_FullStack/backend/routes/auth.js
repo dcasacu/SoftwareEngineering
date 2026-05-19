@@ -45,7 +45,7 @@ router.post('/login', (req, res) => {
   }
 
   const bcrypt = require('bcryptjs');
-  const user = db.get(`SELECT * FROM users WHERE email = ?`, [email]);
+  const user = db.prepare(`SELECT * FROM users WHERE email = ?`).get(email);
 
   if (!user) {
     return res.status(401).json({ error: 'Invalid email or password' });

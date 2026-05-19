@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../config/theme.dart';
 import '../providers/auth_provider.dart';
+import '../widgets/login_dialog.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -13,6 +14,38 @@ class SplashScreen extends StatefulWidget {
 
 class _SplashScreenState extends State<SplashScreen> {
   String? _error;
+
+  Future<void> _showLoginDialog() async {
+    await showDialog(
+      context: context,
+      builder: (_) => const LoginDialog(),
+    );
+    if (!mounted) return;
+    final auth = context.read<AuthProvider>();
+    if (auth.isLoggedIn && auth.currentUser?.role != 'anon') {
+      if (auth.isOwner) {
+        context.go('/owner/dashboard');
+      } else {
+        context.go('/customer/map');
+      }
+    }
+  }
+
+  Future<void> _continueWithoutLogin() async {
+    setState(() => _error = null);
+    final auth = context.read<AuthProvider>();
+    if (auth.userId == null) {
+      try {
+        await auth.createAnonUser();
+      } catch (e) {
+        if (mounted) {
+          setState(() => _error = 'Could not connect to server. Make sure the backend is running on port 4000.');
+        }
+        return;
+      }
+    }
+    if (mounted) context.go('/customer/map');
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -25,7 +58,7 @@ class _SplashScreenState extends State<SplashScreen> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Text('🛒', style: TextStyle(fontSize: 52)),
+                const Text('🛒', style: TextStyle(fontSize: 64)),
                 const SizedBox(height: 8),
                 RichText(
                   text: const TextSpan(
@@ -38,105 +71,51 @@ class _SplashScreenState extends State<SplashScreen> {
                 ),
                 const SizedBox(height: 8),
                 const Text('Smart market queues', style: TextStyle(color: Colors.white70, fontSize: 16)),
-                const SizedBox(height: 48),
+                const SizedBox(height: 64),
                 const Text(
-                  'CHOOSE YOUR MODE',
-                  style: TextStyle(color: Colors.white60, fontSize: 12, fontWeight: FontWeight.w700, letterSpacing: 1),
+                  'Welcome',
+                  style: TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.w800),
                 ),
-                const SizedBox(height: 16),
-                _ModeCard(
-                  icon: '🧺',
-                  title: 'Customer',
-                  subtitle: 'Browse shops, join queues, track your turn',
-                  color: Colors.white,
-                  textColor: AppTheme.gray900,
-                  onTap: () async {
-                    setState(() => _error = null);
-                    final auth = context.read<AuthProvider>();
-                    if (auth.userId == null) {
-                      try {
-                        await auth.createAnonUser();
-                      } catch (e) {
-                        if (mounted) {
-                          setState(() => _error = 'Could not connect to server. Make sure the backend is running on port 4000.');
-                        }
-                        return;
-                      }
-                    }
-                    if (context.mounted) {
-                      context.go('/customer/map');
-                    }
-                  },
+                const SizedBox(height: 8),
+                const Text(
+                  'Log in to manage your queues or continue as a guest.',
+                  style: TextStyle(color: Colors.white60, fontSize: 14),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 32),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: _showLoginDialog,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppTheme.orange,
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                    ),
+                    child: const Text('Log In', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800)),
+                  ),
                 ),
                 const SizedBox(height: 12),
-                _ModeCard(
-                  icon: '🏪',
-                  title: 'Shop Owner',
-                  subtitle: 'Manage your queue & serving turns',
-                  color: AppTheme.orange,
-                  textColor: Colors.white,
-                  onTap: () {
-                    context.go('/owner/dashboard');
-                  },
+                SizedBox(
+                  width: double.infinity,
+                  child: OutlinedButton(
+                    onPressed: _continueWithoutLogin,
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: Colors.white,
+                      side: const BorderSide(color: Colors.white38),
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                    ),
+                    child: const Text('Continue without logging in', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600)),
+                  ),
                 ),
                 if (_error != null) ...[
                   const SizedBox(height: 16),
                   Text(_error!, style: const TextStyle(color: Colors.redAccent, fontSize: 13), textAlign: TextAlign.center),
                 ],
-                const SizedBox(height: 16),
-                const Text('Demo mode · No login required', style: TextStyle(color: Colors.white38, fontSize: 12)),
               ],
             ),
           ),
-        ),
-      ),
-    );
-  }
-}
-
-class _ModeCard extends StatelessWidget {
-  final String icon;
-  final String title;
-  final String subtitle;
-  final Color color;
-  final Color textColor;
-  final VoidCallback onTap;
-
-  const _ModeCard({
-    required this.icon,
-    required this.title,
-    required this.subtitle,
-    required this.color,
-    required this.textColor,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 22),
-        decoration: BoxDecoration(
-          color: color,
-          borderRadius: BorderRadius.circular(20),
-        ),
-        child: Row(
-          children: [
-            Text(icon, style: const TextStyle(fontSize: 36)),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(title, style: TextStyle(fontSize: 17, fontWeight: FontWeight.w800, color: textColor)),
-                  const SizedBox(height: 2),
-                  Text(subtitle, style: TextStyle(fontSize: 13, color: textColor.withValues(alpha: 0.7))),
-                ],
-              ),
-            ),
-          ],
         ),
       ),
     );

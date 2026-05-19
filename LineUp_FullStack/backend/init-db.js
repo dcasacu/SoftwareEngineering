@@ -1,4 +1,8 @@
 const db = require('./db');
+const bcrypt = require('bcryptjs');
+
+const pass123 = bcrypt.hashSync('pass123', 10);
+const qwerty = bcrypt.hashSync('qwerty', 10);
 
 db.exec(`
   CREATE TABLE IF NOT EXISTS users (
@@ -58,16 +62,23 @@ db.exec(`
   WHERE status IN ('waiting', 'called');
 `);
 
+<<<<<<< Updated upstream
 const insertUser = db.prepare('INSERT OR IGNORE INTO users (id, name, email, role) VALUES (?, ?, ?, ?)');
+=======
+// ─── OWNERS ───────────────────────────────────────────────────────────────────
+
+const insertUser = db.prepare('INSERT OR IGNORE INTO users (id, name, email, password, role) VALUES (?, ?, ?, ?, ?)');
+const insertUserWithPassword = db.prepare('INSERT OR IGNORE INTO users (id, name, email, password, role) VALUES (?, ?, ?, ?, ?)');
+>>>>>>> Stashed changes
 const insertManyUsers = db.transaction((rows) => { for (const row of rows) insertUser.run(...row); });
 
 insertManyUsers([
-  ['owner1', 'Joan Martí', 'joan@martifruits.com', 'owner'],
-  ['owner2', 'Josep Vila', 'josep@pepsbakery.com', 'owner'],
-  ['owner3', 'Rosa Puig', 'rosa@lapeixateria.com', 'owner'],
-  ['owner4', 'Montse Soler', 'montse@carnissera.com', 'owner'],
-  ['owner5', 'Ahmed Bensali', 'ahmed@especies.com', 'owner'],
-  ['owner6', 'Núria Costa', 'nuria@florsiplantes.com', 'owner'],
+  ['owner1', 'Joan Martí', 'joan@martifruits.com', pass123, 'owner'], // password: pass123
+  ['owner2', 'Josep Vila', 'josep@pepsbakery.com', pass123, 'owner'], // password: pass123
+  ['owner3', 'Rosa Puig', 'rosa@lapeixateria.com', pass123, 'owner'], // password: pass123
+  ['owner4', 'Montse Soler', 'montse@carnissera.com', pass123, 'owner'], // password: pass123
+  ['owner5', 'Ahmed Bensali', 'ahmed@especies.com', pass123, 'owner'], // password: pass123
+  ['owner6', 'Núria Costa', 'nuria@florsiplantes.com', pass123, 'owner'], // password: pass123
 ]);
 
 const insertShop = db.prepare('INSERT OR IGNORE INTO shops (id, owner_id, name, category, location_x, location_y, lat, lng, is_open, avg_service_time) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)');
@@ -82,11 +93,39 @@ insertManyShops([
   ['shop6', 'owner6', 'Flors i Plantes', 'Flowers', 78, 28, 41.384, 2.181, 1, 180],
 ]);
 
+<<<<<<< Updated upstream
 insertManyUsers([
   ['cust1', 'Anna García', 'anna@email.com', 'customer'],
   ['cust2', 'Pere Martínez', 'pere@email.com', 'customer'],
   ['cust3', 'Laia Fernández', 'laia@email.com', 'customer'],
   ['cust4', 'Maria Torres', 'maria@email.com', 'customer'],
+=======
+
+// ─── REGISTERED CUSTOMERS (hashed passwords) ─────────────────────────────────
+// Passwords: 'pass123' → $2a$10$... or 'qwerty' → $2a$10$...
+// Pre-hashed to avoid needing bcrypt at seed time.
+// pass123  → $2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi
+// qwerty   → $2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy
+
+const insertManyWithPassword = db.transaction((rows) => { for (const row of rows) insertUserWithPassword.run(...row); });
+
+insertManyWithPassword([
+  ['cust1',  'Anna García',      'anna@email.com',    pass123, 'customer'], // pass123
+  ['cust2',  'Pere Martínez',    'pere@email.com',    pass123, 'customer'], // pass123
+  ['cust3',  'Laia Fernández',   'laia@email.com',    qwerty, 'customer'], // qwerty
+  ['cust4',  'Maria Torres',     'maria@email.com',   qwerty, 'customer'], // qwerty
+  ['cust5',  'Jordi Puig',       'jordi@email.com',   pass123, 'customer'], // pass123
+  ['cust6',  'Marta Vidal',      'marta@email.com',   pass123, 'customer'], // pass123
+  ['cust7',  'Carles Bosch',     'carles@email.com',  qwerty, 'customer'], // qwerty
+  ['cust8',  'Núria Soler',      'nuria@email.com',   qwerty, 'customer'], // qwerty
+  ['cust9',  'Pol Roca',         'pol@email.com',     pass123, 'customer'], // pass123
+  ['cust10', 'Silvia Mas',       'silvia@email.com',  pass123, 'customer'], // pass123
+  ['cust11', 'Tomàs Ferrer',     'tomas@email.com',   qwerty, 'customer'], // qwerty
+  ['cust12', 'Ingrid Llull',     'ingrid@email.com',  qwerty, 'customer'], // qwerty
+  ['cust13', 'Marc Comas',       'marc@email.com',    pass123, 'customer'], // pass123
+  ['cust14', 'Elena Prats',      'elena@email.com',   pass123, 'customer'], // pass123
+  ['cust15', 'Oriol Vila',       'oriol@email.com',   qwerty, 'customer'], // qwerty
+>>>>>>> Stashed changes
 ]);
 
 db.exec(`

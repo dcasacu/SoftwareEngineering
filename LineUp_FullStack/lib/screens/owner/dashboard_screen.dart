@@ -7,6 +7,8 @@ import '../../providers/queue_provider.dart';
 import '../../providers/analytics_provider.dart';
 import '../../models/shop_analytics.dart';
 import '../../widgets/queue_list_tile.dart';
+import '../../providers/auth_provider.dart';
+
 
 class DashboardScreen extends StatefulWidget {
   final String shopId;
@@ -141,8 +143,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
           ),
           const SizedBox(width: 8),
           IconButton(
-            icon: const Icon(Icons.swap_horiz, color: Colors.white),
-            onPressed: () => context.go('/'),
+            icon: const Icon(Icons.logout, color: Colors.white),
+            tooltip: 'Log out',
+            onPressed: () async {
+              await context.read<AuthProvider>().logout();
+              if (context.mounted) context.go('/');
+            },
           ),
         ],
       ),
