@@ -71,12 +71,12 @@ class QueueService {
     throw Exception('Failed to skip');
   }
 
-  static Future<Map<String, dynamic>> closeQueue(String shopId) async {
-    final response = await ApiService.post('/shops/$shopId/close');
+  static Future<Map<String, dynamic>> endShift(String shopId) async {
+    final response = await ApiService.post('/shops/$shopId/end-shift');
     if (response.statusCode == 200) {
       final body = jsonDecode(response.body);
       return body['stats'] as Map<String, dynamic>;
     }
-    throw Exception('Failed to close queue');
+    throw Exception('Failed to end shift');
   }
 }

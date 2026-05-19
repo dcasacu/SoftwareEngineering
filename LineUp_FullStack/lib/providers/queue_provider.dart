@@ -159,9 +159,9 @@ class QueueProvider extends ChangeNotifier {
     }
   }
 
-  Future<Map<String, dynamic>?> closeQueue(String shopId) async {
+  Future<Map<String, dynamic>?> endShift(String shopId) async {
     try {
-      final stats = await QueueService.closeQueue(shopId);
+      final stats = await QueueService.endShift(shopId);
       _shopQueues[shopId] = [];
       notifyListeners();
       return stats;

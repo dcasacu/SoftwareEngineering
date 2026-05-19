@@ -155,7 +155,7 @@ router.post('/:id/skip', (req, res) => {
   res.json({ id: entry.id, shopId: entry.shop_id, userId: entry.user_id, position: entry.position, status: 'skipped', skipReason: reason });
 });
 
-router.post('/:id/close', (req, res) => {
+router.post('/:id/end-shift', (req, res) => {
   const { id } = req.params;
 
   const shop = db.prepare(`SELECT * FROM shops WHERE id = ?`).get(id);
