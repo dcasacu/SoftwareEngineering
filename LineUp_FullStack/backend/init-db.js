@@ -62,14 +62,10 @@ db.exec(`
   WHERE status IN ('waiting', 'called');
 `);
 
-<<<<<<< Updated upstream
-const insertUser = db.prepare('INSERT OR IGNORE INTO users (id, name, email, role) VALUES (?, ?, ?, ?)');
-=======
 // ─── OWNERS ───────────────────────────────────────────────────────────────────
 
 const insertUser = db.prepare('INSERT OR IGNORE INTO users (id, name, email, password, role) VALUES (?, ?, ?, ?, ?)');
 const insertUserWithPassword = db.prepare('INSERT OR IGNORE INTO users (id, name, email, password, role) VALUES (?, ?, ?, ?, ?)');
->>>>>>> Stashed changes
 const insertManyUsers = db.transaction((rows) => { for (const row of rows) insertUser.run(...row); });
 
 insertManyUsers([
@@ -93,13 +89,6 @@ insertManyShops([
   ['shop6', 'owner6', 'Flors i Plantes', 'Flowers', 78, 28, 41.384, 2.181, 1, 180],
 ]);
 
-<<<<<<< Updated upstream
-insertManyUsers([
-  ['cust1', 'Anna García', 'anna@email.com', 'customer'],
-  ['cust2', 'Pere Martínez', 'pere@email.com', 'customer'],
-  ['cust3', 'Laia Fernández', 'laia@email.com', 'customer'],
-  ['cust4', 'Maria Torres', 'maria@email.com', 'customer'],
-=======
 
 // ─── REGISTERED CUSTOMERS (hashed passwords) ─────────────────────────────────
 // Passwords: 'pass123' → $2a$10$... or 'qwerty' → $2a$10$...
@@ -125,7 +114,6 @@ insertManyWithPassword([
   ['cust13', 'Marc Comas',       'marc@email.com',    pass123, 'customer'], // pass123
   ['cust14', 'Elena Prats',      'elena@email.com',   pass123, 'customer'], // pass123
   ['cust15', 'Oriol Vila',       'oriol@email.com',   qwerty, 'customer'], // qwerty
->>>>>>> Stashed changes
 ]);
 
 db.exec(`
