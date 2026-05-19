@@ -120,6 +120,15 @@ class _MapScreenState extends State<MapScreen> {
           ),
         ],
       ),
+      body: _currentIndex == 0 ? const _MapView() : const _QueuesContent(),
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _currentIndex,
+        onTap: (i) => setState(() => _currentIndex = i),
+        items: const [
+          BottomNavigationBarItem(icon: Icon(Icons.map), label: 'Map'),
+          BottomNavigationBarItem(icon: Icon(Icons.confirmation_num), label: 'My Queues'),
+        ],
+      ),
     );
   }
 }
