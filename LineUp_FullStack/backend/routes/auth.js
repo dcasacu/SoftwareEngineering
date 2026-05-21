@@ -1,6 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const db = require('../db');
+const bcrypt = require('bcryptjs');
+
+const pass123 = bcrypt.hashSync('pass123', 10);
+const qwerty = bcrypt.hashSync('qwerty', 10);
 
 router.post('/anon', (req, res) => {
   const anonUserId = `anon-${Date.now()}`;
@@ -45,7 +49,7 @@ router.post('/login', (req, res) => {
   }
 
   const bcrypt = require('bcryptjs');
-  const user = db.get(`SELECT * FROM users WHERE email = ?`, [email]);
+  const user = db.prepare(`SELECT * FROM users WHERE email = ?`).get(email);
 
   if (!user) {
     return res.status(401).json({ error: 'Invalid email or password' });

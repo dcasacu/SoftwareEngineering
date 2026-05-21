@@ -7,6 +7,7 @@ import '../../providers/queue_provider.dart';
 import '../../providers/analytics_provider.dart';
 import '../../models/shop_analytics.dart';
 import '../../widgets/queue_list_tile.dart';
+import '../../providers/auth_provider.dart';
 
 class DashboardScreen extends StatefulWidget {
   final String shopId;
@@ -141,8 +142,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
           ),
           const SizedBox(width: 8),
           IconButton(
-            icon: const Icon(Icons.swap_horiz, color: Colors.white),
-            onPressed: () => context.go('/'),
+            icon: const Icon(Icons.logout, color: Colors.white),
+            tooltip: 'Log out',
+            onPressed: () async {
+              await context.read<AuthProvider>().logout();
+              if (context.mounted) context.go('/');
+            },
           ),
         ],
       ),
@@ -204,39 +209,64 @@ class _DashboardScreenState extends State<DashboardScreen> {
               ),
             ),
             const SizedBox(height: 16),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: () async {
-                  final shopsProv = context.read<ShopsProvider>();
-                  final queueProv = context.read<QueueProvider>();
-                  final analyticsProv = context.read<AnalyticsProvider>();
-                  if (shop.isOpen) {
-                    final stats = await queueProv.closeQueue(widget.shopId);
-                    if (queueProv.error != null) {
-                      _showError(queueProv.error);
-                    } else if (stats != null) {
-                      await _showCloseStatsDialog(stats);
-                    }
-                    await queueProv.fetchQueue(widget.shopId);
-                    await shopsProv.selectShop(widget.shopId);
-                    await analyticsProv.fetchAnalytics(widget.shopId);
-                  } else {
-                    await shopsProv.toggleShopStatus(widget.shopId, true);
-                    if (shopsProv.error != null) _showError(shopsProv.error);
-                    await queueProv.fetchQueue(widget.shopId);
-                  }
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: shop.isOpen ? AppTheme.red : AppTheme.orange,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                  padding: const EdgeInsets.symmetric(vertical: 13),
+            Row(
+              children: [
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: () async {
+                      final queueProv = context.read<QueueProvider>();
+                      final shopsProv = context.read<ShopsProvider>();
+                      final analyticsProv = context.read<AnalyticsProvider>();
+
+                      final stats = await queueProv.endShift(widget.shopId);
+                      if (queueProv.error != null) {
+                        _showError(queueProv.error);
+                      } else if (stats != null) {
+                        await _showCloseStatsDialog(stats);
+                      }
+                      await queueProv.fetchQueue(widget.shopId);
+                      await shopsProv.selectShop(widget.shopId);
+                      await analyticsProv.fetchAnalytics(widget.shopId);
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppTheme.orange,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      padding: const EdgeInsets.symmetric(vertical: 13),
+                    ),
+                    child: const Text(
+                      '🧾 End Shift',
+                      style: TextStyle(fontWeight: FontWeight.w700, fontSize: 15),
+                    ),
+                  ),
                 ),
-                child: Text(
-                  shop.isOpen ? '🔒 Close Queue' : '🟢 Open Queue',
-                  style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 15),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: () async {
+                      final shopsProv = context.read<ShopsProvider>();
+                      final queueProv = context.read<QueueProvider>();
+                      if (shop.isOpen) {
+                        await shopsProv.toggleShopStatus(widget.shopId, false);
+                        if (shopsProv.error != null) _showError(shopsProv.error);
+                        await queueProv.fetchQueue(widget.shopId);
+                      } else {
+                        await shopsProv.toggleShopStatus(widget.shopId, true);
+                        if (shopsProv.error != null) _showError(shopsProv.error);
+                        await queueProv.fetchQueue(widget.shopId);
+                      }
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: shop.isOpen ? AppTheme.red : AppTheme.green,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      padding: const EdgeInsets.symmetric(vertical: 13),
+                    ),
+                    child: Text(
+                      shop.isOpen ? '🔒 Close Queue for Now' : '🟢 Open Queue',
+                      style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 15),
+                    ),
+                  ),
                 ),
-              ),
+              ],
             ),
             const SizedBox(height: 20),
             const Text('Manage Queue', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: AppTheme.gray900)),
@@ -269,7 +299,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     children: [
                       Text('NOW SERVING', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AppTheme.orange)),
                       const SizedBox(height: 4),
-                      Text(activeQueue.first.userName ?? activeQueue.first.userId, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w900, color: AppTheme.gray900)),
+                      Text(activeQueue.first.userName ?? 'Anonymous User', style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w900, color: AppTheme.gray900)),
                       const SizedBox(height: 12),
                       Row(children: [
                         Expanded(

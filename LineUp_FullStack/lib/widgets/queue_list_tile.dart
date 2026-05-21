@@ -57,7 +57,7 @@ class QueueListTile extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  isMe ? 'You 👋' : (entry.userName ?? entry.userId),
+                  isMe ? 'You 👋' : (entry.userName ?? "Anonymous User"),
                   style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14),
                 ),
                 Text(

@@ -15,6 +15,7 @@ import '../../models/queue_entry.dart';
 import '../../services/notification_service.dart';
 import '../../widgets/category_filter.dart';
 import '../../widgets/queue_notification_overlay.dart';
+import '../../widgets/login_dialog.dart';
 
 class MapScreen extends StatefulWidget {
   const MapScreen({super.key});
@@ -75,18 +76,47 @@ class _MapScreenState extends State<MapScreen> {
           ],
         ),
         actions: [
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-            decoration: BoxDecoration(
-              color: AppTheme.orange.withValues(alpha: 0.2),
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: const Text('Customer', style: TextStyle(color: AppTheme.orange, fontWeight: FontWeight.w700, fontSize: 12)),
-          ),
-          const SizedBox(width: 8),
-          IconButton(
-            icon: const Icon(Icons.swap_horiz, color: Colors.white),
-            onPressed: () => context.go('/'),
+          Consumer<AuthProvider>(
+            builder: (context, auth, _) {
+              if (auth.isLoggedIn && auth.currentUser?.role != 'anon') {
+                // logged in — show name + log out
+                return Row(children: [
+                  Text(
+                    auth.currentUser?.name ?? 'Customer',
+                    style: const TextStyle(color: Colors.white70, fontSize: 13),
+                  ),
+                  const SizedBox(width: 4),
+                  IconButton(
+                    icon: const Icon(Icons.logout, color: Colors.white),
+                    tooltip: 'Log out',
+                    onPressed: () async {
+                      await context.read<AuthProvider>().logout();
+                      if (context.mounted) context.go('/');
+                    },
+                  ),
+                ]);
+              } else {
+                // anon — show log in button
+                return Row(children: [
+                  TextButton(
+                    onPressed: () async {
+                      await showDialog(
+                        context: context,
+                        builder: (_) => LoginDialog(),
+                      );
+                      final a = context.read<AuthProvider>();
+                      if (a.isLoggedIn && a.currentUser?.role != 'anon' && context.mounted) {
+                        if (a.isOwner) {
+                          context.go('/owner/dashboard');
+                        }
+                        // if customer just stays on map
+                      }
+                    },
+                    child: const Text('Log In', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700)),
+                  ),
+                ]);
+              }
+            },
           ),
         ],
       ),
