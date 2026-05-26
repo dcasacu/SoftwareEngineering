@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../config/theme.dart';
 import '../providers/auth_provider.dart';
 import '../widgets/login_dialog.dart';
+import '../widgets/register_dialog.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -93,6 +94,31 @@ class _SplashScreenState extends State<SplashScreen> {
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                     ),
                     child: const Text('Log In', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800)),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                SizedBox(
+                  width: double.infinity,
+                  child: OutlinedButton(
+                    onPressed: () async {
+                      await showDialog(context: context, builder: (_) => const RegisterDialog());
+                      if (!mounted) return;
+                      final auth = context.read<AuthProvider>();
+                      if (auth.isLoggedIn && auth.currentUser?.role != 'anon') {
+                        if (auth.isOwner) {
+                          context.go('/owner/dashboard');
+                        } else {
+                          context.go('/customer/map');
+                        }
+                      }
+                    },
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: Colors.white,
+                      side: const BorderSide(color: Colors.white38),
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                    ),
+                    child: const Text('Sign Up', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600)),
                   ),
                 ),
                 const SizedBox(height: 12),

@@ -63,7 +63,12 @@ class AuthProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      if (_currentUser == null) await createAnonUser();
+      if (_currentUser == null) {
+        await createAnonUser();
+        if (_currentUser == null) {
+          return;
+        }
+      }
       final user = await AuthService.register(
         anonUserId: _currentUser!.id,
         name: name,
@@ -117,11 +122,12 @@ class AuthProvider extends ChangeNotifier {
   }
 
   Future<void> _persistUser() async {
-    if (_currentUser == null) return;
-    await StorageHelper.saveValue('user_id', _currentUser!.id);
-    await StorageHelper.saveValue('user_name', _currentUser!.name ?? '');
-    await StorageHelper.saveValue('user_email', _currentUser!.email ?? '');
-    await StorageHelper.saveValue('user_role', _currentUser!.role);
+    if (_currentUser != null) {
+      await StorageHelper.saveValue('user_id', _currentUser!.id);
+      await StorageHelper.saveValue('user_name', _currentUser!.name ?? '');
+      await StorageHelper.saveValue('user_email', _currentUser!.email ?? '');
+      await StorageHelper.saveValue('user_role', _currentUser!.role);
+    }
   }
 
   Future<void> _clearUser() async {
