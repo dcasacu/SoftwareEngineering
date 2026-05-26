@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../../models/shop.dart';
 import '../../models/user.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/shops_provider.dart';
 import '../../providers/user_profile_provider.dart';
-import '../../widgets/shop_card.dart';
+import '../../widgets/login_dialog.dart';
+import '../../config/theme.dart';
 
 class UserProfileScreen extends StatefulWidget {
   const UserProfileScreen({Key? key}) : super(key: key);
@@ -18,8 +20,9 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
   @override
   void initState() {
     super.initState();
-    final userId = context.read<AuthProvider>().userId;
-    if (userId != null) {
+    final auth = context.read<AuthProvider>();
+    final userId = auth.userId;
+    if (userId != null && auth.currentUser?.role != 'anon') {
       context.read<UserProfileProvider>().loadUserProfile(userId);
     }
   }
@@ -35,6 +38,10 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
         builder: (context, authProvider, profileProvider, child) {
           final user = authProvider.currentUser;
 
+          if (user == null || user.role == 'anon') {
+            return _buildAnonContent(context);
+          }
+
           if (profileProvider.isLoading) {
             return const Center(child: CircularProgressIndicator());
           }
@@ -49,6 +56,46 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                 _buildFavorites(context, profileProvider),
                 const SizedBox(height: 24),
                 _buildTopShops(context, profileProvider),
+                const SizedBox(height: 24),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: ElevatedButton.icon(
+                    onPressed: authProvider.isLoading ? null : () async {
+                      final confirmed = await showDialog<bool>(
+                        context: context,
+                        builder: (context) => AlertDialog(
+                          title: const Text('Delete account'),
+                          content: const Text('Are you sure you want to delete your account? This action cannot be undone.'),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.of(context).pop(false),
+                              child: const Text('Cancel'),
+                            ),
+                            TextButton(
+                              onPressed: () => Navigator.of(context).pop(true),
+                              child: Text('Delete', style: const TextStyle(color: AppTheme.red)),
+                            ),
+                          ],
+                        ),
+                      );
+
+                      if (confirmed == true) {
+                        await authProvider.deleteAccount();
+                        if (!mounted) return;
+                        if (!authProvider.isLoggedIn) {
+                          context.go('/');
+                        }
+                      }
+                    },
+                    icon: const Icon(Icons.delete_forever),
+                    label: const Text('Delete account'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppTheme.red,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                    ),
+                  ),
+                ),
               ],
             ),
           );
@@ -102,6 +149,50 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildAnonContent(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 32),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(Icons.lock_outline, size: 64, color: Colors.grey),
+            const SizedBox(height: 20),
+            const Text(
+              'You have to log in to access your account.',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 12),
+            const Text(
+              'Sign in to see your favorite shops and manage your account.',
+              textAlign: TextAlign.center,
+              style: TextStyle(color: Colors.grey),
+            ),
+            const SizedBox(height: 24),
+            ElevatedButton(
+              onPressed: () async {
+                await showDialog(context: context, builder: (_) => const LoginDialog());
+                if (!mounted) return;
+                final auth = context.read<AuthProvider>();
+                if (auth.isLoggedIn && auth.currentUser?.role != 'anon') {
+                  await context.read<UserProfileProvider>().loadUserProfile(auth.userId!);
+                  setState(() {});
+                }
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppTheme.orange,
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              ),
+              child: const Text('Log In', style: TextStyle(fontWeight: FontWeight.w700)),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -225,7 +316,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.2),
+            color: Colors.grey.withValues(alpha: 51, red: 158, green: 158, blue: 158),
             blurRadius: 4,
             offset: const Offset(0, 2),
           ),
@@ -363,7 +454,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                             ),
                             const SizedBox(height: 4),
                             Text(
-                              '${visitCount} visitas${lastVisit != null ? ' • Última: ${lastVisit.day}/${lastVisit.month}/${lastVisit.year}' : ''}',
+                              '$visitCount visitas${lastVisit != null ? ' • Última: ${lastVisit.day}/${lastVisit.month}/${lastVisit.year}' : ''}',
                               style: TextStyle(
                                 fontSize: 12,
                                 color: Colors.grey[600],
