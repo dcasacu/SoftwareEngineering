@@ -6,6 +6,8 @@ class AppTheme {
   static const blueLight = Color(0xFFEEF3FF);
   static const orange = Color(0xFFF47A20);
   static const orangeLight = Color(0xFFFFF3E8);
+  static const purple = Color(0xFF9333EA);
+  static const purpleLight = Color(0xFFF3E8FF);
   static const white = Color(0xFFFFFFFF);
   static const gray50 = Color(0xFFF8F9FA);
   static const gray100 = Color(0xFFF0F2F5);
