@@ -20,6 +20,12 @@ class AuthProvider extends ChangeNotifier {
   }
 
   Future<void> _init() async {
+    final rememberMe = await StorageHelper.loadBool('remember_me') ?? false;
+    if (!rememberMe) {
+      await _clearUser();
+      return;
+    }
+
     final storedUserId = await StorageHelper.loadValue('user_id');
     final storedName = await StorageHelper.loadValue('user_name');
     final storedEmail = await StorageHelper.loadValue('user_email');
@@ -44,7 +50,6 @@ class AuthProvider extends ChangeNotifier {
     try {
       final user = await AuthService.createAnonUser();
       _currentUser = user;
-      await _persistUser();
     } catch (e) {
       _error = e.toString();
     }
@@ -88,6 +93,7 @@ class AuthProvider extends ChangeNotifier {
   Future<void> login({
     required String email,
     required String password,
+    bool rememberMe = false,
   }) async {
     _isLoading = true;
     _error = null;
@@ -96,7 +102,11 @@ class AuthProvider extends ChangeNotifier {
     try {
       final user = await AuthService.login(email: email, password: password);
       _currentUser = user;
-      await _persistUser();
+      if (rememberMe) {
+        await _persistUser(rememberMe: true);
+      } else {
+        await _clearUser();
+      }
     } catch (e) {
       _error = e.toString();
     }
@@ -139,12 +149,13 @@ class AuthProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> _persistUser() async {
+  Future<void> _persistUser({bool rememberMe = false}) async {
     if (_currentUser != null) {
       await StorageHelper.saveValue('user_id', _currentUser!.id);
       await StorageHelper.saveValue('user_name', _currentUser!.name ?? '');
       await StorageHelper.saveValue('user_email', _currentUser!.email ?? '');
       await StorageHelper.saveValue('user_role', _currentUser!.role);
+      await StorageHelper.saveBool('remember_me', rememberMe);
     }
   }
 
@@ -153,5 +164,6 @@ class AuthProvider extends ChangeNotifier {
     await StorageHelper.removeValue('user_name');
     await StorageHelper.removeValue('user_email');
     await StorageHelper.removeValue('user_role');
+    await StorageHelper.removeValue('remember_me');
   }
 }

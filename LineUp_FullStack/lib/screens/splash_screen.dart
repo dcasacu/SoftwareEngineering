@@ -15,21 +15,45 @@ class SplashScreen extends StatefulWidget {
 
 class _SplashScreenState extends State<SplashScreen> {
   String? _error;
+  bool _hasRedirected = false;
 
-  Future<void> _showLoginDialog() async {
-    await showDialog(
-      context: context,
-      builder: (_) => const LoginDialog(),
-    );
-    if (!mounted) return;
-    final auth = context.read<AuthProvider>();
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final auth = context.read<AuthProvider>();
+      auth.addListener(_onAuthChanged);
+      _checkRedirect(auth);
+    });
+  }
+
+  @override
+  void dispose() {
+    context.read<AuthProvider>().removeListener(_onAuthChanged);
+    super.dispose();
+  }
+
+  void _onAuthChanged() {
+    _checkRedirect(context.read<AuthProvider>());
+  }
+
+  void _checkRedirect(AuthProvider auth) {
+    if (_hasRedirected) return;
     if (auth.isLoggedIn && auth.currentUser?.role != 'anon') {
+      _hasRedirected = true;
       if (auth.isOwner) {
         context.go('/owner/dashboard');
       } else {
         context.go('/customer/map');
       }
     }
+  }
+
+  Future<void> _showLoginDialog() async {
+    await showDialog(
+      context: context,
+      builder: (_) => const LoginDialog(),
+    );
   }
 
   Future<void> _continueWithoutLogin() async {
@@ -102,15 +126,6 @@ class _SplashScreenState extends State<SplashScreen> {
                   child: OutlinedButton(
                     onPressed: () async {
                       await showDialog(context: context, builder: (_) => const RegisterDialog());
-                      if (!mounted) return;
-                      final auth = context.read<AuthProvider>();
-                      if (auth.isLoggedIn && auth.currentUser?.role != 'anon') {
-                        if (auth.isOwner) {
-                          context.go('/owner/dashboard');
-                        } else {
-                          context.go('/customer/map');
-                        }
-                      }
                     },
                     style: OutlinedButton.styleFrom(
                       foregroundColor: Colors.white,
