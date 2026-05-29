@@ -59,8 +59,6 @@ https://www.canva.com/design/DAHGRSnnLR0/EMY3dKztHj89YOn_rIuoLA/edit
 
 ## Agile Methodology
 
-The team uses an agile workflow based on Scrum/Kanban principles.
-
 The work is organized through:
 
 - Product Backlog.
@@ -69,7 +67,6 @@ The work is organized through:
 - GitHub Projects / Kanban board.
 - Sprint planning.
 - Sprint reviews.
-- Retrospectives.
 
 ## Kanban Board
 
