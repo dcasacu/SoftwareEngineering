@@ -2,13 +2,15 @@ name: Flutter CI
 
 on:
   push:
-    branches: [ main ]
+    branches: [main, Paula, 'feature/*']
+
   pull_request:
-    branches: [ main ]
+    branches: [main]
 
 jobs:
-  flutter-test:
-    name: Run Flutter tests
+  # Stage 1: Code Review
+  code-review:
+    name: Code Review (flutter analyze)
     runs-on: ubuntu-latest
 
     defaults:
@@ -24,8 +26,34 @@ jobs:
         with:
           channel: stable
 
-      - name: Install dependencies
+      - name: Install Flutter dependencies
         run: flutter pub get
 
-      - name: Run tests
+      - name: Run Flutter analyzer
+        run: flutter analyze --no-fatal-infos --no-fatal-warnings
+
+  # Stage 2: Automated Tests
+  automated-tests:
+    name: Automated Tests (flutter test)
+    runs-on: ubuntu-latest
+
+    needs: code-review
+
+    defaults:
+      run:
+        working-directory: LineUp_FullStack
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+
+      - name: Install Flutter dependencies
+        run: flutter pub get
+
+      - name: Run Flutter tests
         run: flutter test
