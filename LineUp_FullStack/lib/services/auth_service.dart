@@ -33,11 +33,14 @@ class AuthService {
   static Future<User> login({
     required String email,
     required String password,
+    String? anonUserId,
   }) async {
-    final response = await ApiService.post('/auth/login', body: {
+    final body = {
       'email': email,
       'password': password,
-    });
+      if (anonUserId != null) 'anonUserId': anonUserId,
+    };
+    final response = await ApiService.post('/auth/login', body: body);
     if (response.statusCode == 200) {
       return User.fromJson(jsonDecode(response.body));
     }

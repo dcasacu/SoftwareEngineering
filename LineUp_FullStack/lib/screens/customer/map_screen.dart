@@ -32,22 +32,34 @@ class _MapScreenState extends State<MapScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<ShopsProvider>().fetchShops();
-      final auth = context.read<AuthProvider>();
-      final queueProv = context.read<QueueProvider>();
-      if (auth.userId != null) {
-        queueProv.startPolling(auth.userId!);
-      }
-      _calledSub = queueProv.calledStream.listen((notification) {
-        final shopsProv = context.read<ShopsProvider>();
-        final shop = shopsProv.shops.firstWhere(
-          (s) => s.id == notification.shopId,
-          orElse: () => Shop(id: '', name: 'Unknown Shop', category: '', isOpen: false, avgServiceTime: 300, ownerId: ''),
-        );
-        NotificationService.feedbackYourTurn();
-        QueueNotificationOverlay.show(context, shop.name);
-      });
+      _loadInitialData();
     });
+  }
+
+  Future<void> _loadInitialData() async {
+    final shopsProvider = context.read<ShopsProvider>();
+    final queueProv = context.read<QueueProvider>();
+
+    _calledSub = queueProv.calledStream.listen((notification) {
+      final shopsProv = context.read<ShopsProvider>();
+      final shop = shopsProv.shops.firstWhere(
+        (s) => s.id == notification.shopId,
+        orElse: () => Shop(id: '', name: 'Unknown Shop', category: '', isOpen: false, avgServiceTime: 300, ownerId: ''),
+      );
+      NotificationService.feedbackYourTurn();
+      QueueNotificationOverlay.show(context, shop.name);
+    });
+
+    await shopsProvider.fetchShops();
+    if (!mounted) return;
+
+    final auth = context.read<AuthProvider>();
+    if (auth.userId != null) {
+      await queueProv.refreshUserQueues(
+        auth.userId!,
+        shopsProvider.shops.map((shop) => shop.id),
+      );
+    }
   }
 
   @override
