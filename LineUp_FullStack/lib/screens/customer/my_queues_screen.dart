@@ -6,6 +6,7 @@ import '../../providers/shops_provider.dart';
 import '../../providers/queue_provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../models/shop.dart';
+import '../../services/vibration_service.dart';
 
 class MyQueuesScreen extends StatefulWidget {
   const MyQueuesScreen({super.key});
@@ -15,6 +16,9 @@ class MyQueuesScreen extends StatefulWidget {
 }
 
 class _MyQueuesScreenState extends State<MyQueuesScreen> {
+  final VibrationService _vibrationService = const VibrationService();
+  final Set<String> _notifiedQueues = {};
+
   @override
   void initState() {
     super.initState();
@@ -29,6 +33,17 @@ class _MyQueuesScreenState extends State<MyQueuesScreen> {
         }
       }
     });
+  }
+
+  Future<void> _checkTurnNotification(String shopId, int position) async {
+    if (position == 1 && !_notifiedQueues.contains(shopId)) {
+      _notifiedQueues.add(shopId);
+      await _vibrationService.notifyTurn();
+    }
+
+    if (position > 1 && _notifiedQueues.contains(shopId)) {
+      _notifiedQueues.remove(shopId);
+    }
   }
 
   @override
@@ -64,6 +79,11 @@ class _MyQueuesScreenState extends State<MyQueuesScreen> {
                 final entry = activeEntries[index];
                 final shopId = entry.key;
                 final queueEntry = entry.value!;
+                
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  _checkTurnNotification(shopId, queueEntry.position);
+                });
+
                 final shop = shopsProvider.shops.firstWhere(
                   (s) => s.id == shopId,
                   orElse: () => Shop(id: '', name: 'Unknown', category: '', isOpen: false, avgServiceTime: 300, ownerId: ''),
