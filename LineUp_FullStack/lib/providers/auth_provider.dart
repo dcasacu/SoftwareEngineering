@@ -20,9 +20,14 @@ class AuthProvider extends ChangeNotifier {
   }
 
   Future<void> _init() async {
+    print('[DEBUG] AuthProvider._init() starting');
     final rememberMe = await StorageHelper.loadBool('remember_me') ?? false;
+    print('[DEBUG] rememberMe flag loaded: $rememberMe');
+    
     if (!rememberMe) {
       await _clearUser();
+      notifyListeners();
+      print('[DEBUG] rememberMe is false, cleared user data');
       return;
     }
 
@@ -31,6 +36,8 @@ class AuthProvider extends ChangeNotifier {
     final storedEmail = await StorageHelper.loadValue('user_email');
     final storedRole = await StorageHelper.loadValue('user_role');
 
+    print('[DEBUG] Loaded from storage - ID: $storedUserId, Email: $storedEmail, Role: $storedRole');
+
     if (storedUserId != null) {
       _currentUser = User(
         id: storedUserId,
@@ -38,8 +45,9 @@ class AuthProvider extends ChangeNotifier {
         email: storedEmail,
         role: storedRole ?? 'anon',
       );
-      notifyListeners();
+      print('[DEBUG] Restored user from storage: ${_currentUser!.email}');
     }
+    notifyListeners();
   }
 
   Future<void> createAnonUser() async {
@@ -102,13 +110,17 @@ class AuthProvider extends ChangeNotifier {
     try {
       final user = await AuthService.login(email: email, password: password);
       _currentUser = user;
+      print('[DEBUG] Logged in as: ${user.email}, rememberMe: $rememberMe');
       if (rememberMe) {
         await _persistUser(rememberMe: true);
+        print('[DEBUG] User data persisted with rememberMe=true');
       } else {
         await _clearUser();
+        print('[DEBUG] User data cleared (rememberMe=false)');
       }
     } catch (e) {
       _error = e.toString();
+      print('[DEBUG] Login error: $e');
     }
 
     _isLoading = false;

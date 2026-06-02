@@ -25,6 +25,7 @@ class _LoginDialogState extends State<LoginDialog> {
   }
 
   Future<void> _submit() async {
+    print('[DEBUG] LoginDialog._submit rememberMe=$_rememberMe');
     setState(() { _loading = true; _error = null; });
     final auth = context.read<AuthProvider>();
     await auth.login(
@@ -76,7 +77,7 @@ class _LoginDialogState extends State<LoginDialog> {
             },
             contentPadding: EdgeInsets.zero,
             controlAffinity: ListTileControlAffinity.leading,
-            title: const Text('Save log in'),
+            title: const Text('Remember me'),
           ),
           if (_error != null) ...[
             const SizedBox(height: 12),
