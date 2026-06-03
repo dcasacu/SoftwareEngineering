@@ -10,6 +10,7 @@ class Shop {
   final int avgServiceTime;
   final String ownerId;
   final String? ownerName;
+  final String? marketId;
 
   Shop({
     required this.id,
@@ -23,6 +24,7 @@ class Shop {
     required this.avgServiceTime,
     required this.ownerId,
     this.ownerName,
+    this.marketId,
   });
 
   factory Shop.fromJson(Map<String, dynamic> json) {
@@ -38,6 +40,7 @@ class Shop {
       avgServiceTime: (json['avgServiceTime'] as num?)?.toInt() ?? 300,
       ownerId: json['ownerId'] as String? ?? json['owner_id'] as String? ?? '',
       ownerName: json['ownerName'] as String? ?? json['owner_name'] as String?,
+      marketId: json['marketId'] as String? ?? json['market_id'] as String?,
     );
   }
 

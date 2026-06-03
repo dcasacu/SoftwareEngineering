@@ -4,6 +4,7 @@ import '../screens/customer/map_screen.dart';
 import '../screens/customer/my_queues_screen.dart';
 import '../screens/customer/shop_detail_screen.dart';
 import '../screens/customer/user_profile_screen.dart';
+import '../screens/customer/market_detail_screen.dart';
 import '../screens/owner/dashboard_screen.dart';
 
 final appRouter = GoRouter(
@@ -26,6 +27,13 @@ final appRouter = GoRouter(
       builder: (context, state) {
         final shopId = state.pathParameters['id']!;
         return ShopDetailScreen(shopId: shopId);
+      },
+    ),
+    GoRoute(
+      path: '/customer/market/:id',
+      builder: (context, state) {
+        final marketId = state.pathParameters['id']!;
+        return MarketDetailScreen(marketId: marketId);
       },
     ),
     GoRoute(

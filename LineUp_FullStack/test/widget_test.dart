@@ -1,9 +1,33 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:lineup/app.dart';
 
 void main() {
-  testWidgets('App starts without error', (WidgetTester tester) async {
-    await tester.pumpWidget(const LineUpApp());
-    expect(find.text('Line'), findsWidgets);
+  group('LineUp initial screen widget tests', () {
+    testWidgets('App starts without crashing', (WidgetTester tester) async {
+      await tester.pumpWidget(const LineUpApp());
+      await tester.pump();
+
+      expect(find.byType(MaterialApp), findsOneWidget);
+    });
+
+    testWidgets('Initial screen shows welcome content', (WidgetTester tester) async {
+      await tester.pumpWidget(const LineUpApp());
+      await tester.pump();
+
+      expect(find.text('Welcome'), findsOneWidget);
+      expect(
+        find.text('Log in to manage your queues or continue as a guest.'),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('Initial screen shows login and guest access options', (WidgetTester tester) async {
+      await tester.pumpWidget(const LineUpApp());
+      await tester.pump();
+
+      expect(find.text('Log In'), findsOneWidget);
+      expect(find.text('Continue without logging in'), findsOneWidget);
+    });
   });
 }

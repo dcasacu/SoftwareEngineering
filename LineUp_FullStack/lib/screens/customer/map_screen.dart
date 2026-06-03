@@ -8,9 +8,11 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:geolocator/geolocator.dart';
 import '../../config/theme.dart';
 import '../../providers/shops_provider.dart';
+import '../../providers/markets_provider.dart';
 import '../../providers/queue_provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../models/shop.dart';
+import '../../models/market.dart';
 import '../../models/queue_entry.dart';
 import '../../services/notification_service.dart';
 import '../../widgets/category_filter.dart';
@@ -33,6 +35,7 @@ class _MapScreenState extends State<MapScreen> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<ShopsProvider>().fetchShops();
+      context.read<MarketsProvider>().fetchMarkets();
       final auth = context.read<AuthProvider>();
       final queueProv = context.read<QueueProvider>();
       if (auth.userId != null) {
@@ -154,9 +157,11 @@ class _MapViewState extends State<_MapView> {
   static const _maxZoom = 19.0;
 
   Shop? _selectedShop;
+  Market? _selectedMarket;
   LatLng? _userLocation;
   bool _locationLoading = false;
   final MapController _mapController = MapController();
+  int _tabIndex = 0;
 
   @override
   void dispose() {
@@ -172,7 +177,15 @@ class _MapViewState extends State<_MapView> {
   }
 
   void _clearSelection() {
-    setState(() => _selectedShop = null);
+    setState(() {
+      _selectedShop = null;
+      _selectedMarket = null;
+    });
+  }
+
+  void _selectMarket(Market market) {
+    setState(() => _selectedMarket = market);
+    _mapController.move(LatLng(market.lat, market.lng), _defaultZoom);
   }
 
   void _zoomIn() {
@@ -275,7 +288,9 @@ class _MapViewState extends State<_MapView> {
   @override
   Widget build(BuildContext context) {
     final shopsProvider = context.watch<ShopsProvider>();
+    final marketsProvider = context.watch<MarketsProvider>();
     final shops = shopsProvider.filteredShops;
+    final markets = marketsProvider.markets;
     final screenHeight = MediaQuery.of(context).size.height;
     final mapHeight = screenHeight * 0.42;
 
@@ -304,6 +319,7 @@ class _MapViewState extends State<_MapView> {
       );
     }
 
+    // Add shop markers
     allMarkers.addAll(
       shops.where((s) => s.lat != null && s.lng != null).map((shop) {
         final isSelected = _selectedShop?.id == shop.id;
@@ -314,6 +330,22 @@ class _MapViewState extends State<_MapView> {
           child: GestureDetector(
             onTap: () => _selectShop(shop),
             child: _ShopMarker(shop: shop, isSelected: isSelected),
+          ),
+        );
+      }),
+    );
+
+    // Add market markers
+    allMarkers.addAll(
+      markets.map((market) {
+        final isSelected = _selectedMarket?.id == market.id;
+        return Marker(
+          point: LatLng(market.lat, market.lng),
+          width: isSelected ? 50 : 40,
+          height: isSelected ? 50 : 40,
+          child: GestureDetector(
+            onTap: () => _selectMarket(market),
+            child: _MarketMarker(market: market, isSelected: isSelected),
           ),
         );
       }),
@@ -394,37 +426,107 @@ class _MapViewState extends State<_MapView> {
         ),
         const Divider(height: 1, thickness: 1),
         Expanded(
-          child: _ShopListSection(
-            shops: shops,
-            selectedShop: _selectedShop,
-            shopsProvider: shopsProvider,
-            onSelectFromList: _selectShop,
-            onClear: _clearSelection,
-            onViewDetails: (shopId) => context.go('/customer/shop/$shopId'),
-            onJoinQueue: () async {
-              final auth = context.read<AuthProvider>();
-              final queueProv = context.read<QueueProvider>();
-              if (_selectedShop != null) {
-                await queueProv.joinQueue(_selectedShop!.id, auth.userId ?? '');
-                if (queueProv.error != null && context.mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text(queueProv.error!), backgroundColor: AppTheme.red),
-                  );
-                } else if (context.mounted) {
-                  final entry = queueProv.myEntryForShop(_selectedShop!.id);
-                  final pos = entry?.position ?? 1;
-                  NotificationService.feedbackJoin();
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text('🛒 Joined queue at ${_selectedShop!.name}! You\'re #$pos'),
-                      backgroundColor: AppTheme.green,
-                      duration: const Duration(seconds: 4),
+          child: Column(
+            children: [
+              // Tabs
+              Container(
+                decoration: BoxDecoration(
+                  border: Border(bottom: BorderSide(color: AppTheme.gray200, width: 1)),
+                ),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: GestureDetector(
+                        onTap: () => setState(() => _tabIndex = 0),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          decoration: BoxDecoration(
+                            border: _tabIndex == 0
+                                ? Border(bottom: BorderSide(color: AppTheme.orange, width: 3))
+                                : null,
+                          ),
+                          child: Center(
+                            child: Text(
+                              'Shops',
+                              style: TextStyle(
+                                fontWeight: FontWeight.w700,
+                                color: _tabIndex == 0 ? AppTheme.orange : AppTheme.gray400,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
                     ),
-                  );
-                }
-              }
-            },
-            onGetDirections: _openDirections,
+                    Expanded(
+                      child: GestureDetector(
+                        onTap: () => setState(() => _tabIndex = 1),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          decoration: BoxDecoration(
+                            border: _tabIndex == 1
+                                ? Border(bottom: BorderSide(color: AppTheme.orange, width: 3))
+                                : null,
+                          ),
+                          child: Center(
+                            child: Text(
+                              'Markets',
+                              style: TextStyle(
+                                fontWeight: FontWeight.w700,
+                                color: _tabIndex == 1 ? AppTheme.orange : AppTheme.gray400,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              // Tab content
+              Expanded(
+                child: _tabIndex == 0
+                    ? _ShopListSection(
+                        shops: shops,
+                        selectedShop: _selectedShop,
+                        shopsProvider: shopsProvider,
+                        onSelectFromList: _selectShop,
+                        onClear: _clearSelection,
+                        onViewDetails: (shopId) => context.go('/customer/shop/$shopId'),
+                        onJoinQueue: () async {
+                          final auth = context.read<AuthProvider>();
+                          final queueProv = context.read<QueueProvider>();
+                          if (_selectedShop != null) {
+                            await queueProv.joinQueue(_selectedShop!.id, auth.userId ?? '');
+                            if (queueProv.error != null && context.mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(content: Text(queueProv.error!), backgroundColor: AppTheme.red),
+                              );
+                            } else if (context.mounted) {
+                              final entry = queueProv.myEntryForShop(_selectedShop!.id);
+                              final pos = entry?.position ?? 1;
+                              NotificationService.feedbackJoin();
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text('🛒 Joined queue at ${_selectedShop!.name}! You\'re #$pos'),
+                                  backgroundColor: AppTheme.green,
+                                  duration: const Duration(seconds: 4),
+                                ),
+                              );
+                            }
+                          }
+                        },
+                        onGetDirections: _openDirections,
+                      )
+                    : _MarketListSection(
+                        markets: markets,
+                        selectedMarket: _selectedMarket,
+                        marketsProvider: marketsProvider,
+                        onSelectFromList: _selectMarket,
+                        onClear: _clearSelection,
+                        onViewDetails: (marketId) => context.go('/customer/market/$marketId'),
+                      ),
+              ),
+            ],
           ),
         ),
       ],
@@ -760,6 +862,202 @@ class _ShopListTile extends StatelessWidget {
       'Bakery': '🥖', 'Dairy': '🧀', 'Spices': '🌶️', 'Flowers': '🌸',
     };
     return emojis[cat] ?? '🛒';
+  }
+}
+
+class _MarketMarker extends StatelessWidget {
+  final Market market;
+  final bool isSelected;
+
+  const _MarketMarker({required this.market, required this.isSelected});
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 150),
+      decoration: BoxDecoration(
+        color: AppTheme.purple,
+        shape: BoxShape.circle,
+        border: Border.all(
+          color: isSelected ? AppTheme.orange : Colors.white,
+          width: isSelected ? 3 : 2,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: (isSelected ? AppTheme.orange : Colors.black).withValues(alpha: 0.3),
+            blurRadius: isSelected ? 8 : 4,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: const Center(
+        child: Text('🏪', style: TextStyle(fontSize: 20)),
+      ),
+    );
+  }
+}
+
+class _MarketListSection extends StatelessWidget {
+  final List<Market> markets;
+  final Market? selectedMarket;
+  final MarketsProvider marketsProvider;
+  final void Function(Market) onSelectFromList;
+  final VoidCallback onClear;
+  final void Function(String) onViewDetails;
+
+  const _MarketListSection({
+    required this.markets,
+    required this.selectedMarket,
+    required this.marketsProvider,
+    required this.onSelectFromList,
+    required this.onClear,
+    required this.onViewDetails,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        if (selectedMarket != null) _buildSelectedMarketBanner(selectedMarket!),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+          child: Row(
+            children: [
+              Text(
+                '${markets.length} market${markets.length != 1 ? 's' : ''} found',
+                style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppTheme.gray400),
+              ),
+            ],
+          ),
+        ),
+        Expanded(
+          child: markets.isEmpty
+              ? const Center(child: Text('No markets available', style: TextStyle(color: AppTheme.gray400)))
+              : ListView.builder(
+                  padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+                  itemCount: markets.length,
+                  itemBuilder: (context, i) => _MarketListTile(
+                    market: markets[i],
+                    isSelected: selectedMarket?.id == markets[i].id,
+                    onTap: () => onSelectFromList(markets[i]),
+                    onViewDetails: () => onViewDetails(markets[i].id),
+                  ),
+                ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSelectedMarketBanner(Market market) {
+    return Container(
+      margin: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: AppTheme.purpleLight,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppTheme.purple.withValues(alpha: 0.3)),
+      ),
+      child: Column(
+        children: [
+          Row(
+            children: [
+              const Text('🏪', style: TextStyle(fontSize: 28)),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(market.name, style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 15)),
+                    const SizedBox(height: 2),
+                    Text(market.address, style: const TextStyle(fontSize: 12, color: AppTheme.gray400)),
+                  ],
+                ),
+              ),
+              IconButton(
+                icon: const Icon(Icons.close, size: 20),
+                onPressed: onClear,
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(),
+                color: AppTheme.gray400,
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              onPressed: () => onViewDetails(market.id),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppTheme.orange,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              ),
+              child: const Text('View Market', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14)),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _MarketListTile extends StatelessWidget {
+  final Market market;
+  final bool isSelected;
+  final VoidCallback onTap;
+  final VoidCallback onViewDetails;
+
+  const _MarketListTile({
+    required this.market,
+    required this.isSelected,
+    required this.onTap,
+    required this.onViewDetails,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 8),
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: isSelected ? AppTheme.purpleLight : Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: isSelected ? AppTheme.purple : AppTheme.gray200),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 44,
+              height: 44,
+              decoration: BoxDecoration(
+                color: AppTheme.purple.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: const Center(child: Text('🏪', style: TextStyle(fontSize: 22))),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(market.name, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14)),
+                  const SizedBox(height: 2),
+                  Text(market.address, style: const TextStyle(fontSize: 12, color: AppTheme.gray400)),
+                ],
+              ),
+            ),
+            IconButton(
+              icon: const Icon(Icons.arrow_forward_ios, size: 14),
+              onPressed: onViewDetails,
+              padding: EdgeInsets.zero,
+              constraints: const BoxConstraints(),
+              color: AppTheme.gray400,
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }
 
