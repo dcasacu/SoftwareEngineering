@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../config/theme.dart';
 import '../providers/auth_provider.dart';
 import '../widgets/login_dialog.dart';
+import '../widgets/register_dialog.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -14,21 +15,45 @@ class SplashScreen extends StatefulWidget {
 
 class _SplashScreenState extends State<SplashScreen> {
   String? _error;
+  bool _hasRedirected = false;
 
-  Future<void> _showLoginDialog() async {
-    await showDialog(
-      context: context,
-      builder: (_) => const LoginDialog(),
-    );
-    if (!mounted) return;
-    final auth = context.read<AuthProvider>();
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final auth = context.read<AuthProvider>();
+      auth.addListener(_onAuthChanged);
+      _checkRedirect(auth);
+    });
+  }
+
+  @override
+  void dispose() {
+    context.read<AuthProvider>().removeListener(_onAuthChanged);
+    super.dispose();
+  }
+
+  void _onAuthChanged() {
+    _checkRedirect(context.read<AuthProvider>());
+  }
+
+  void _checkRedirect(AuthProvider auth) {
+    if (_hasRedirected) return;
     if (auth.isLoggedIn && auth.currentUser?.role != 'anon') {
+      _hasRedirected = true;
       if (auth.isOwner) {
         context.go('/owner/dashboard');
       } else {
         context.go('/customer/map');
       }
     }
+  }
+
+  Future<void> _showLoginDialog() async {
+    await showDialog(
+      context: context,
+      builder: (_) => const LoginDialog(),
+    );
   }
 
   Future<void> _continueWithoutLogin() async {
@@ -93,6 +118,22 @@ class _SplashScreenState extends State<SplashScreen> {
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                     ),
                     child: const Text('Log In', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800)),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                SizedBox(
+                  width: double.infinity,
+                  child: OutlinedButton(
+                    onPressed: () async {
+                      await showDialog(context: context, builder: (_) => const RegisterDialog());
+                    },
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: Colors.white,
+                      side: const BorderSide(color: Colors.white38),
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                    ),
+                    child: const Text('Sign Up', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600)),
                   ),
                 ),
                 const SizedBox(height: 12),

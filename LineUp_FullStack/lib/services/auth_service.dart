@@ -27,7 +27,11 @@ class AuthService {
     if (response.statusCode == 200) {
       return User.fromJson(jsonDecode(response.body));
     }
-    throw Exception('Failed to register');
+    final body = jsonDecode(response.body);
+    final message = body is Map<String, dynamic> && body['error'] != null
+        ? body['error'].toString()
+        : 'Failed to register';
+    throw Exception(message);
   }
 
   static Future<User> login({

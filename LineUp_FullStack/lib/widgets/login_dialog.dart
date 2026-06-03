@@ -16,6 +16,7 @@ class _LoginDialogState extends State<LoginDialog> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _loading = false;
+  bool _rememberMe = false;
   String? _error;
 
   @override
@@ -26,9 +27,14 @@ class _LoginDialogState extends State<LoginDialog> {
   }
 
   Future<void> _submit() async {
+    print('[DEBUG] LoginDialog._submit rememberMe=$_rememberMe');
     setState(() { _loading = true; _error = null; });
     final auth = context.read<AuthProvider>();
-    await auth.login(email: _emailController.text.trim(), password: _passwordController.text);
+    await auth.login(
+      email: _emailController.text.trim(),
+      password: _passwordController.text,
+      rememberMe: _rememberMe,
+    );
     if (!mounted) return;
     if (auth.error != null) {
       setState(() { _error = 'Incorrect email or password.'; _loading = false; });
@@ -71,6 +77,18 @@ class _LoginDialogState extends State<LoginDialog> {
               border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
             ),
             onSubmitted: (_) => _submit(),
+          ),
+          const SizedBox(height: 12),
+          CheckboxListTile(
+            value: _rememberMe,
+            onChanged: (value) {
+              setState(() {
+                _rememberMe = value ?? false;
+              });
+            },
+            contentPadding: EdgeInsets.zero,
+            controlAffinity: ListTileControlAffinity.leading,
+            title: const Text('Remember me'),
           ),
           if (_error != null) ...[
             const SizedBox(height: 12),
