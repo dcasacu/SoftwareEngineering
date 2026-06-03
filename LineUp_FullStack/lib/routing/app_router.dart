@@ -3,6 +3,7 @@ import '../screens/splash_screen.dart';
 import '../screens/customer/map_screen.dart';
 import '../screens/customer/my_queues_screen.dart';
 import '../screens/customer/shop_detail_screen.dart';
+import '../screens/customer/user_profile_screen.dart';
 import '../screens/customer/market_detail_screen.dart';
 import '../screens/owner/dashboard_screen.dart';
 
@@ -41,6 +42,11 @@ final appRouter = GoRouter(
         final shopId = state.uri.queryParameters['shopId'] ?? 'shop1';
         return DashboardScreen(shopId: shopId);
       },
+    ),
+    GoRoute(
+      path: '/customer/profile',
+      name: 'profile',
+      builder: (context, state) => const UserProfileScreen(),
     ),
   ],
 );

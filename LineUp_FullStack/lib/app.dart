@@ -5,6 +5,7 @@ import 'providers/shops_provider.dart';
 import 'providers/markets_provider.dart';
 import 'providers/queue_provider.dart';
 import 'providers/analytics_provider.dart';
+import 'providers/user_profile_provider.dart';
 import 'routing/app_router.dart';
 import 'config/theme.dart';
 
@@ -20,6 +21,7 @@ class LineUpApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => MarketsProvider()),
         ChangeNotifierProvider(create: (_) => QueueProvider()),
         ChangeNotifierProvider(create: (_) => AnalyticsProvider()),
+        ChangeNotifierProvider(create: (_) => UserProfileProvider()),
       ],
       child: MaterialApp.router(
         title: 'LineUp',
