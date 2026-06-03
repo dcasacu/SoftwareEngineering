@@ -82,8 +82,15 @@ class _MapScreenState extends State<MapScreen> {
           Consumer<AuthProvider>(
             builder: (context, auth, _) {
               if (auth.isLoggedIn && auth.currentUser?.role != 'anon') {
-                // logged in — show name + log out
+                // logged in — show account + log out
                 return Row(children: [
+                  IconButton(
+                    icon: const Icon(Icons.account_circle, color: Colors.white),
+                    tooltip: 'My account',
+                    onPressed: () {
+                      context.go('/customer/profile');
+                    },
+                  ),
                   Text(
                     auth.currentUser?.name ?? 'Customer',
                     style: const TextStyle(color: Colors.white70, fontSize: 13),
