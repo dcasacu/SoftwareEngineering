@@ -33,14 +33,12 @@ class _MapScreenState extends State<MapScreen> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<ShopsProvider>().fetchShops();
-      context.read<MarketsProvider>().fetchMarkets();
-      final auth = context.read<AuthProvider>();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final shopsProv = context.read<ShopsProvider>();
+      final marketsProv = context.read<MarketsProvider>();
       final queueProv = context.read<QueueProvider>();
-      if (auth.userId != null) {
-        queueProv.startPolling(auth.userId!);
-      }
+      final auth = context.read<AuthProvider>();
+
       _calledSub = queueProv.calledStream.listen((notification) {
         final shopsProv = context.read<ShopsProvider>();
         final shop = shopsProv.shops.firstWhere(
@@ -50,7 +48,46 @@ class _MapScreenState extends State<MapScreen> {
         NotificationService.feedbackYourTurn();
         QueueNotificationOverlay.show(context, shop.name);
       });
+
+      await shopsProv.fetchShops();
+      await marketsProv.fetchMarkets();
+
+      if (!mounted) return;
+
+      if (auth.userId != null) {
+        queueProv.startPolling(auth.userId!);
+        await queueProv.refreshUserQueues(
+          auth.userId!,
+          shopsProv.shops.map((shop) => shop.id),
+        );
+      }
     });
+  }
+
+  Future<void> _loadInitialData() async {
+    final shopsProvider = context.read<ShopsProvider>();
+    final queueProv = context.read<QueueProvider>();
+
+    _calledSub = queueProv.calledStream.listen((notification) {
+      final shopsProv = context.read<ShopsProvider>();
+      final shop = shopsProv.shops.firstWhere(
+        (s) => s.id == notification.shopId,
+        orElse: () => Shop(id: '', name: 'Unknown Shop', category: '', isOpen: false, avgServiceTime: 300, ownerId: ''),
+      );
+      NotificationService.feedbackYourTurn();
+      QueueNotificationOverlay.show(context, shop.name);
+    });
+
+    await shopsProvider.fetchShops();
+    if (!mounted) return;
+
+    final auth = context.read<AuthProvider>();
+    if (auth.userId != null) {
+      await queueProv.refreshUserQueues(
+        auth.userId!,
+        shopsProvider.shops.map((shop) => shop.id),
+      );
+    }
   }
 
   @override

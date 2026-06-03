@@ -108,7 +108,12 @@ class AuthProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final user = await AuthService.login(email: email, password: password);
+      final anonUserId = _currentUser?.role == 'anon' ? _currentUser!.id : null;
+      final user = await AuthService.login(
+        email: email,
+        password: password,
+        anonUserId: anonUserId,
+      );
       _currentUser = user;
       print('[DEBUG] Logged in as: ${user.email}, rememberMe: $rememberMe');
       if (rememberMe) {

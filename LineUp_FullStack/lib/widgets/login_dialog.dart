@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../config/theme.dart';
 import '../providers/auth_provider.dart';
+import '../providers/queue_provider.dart';
+import '../providers/shops_provider.dart';
 
 class LoginDialog extends StatefulWidget {
   const LoginDialog({super.key});
@@ -37,6 +39,15 @@ class _LoginDialogState extends State<LoginDialog> {
     if (auth.error != null) {
       setState(() { _error = 'Incorrect email or password.'; _loading = false; });
     } else {
+      final userId = auth.userId;
+      if (userId != null) {
+        final shops = context.read<ShopsProvider>().shops;
+        await context.read<QueueProvider>().refreshUserQueues(
+          userId,
+          shops.map((shop) => shop.id),
+        );
+      }
+      if (!mounted) return;
       Navigator.of(context).pop(); // caller handles redirect
     }
   }

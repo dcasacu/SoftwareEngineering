@@ -93,6 +93,18 @@ class QueueProvider extends ChangeNotifier {
     }
   }
 
+  Future<void> refreshUserQueues(String userId, Iterable<String> shopIds) async {
+    _userId = userId;
+    final uniqueShopIds = shopIds.toSet();
+
+    for (final shopId in uniqueShopIds) {
+      await fetchQueue(shopId);
+      await fetchMyEntry(shopId, userId);
+    }
+
+    _restartPolling();
+  }
+
   Future<void> joinQueue(String shopId, String userId) async {
     if (_myEntries[shopId] != null) return;
 
