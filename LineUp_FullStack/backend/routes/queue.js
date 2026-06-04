@@ -83,13 +83,13 @@ router.post('/:id/leave', (req, res) => {
     return res.status(400).json({ error: 'userId is required' });
   }
 
-  const entry = db.prepare(`SELECT position FROM queue_entries WHERE shop_id = ? AND user_id = ? AND status = 'waiting'`).get(id, userId);
+  const entry = db.prepare(`SELECT position FROM queue_entries WHERE shop_id = ? AND user_id = ? AND status IN ('waiting', 'called')`).get(id, userId);
   if (!entry) {
     return res.status(404).json({ error: 'Queue entry not found' });
   }
 
   const userPosition = entry.position;
-  db.prepare(`UPDATE queue_entries SET status = 'cancelled' WHERE shop_id = ? AND user_id = ? AND status = 'waiting'`).run(id, userId);
+  db.prepare(`UPDATE queue_entries SET status = 'cancelled' WHERE shop_id = ? AND user_id = ? AND status IN ('waiting', 'called')`).run(id, userId);
   db.prepare(`UPDATE queue_entries SET position = position - 1 WHERE shop_id = ? AND position > ? AND status = 'waiting'`).run(id, userPosition);
   res.json({ success: true });
 });

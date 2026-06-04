@@ -40,6 +40,7 @@ class QueueService {
     final response = await ApiService.post('/shops/$shopId/leave', body: {
       'userId': userId,
     });
+    print('Leave response: ${response.statusCode} ${response.body}');
     if (response.statusCode != 200) {
       throw Exception('Failed to leave queue');
     }

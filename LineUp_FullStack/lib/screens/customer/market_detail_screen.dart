@@ -368,6 +368,22 @@ class _ShopInMarketTile extends StatelessWidget {
                   ),
                   OutlinedButton(
                     onPressed: () async {
+                      final confirmed = await showDialog<bool>(
+                        context: context,
+                        builder: (ctx) => AlertDialog(
+                          title: const Text('Leave Queue'),
+                          content: const Text('Are you sure you want to leave the queue?'),
+                          actions: [
+                            TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancel')),
+                            TextButton(
+                              onPressed: () => Navigator.pop(ctx, true),
+                              style: TextButton.styleFrom(foregroundColor: AppTheme.red),
+                              child: const Text('Leave'),
+                            ),
+                          ],
+                        ),
+                      );
+                      if (confirmed != true) return;
                       final shopName = shop.name;
                       await queueProvider.leaveQueue(shop.id, auth.userId ?? '');
                       if (queueProvider.error != null && context.mounted) {
