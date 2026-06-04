@@ -115,11 +115,6 @@
     display: grid; place-items: center; color: #fff; font-size: 1rem;
     box-shadow: var(--shadow-sm);
   }
-  .logo-img {
-    height: 42px;
-    width: auto;
-    display: block;
-  }
   .nav-links { display: flex; gap: 28px; }
   .nav-links a { font-size: .95rem; color: var(--ink-soft); font-weight: 500; }
   .nav-links a:hover { color: var(--primary); }
@@ -382,6 +377,110 @@
   .cta-final .btn-ghost { color: #fff; border-color: rgba(255,255,255,.5); }
 
   /* =========================================================
+     SPRINTS
+     ========================================================= */
+  .sprints { background: #fff; }
+  .sprints-timeline {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+    margin-top: 16px;
+  }
+  .sprints-timeline::before {
+    content: '';
+    position: absolute;
+    left: 39px;
+    top: 0; bottom: 0;
+    width: 2px;
+    background: var(--line);
+  }
+  .sprint-row {
+    display: flex;
+    gap: 28px;
+    align-items: flex-start;
+    position: relative;
+  }
+  .sprint-badge {
+    flex: none;
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    font-weight: 900;
+    font-size: 1.3rem;
+    z-index: 1;
+    position: relative;
+    box-shadow: 0 0 0 6px #fff;
+    letter-spacing: -.02em;
+  }
+  .sprint-badge.s1 { background: var(--primary-soft); color: var(--primary); border: 2px solid var(--primary); }
+  .sprint-badge.s2 { background: var(--accent-soft); color: var(--accent); border: 2px solid var(--accent); }
+  .sprint-badge.s3 { background: var(--warm-soft); color: var(--secondary); border: 2px solid var(--warm); }
+  .sprint-content {
+    flex: 1;
+    background: var(--bg);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    padding: 28px 32px;
+    transition: box-shadow .2s ease;
+  }
+  .sprint-content:hover { box-shadow: var(--shadow); }
+  .sprint-content.s1 { border-top: 3px solid var(--primary); }
+  .sprint-content.s2 { border-top: 3px solid var(--accent); }
+  .sprint-content.s3 { border-top: 3px solid var(--warm); }
+  .sprint-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+  }
+  .sprint-header h3 { margin: 0; font-size: 1.25rem; }
+  .sprint-label {
+    font-size: .75rem;
+    font-weight: 700;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    padding: 5px 12px;
+    border-radius: 999px;
+  }
+  .sprint-label.s1 { background: var(--primary-soft); color: var(--primary); }
+  .sprint-label.s2 { background: var(--accent-soft); color: var(--accent); }
+  .sprint-label.s3 { background: var(--warm-soft); color: var(--secondary); }
+  .sprint-items {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 12px;
+  }
+  .sprint-item {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 14px 16px;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    font-size: .9rem;
+  }
+  .sprint-item .dot {
+    flex: none;
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    margin-top: 5px;
+  }
+  .s1 .dot { background: var(--primary); }
+  .s2 .dot { background: var(--accent); }
+  .s3 .dot { background: var(--secondary); }
+  .sprint-item strong { display: block; color: var(--ink); font-size: .9rem; line-height: 1.3; }
+  @media (max-width: 640px) {
+    .sprints-timeline::before { display: none; }
+    .sprint-row { flex-direction: column; }
+    .sprint-badge { width: 56px; height: 56px; font-size: 1rem; }
+  }
+
+  /* =========================================================
      FOOTER
      ========================================================= */
   footer {
@@ -408,6 +507,7 @@
       <a href="#features">Features</a>
       <a href="#flows">How it works</a>
       <a href="#tech">Technology</a>
+      <a href="#sprints">Sprints</a>
     </nav>
     <a href="#cta" class="btn btn-primary" style="padding: 10px 18px; font-size: .9rem;">Try LineUp</a>
   </div>
@@ -647,36 +747,24 @@
       <h2>Innovation built for the real market.</h2>
       <p>We didn't design LineUp in a vacuum — we designed it next to the counter.</p>
     </div>
-    <section class="innovation">
-      <div class="container">
-        <div class="section-head">
-          <span class="eyebrow">Innovation</span>
-          <h2>What makes LineUp different?</h2>
-          <p>LineUp is not just another queue app. It is a solution designed specifically for local markets, connecting customers, stalls and queue management in one interactive experience.</p>
-        </div>
-        <div class="innovation-grid">
-          <div class="innovation-card">
-            <h3><span class="spark">✦</span> Specialized in local markets</h3>
-            <p>Most queue systems are designed for generic businesses. LineUp focuses on traditional markets, where many small stalls, different queues and customer movement happen at the same time.</p>
-          </div>
-
-          <div class="innovation-card">
-            <h3><span class="spark">✦</span> Interactive map, not just information</h3>
-            <p>The market map is not only informative. Customers can discover stalls, check their status and join a queue directly from the map, turning navigation into action.</p>
-          </div>
-
-          <div class="innovation-card">
-            <h3><span class="spark">✦</span> Value for customers and owners</h3>
-            <p>Customers save time and avoid waiting physically in line, while owners manage their queue more easily and keep better control of their daily workflow.</p>
-          </div>
-
-          <div class="innovation-card">
-            <h3><span class="spark">✦</span> Daily queue statistics for owners</h3>
-            <p>At the end of the working day, shop owners can review useful stats such as customers served, busiest hours and queue performance, helping them understand demand and improve service.</p>
-          </div>
-        </div>
+    <div class="innovation-grid">
+      <div class="innovation-card">
+        <h3><span class="spark">✦</span> No login needed for customers</h3>
+        <p>Zero friction. Open the app and join a queue in seconds — no email, no password, no sign-up wall.</p>
       </div>
-    </section>
+      <div class="innovation-card">
+        <h3><span class="spark">✦</span> Bridges physical & digital tickets</h3>
+        <p>LineUp coexists with traditional paper tickets, so no customer is left behind during the transition.</p>
+      </div>
+      <div class="innovation-card">
+        <h3><span class="spark">✦</span> Wins for both sides</h3>
+        <p>Customers reclaim their time. Owners gain visibility, data, and happier returning shoppers.</p>
+      </div>
+      <div class="innovation-card">
+        <h3><span class="spark">✦</span> Designed for real markets</h3>
+        <p>Built around how stalls actually operate — service times, breaks, peak hours and human pace.</p>
+      </div>
+    </div>
   </div>
 </section>
 
@@ -709,6 +797,127 @@
         <h4>More markets</h4>
         <p>Expanding city by city, stall by stall.</p>
       </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========================= SPRINTS ========================= -->
+<section class="sprints" id="sprints">
+  <div class="container">
+    <div class="section-head">
+      <span class="eyebrow">Development journey</span>
+      <h2>Built sprint by sprint.</h2>
+      <p>From a blank canvas to a fully working app — here's how we designed, built, and shipped LineUp across three focused sprints.</p>
+    </div>
+    <div class="sprints-timeline">
+
+      <!-- Sprint 1 -->
+      <div class="sprint-row">
+        <div class="sprint-badge s1">S1</div>
+        <div class="sprint-content s1">
+          <div class="sprint-header">
+            <h3>Sprint 1 — Foundation &amp; Identity</h3>
+            <span class="sprint-label s1">Planning</span>
+          </div>
+          <div class="sprint-items">
+            <div class="sprint-item">
+              <span class="dot s1"></span>
+              <div><strong>Requirements definition</strong></div>
+            </div>
+            <div class="sprint-item">
+              <span class="dot s1"></span>
+              <div><strong>Kanban board</strong></div>
+            </div>
+            <div class="sprint-item">
+              <span class="dot s1"></span>
+              <div><strong>Product canvas</strong></div>
+            </div>
+            <div class="sprint-item">
+              <span class="dot s1"></span>
+              <div><strong>App name</strong></div>
+            </div>
+            <div class="sprint-item">
+              <span class="dot s1"></span>
+              <div><strong>Logo &amp; visual identity</strong></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sprint 2 -->
+      <div class="sprint-row">
+        <div class="sprint-badge s2">S2</div>
+        <div class="sprint-content s2">
+          <div class="sprint-header">
+            <h3>Sprint 2 — Core Features</h3>
+            <span class="sprint-label s2">Building</span>
+          </div>
+          <div class="sprint-items">
+            <div class="sprint-item">
+              <span class="dot s2"></span>
+              <div><strong>Map &amp; locations</strong></div>
+            </div>
+            <div class="sprint-item">
+              <span class="dot s2"></span>
+              <div><strong>Interactive map</strong></div>
+            </div>
+            <div class="sprint-item">
+              <span class="dot s2"></span>
+              <div><strong>Search &amp; shop filters</strong></div>
+            </div>
+            <div class="sprint-item">
+              <span class="dot s2"></span>
+              <div><strong>Queues &amp; info pop-up</strong></div>
+            </div>
+            <div class="sprint-item">
+              <span class="dot s2"></span>
+              <div><strong>Database creation</strong></div>
+            </div>
+            <div class="sprint-item">
+              <span class="dot s2"></span>
+              <div><strong>Simple &amp; consistent UI</strong></div>
+            </div>
+            <div class="sprint-item">
+              <span class="dot s2"></span>
+              <div><strong>Path to each shop</strong></div>
+            </div>
+            <div class="sprint-item">
+              <span class="dot s2"></span>
+              <div><strong>Queue management &amp; estimated time</strong></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sprint 3 -->
+      <div class="sprint-row">
+        <div class="sprint-badge s3">S3</div>
+        <div class="sprint-content s3">
+          <div class="sprint-header">
+            <h3>Sprint 3 — Polish &amp; Delivery</h3>
+            <span class="sprint-label s3">Finalising</span>
+          </div>
+          <div class="sprint-items">
+            <div class="sprint-item">
+              <span class="dot s3"></span>
+              <div><strong>Vibration notification</strong></div>
+            </div>
+            <div class="sprint-item">
+              <span class="dot s3"></span>
+              <div><strong>Sign in</strong></div>
+            </div>
+            <div class="sprint-item">
+              <span class="dot s3"></span>
+              <div><strong>Market maps &amp; shops</strong></div>
+            </div>
+            <div class="sprint-item">
+              <span class="dot s3"></span>
+              <div><strong>Final product</strong></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
     </div>
   </div>
 </section>
