@@ -115,11 +115,6 @@
     display: grid; place-items: center; color: #fff; font-size: 1rem;
     box-shadow: var(--shadow-sm);
   }
-  .logo-img {
-    height: 42px;
-    width: auto;
-    display: block;
-  }
   .nav-links { display: flex; gap: 28px; }
   .nav-links a { font-size: .95rem; color: var(--ink-soft); font-weight: 500; }
   .nav-links a:hover { color: var(--primary); }
@@ -348,24 +343,6 @@
   @media (max-width: 800px) { .innovation-grid { grid-template-columns: 1fr; } }
 
   /* =========================================================
-     AI USAGE
-     ========================================================= */
-  .ai { background: #fff; }
-  .ai-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; }
-  .ai-card {
-    background: var(--bg);
-    border: 1px solid var(--line);
-    border-radius: var(--radius-lg);
-    padding: 36px;
-    transition: transform .2s ease, box-shadow .2s ease;
-  }
-  .ai-card:hover { transform: translateY(-4px); box-shadow: var(--shadow); }
-  .ai-card .emoji { font-size: 2.4rem; margin-bottom: 16px; }
-  .ai-card h3 { font-size: 1.3rem; margin-bottom: 10px; }
-  .ai-card p { font-size: 1rem; margin: 0; line-height: 1.7; color: var(--ink-soft); }
-  @media (max-width: 800px) { .ai-grid { grid-template-columns: 1fr; } }
-
-  /* =========================================================
      FUTURE
      ========================================================= */
   .future-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; }
@@ -513,6 +490,55 @@
     font-size: .9rem;
     border-top: 1px solid var(--line);
   }
+
+  /* ========================= TEAM ========================= */
+  .team { margin-top: 96px; padding-top: 64px; border-top: 1px solid var(--line); }
+  .team .section-head .eyebrow { color: var(--secondary); background: #fdece0; }
+  .team-photo {
+    max-width: 900px;
+    margin: 0 auto 56px;
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    box-shadow: var(--shadow-lg);
+    border: 3px solid var(--secondary);
+    background: var(--surface);
+  }
+  .team-photo img { width: 100%; height: auto; display: block; }
+  .team-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 18px;
+    max-width: 980px;
+    margin: 0 auto;
+  }
+  .team-card {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-left: 4px solid var(--secondary);
+    border-radius: var(--radius);
+    padding: 20px 18px;
+    box-shadow: var(--shadow-sm);
+    transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+  }
+  .team-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow);
+    border-color: var(--secondary);
+  }
+  .team-name { font-weight: 700; color: var(--ink); margin-bottom: 6px; font-size: 1rem; }
+  .team-role {
+    display: inline-block;
+    font-size: .72rem;
+    font-weight: 700;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--secondary);
+    background: #fdece0;
+    padding: 3px 10px;
+    border-radius: 999px;
+  }
+  @media (max-width: 860px) { .team-grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 420px) { .team-grid { grid-template-columns: 1fr; } }
 </style>
 </head>
 <body>
@@ -521,7 +547,8 @@
 <header class="nav">
   <div class="nav-inner">
     <div class="logo">
-      <img src="LineUp_logo.png" alt="LineUp logo" class="logo-img">
+      <div class="logo-mark">L</div>
+      LineUp
     </div>
     <nav class="nav-links">
       <a href="#problem">Problem</a>
@@ -529,7 +556,6 @@
       <a href="#features">Features</a>
       <a href="#flows">How it works</a>
       <a href="#tech">Technology</a>
-      <a href="#ai">AI Usage</a>
       <a href="#sprints">Sprints</a>
     </nav>
     <a href="#cta" class="btn btn-primary" style="padding: 10px 18px; font-size: .9rem;">Try LineUp</a>
@@ -633,6 +659,28 @@
         <div class="shop">Espècies del Món</div>
         <small>~6 min wait</small>
       </div>
+    </div>
+  </div>
+
+  <!-- Meet the Team -->
+  <div class="container team" id="team">
+    <div class="section-head">
+      <span class="eyebrow">Meet the Team</span>
+      <h2>The LineUp Team</h2>
+      <p>The people behind LineUp — building a better way to shop local markets.</p>
+    </div>
+    <div class="team-photo">
+      <img src="imagen.png" alt="The LineUp team at a local market" />
+    </div>
+    <div class="team-grid">
+      <div class="team-card"><div class="team-name">Dídac Casacuberta</div><span class="team-role">Development</span></div>
+      <div class="team-card"><div class="team-name">Biel Monge</div><span class="team-role">Development</span></div>
+      <div class="team-card"><div class="team-name">Carla Ferrer</div><span class="team-role">Testing</span></div>
+      <div class="team-card"><div class="team-name">Paula Sánchez</div><span class="team-role">Research</span></div>
+      <div class="team-card"><div class="team-name">Isaac Amorós</div><span class="team-role">Planning</span></div>
+      <div class="team-card"><div class="team-name">Daniela Rodriguez</div><span class="team-role">Planning</span></div>
+      <div class="team-card"><div class="team-name">Emma Leroux</div><span class="team-role">Design</span></div>
+      <div class="team-card"><div class="team-name">Sara Viu</div><span class="team-role">Design</span></div>
     </div>
   </div>
 </section>
@@ -762,59 +810,30 @@
   </div>
 </section>
 
-<!-- ========================= AI USAGE ========================= -->
-<section class="ai" id="ai">
-  <div class="container">
-    <div class="section-head">
-      <span class="eyebrow">AI-Assisted Development</span>
-      <h2>How AI helped us build LineUp.</h2>
-      <p>We used AI throughout the project — not to replace our decisions, but to move faster and think broader.</p>
-    </div>
-    <div class="ai-grid">
-
-      <div class="ai-card">
-        <div class="emoji">🧠</div>
-        <h3>Brainstorming &amp; Ideation</h3>
-        <p>AI helped us explore ideas from day one — shaping the product concept, defining user flows, and refining our user stories. It was like having a sounding board that never ran out of perspectives.</p>
-      </div>
-
-      <div class="ai-card">
-        <div class="emoji">💻</div>
-        <h3>Design &amp; Code</h3>
-        <p>From Flutter UI components to backend API routes, AI assisted with design decisions, code structure, and debugging. It accelerated our development without replacing our engineering choices.</p>
-      </div>
-
-    </div>
-  </div>
-</section>
-
 <!-- ========================= INNOVATION ========================= -->
 <section class="innovation">
   <div class="container">
     <div class="section-head">
-      <span class="eyebrow">Innovation</span>
-      <h2>What makes LineUp different?</h2>
-      <p>LineUp is not just another queue app. It is a solution designed specifically for local markets, connecting customers, stalls and queue management in one interactive experience.</p>
+      <span class="eyebrow">What makes us different</span>
+      <h2>Innovation built for the real market.</h2>
+      <p>We didn't design LineUp in a vacuum — we designed it next to the counter.</p>
     </div>
     <div class="innovation-grid">
       <div class="innovation-card">
-        <h3><span class="spark">✦</span> Specialized in local markets</h3>
-        <p>Most queue systems are designed for restaurants, hospitals or generic businesses. LineUp focuses on traditional markets, where many small stalls, different queues and customer movement happen at the same time.</p>
+        <h3><span class="spark">✦</span> No login needed for customers</h3>
+        <p>Zero friction. Open the app and join a queue in seconds — no email, no password, no sign-up wall.</p>
       </div>
-
       <div class="innovation-card">
-        <h3><span class="spark">✦</span> Interactive map, not just information</h3>
-        <p>The market map is not only informative. Customers can discover stalls, check their status and join a queue directly from the map, turning navigation into action.</p>
+        <h3><span class="spark">✦</span> Bridges physical & digital tickets</h3>
+        <p>LineUp coexists with traditional paper tickets, so no customer is left behind during the transition.</p>
       </div>
-
       <div class="innovation-card">
-        <h3><span class="spark">✦</span> Value for customers and owners</h3>
-        <p>Customers save time and avoid waiting physically in line, while owners manage their queue more easily and keep better control of their daily workflow.</p>
+        <h3><span class="spark">✦</span> Wins for both sides</h3>
+        <p>Customers reclaim their time. Owners gain visibility, data, and happier returning shoppers.</p>
       </div>
-
       <div class="innovation-card">
-        <h3><span class="spark">✦</span> Daily queue statistics for owners</h3>
-        <p>At the end of the working day, shop owners can review useful stats such as customers served, busiest hours and queue performance, helping them understand demand and improve service.</p>
+        <h3><span class="spark">✦</span> Designed for real markets</h3>
+        <p>Built around how stalls actually operate — service times, breaks, peak hours and human pace.</p>
       </div>
     </div>
   </div>
