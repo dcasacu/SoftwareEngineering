@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../../config/theme.dart';
+import '../../widgets/app_logo.dart';
 import '../../providers/shops_provider.dart';
 import '../../providers/queue_provider.dart';
 import '../../providers/analytics_provider.dart';
@@ -116,21 +117,18 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Row(
-          children: [
-            const Text('🛒', style: TextStyle(fontSize: 22)),
-            const SizedBox(width: 8),
-            RichText(
-              text: const TextSpan(
-                style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800),
-                children: [
-                  TextSpan(text: 'Line '),
-                  TextSpan(text: 'Up', style: TextStyle(color: AppTheme.orange)),
-                ],
-              ),
-            ),
-          ],
+        leading: IconButton(
+          icon: const BackButtonIcon(),
+          onPressed: () {
+            if (Navigator.of(context).canPop()) {
+              context.pop();
+            } else {
+              context.go('/');
+            }
+          },
         ),
+        title: AppLogo(onTap: () => context.go('/')),
+      
         actions: [
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),

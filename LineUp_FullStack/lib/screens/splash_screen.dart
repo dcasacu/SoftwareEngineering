@@ -15,39 +15,6 @@ class SplashScreen extends StatefulWidget {
 
 class _SplashScreenState extends State<SplashScreen> {
   String? _error;
-  bool _hasRedirected = false;
-
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final auth = context.read<AuthProvider>();
-      auth.addListener(_onAuthChanged);
-      _checkRedirect(auth);
-    });
-  }
-
-  @override
-  void dispose() {
-    context.read<AuthProvider>().removeListener(_onAuthChanged);
-    super.dispose();
-  }
-
-  void _onAuthChanged() {
-    _checkRedirect(context.read<AuthProvider>());
-  }
-
-  void _checkRedirect(AuthProvider auth) {
-    if (_hasRedirected) return;
-    if (auth.isLoggedIn && auth.currentUser?.role != 'anon') {
-      _hasRedirected = true;
-      if (auth.isOwner) {
-        context.go('/owner/dashboard');
-      } else {
-        context.go('/customer/map');
-      }
-    }
-  }
 
   Future<void> _showLoginDialog() async {
     await showDialog(
@@ -72,8 +39,30 @@ class _SplashScreenState extends State<SplashScreen> {
     if (mounted) context.go('/customer/map');
   }
 
+  Future<void> _continueLoggedIn() async {
+    final auth = context.read<AuthProvider>();
+    if (auth.isOwner) {
+      context.go('/owner/dashboard');
+    } else {
+      context.go('/customer/map');
+    }
+  }
+
+  Future<void> _logout() async {
+    final auth = context.read<AuthProvider>();
+    await auth.logout();
+    if (mounted) {
+      setState(() {});
+      context.go('/');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    final auth = context.watch<AuthProvider>();
+    final isLoggedInUser = auth.isLoggedIn && auth.currentUser?.role != 'anon';
+    final displayName = auth.currentUser?.name ?? 'there';
+
     return Scaffold(
       backgroundColor: AppTheme.blue,
       body: SafeArea(
@@ -97,59 +86,100 @@ class _SplashScreenState extends State<SplashScreen> {
                 const SizedBox(height: 8),
                 const Text('Smart market queues', style: TextStyle(color: Colors.white70, fontSize: 16)),
                 const SizedBox(height: 64),
-                const Text(
-                  'Welcome',
-                  style: TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.w800),
-                ),
-                const SizedBox(height: 8),
-                const Text(
-                  'Log in to manage your queues or continue as a guest.',
-                  style: TextStyle(color: Colors.white60, fontSize: 14),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 32),
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: _showLoginDialog,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppTheme.orange,
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                    ),
-                    child: const Text('Log In', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800)),
+                if (isLoggedInUser) ...[
+                  Text(
+                    'Welcome, $displayName!',
+                    style: const TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.w800),
+                    textAlign: TextAlign.center,
                   ),
-                ),
-                const SizedBox(height: 12),
-                SizedBox(
-                  width: double.infinity,
-                  child: OutlinedButton(
-                    onPressed: () async {
-                      await showDialog(context: context, builder: (_) => const RegisterDialog());
-                    },
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: Colors.white,
-                      side: const BorderSide(color: Colors.white38),
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                    ),
-                    child: const Text('Sign Up', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600)),
+                  const SizedBox(height: 8),
+                  const Text(
+                    'Continue to your dashboard or log out and return to the guest screen.',
+                    style: TextStyle(color: Colors.white60, fontSize: 14),
+                    textAlign: TextAlign.center,
                   ),
-                ),
-                const SizedBox(height: 12),
-                SizedBox(
-                  width: double.infinity,
-                  child: OutlinedButton(
-                    onPressed: _continueWithoutLogin,
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: Colors.white,
-                      side: const BorderSide(color: Colors.white38),
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                  const SizedBox(height: 32),
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: _continueLoggedIn,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppTheme.orange,
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                      ),
+                      child: const Text('Continue', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800)),
                     ),
-                    child: const Text('Continue without logging in', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600)),
                   ),
-                ),
+                  const SizedBox(height: 12),
+                  SizedBox(
+                    width: double.infinity,
+                    child: OutlinedButton(
+                      onPressed: _logout,
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: Colors.white,
+                        side: const BorderSide(color: Colors.white38),
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                      ),
+                      child: const Text('Log Out', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600)),
+                    ),
+                  ),
+                ] else ...[
+                  const Text(
+                    'Welcome',
+                    style: TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.w800),
+                  ),
+                  const SizedBox(height: 8),
+                  const Text(
+                    'Log in to manage your queues or continue as a guest.',
+                    style: TextStyle(color: Colors.white60, fontSize: 14),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 32),
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: _showLoginDialog,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppTheme.orange,
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                      ),
+                      child: const Text('Log In', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800)),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  SizedBox(
+                    width: double.infinity,
+                    child: OutlinedButton(
+                      onPressed: () async {
+                        await showDialog(context: context, builder: (_) => const RegisterDialog());
+                      },
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: Colors.white,
+                        side: const BorderSide(color: Colors.white38),
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                      ),
+                      child: const Text('Sign Up', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600)),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  SizedBox(
+                    width: double.infinity,
+                    child: OutlinedButton(
+                      onPressed: _continueWithoutLogin,
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: Colors.white,
+                        side: const BorderSide(color: Colors.white38),
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                      ),
+                      child: const Text('Continue without logging in', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600)),
+                    ),
+                  ),
+                ],
                 if (_error != null) ...[
                   const SizedBox(height: 16),
                   Text(_error!, style: const TextStyle(color: Colors.redAccent, fontSize: 13), textAlign: TextAlign.center),

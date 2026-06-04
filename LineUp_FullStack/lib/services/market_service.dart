@@ -6,7 +6,7 @@ class MarketService {
   // Mock markets data
   static final List<Map<String, dynamic>> _mockMarketsData = [
     {
-      'id': 'market_1',
+      'id': 'market1',
       'name': 'La Boqueria',
       'lat': 41.3817,
       'lng': 2.1744,
@@ -16,7 +16,7 @@ class MarketService {
       'mapImageUrl': 'assets/markets/boqueria_map.png',
     },
     {
-      'id': 'market_2',
+      'id': 'market2',
       'name': 'Sant Antoni Market',
       'lat': 41.3794,
       'lng': 2.1692,
@@ -26,7 +26,7 @@ class MarketService {
       'mapImageUrl': 'assets/markets/sant_antoni_map.png',
     },
     {
-      'id': 'market_3',
+      'id': 'market3',
       'name': 'Mercat de Sant Josep',
       'lat': 41.3870,
       'lng': 2.1693,
@@ -36,7 +36,7 @@ class MarketService {
       'mapImageUrl': 'assets/markets/sant_josep_map.png',
     },
     {
-      'id': 'market_4',
+      'id': 'market4',
       'name': 'Mercat de Provençals',
       'lat': 41.3951,
       'lng': 2.1933,

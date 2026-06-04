@@ -2,10 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../../config/theme.dart';
+import '../../widgets/app_logo.dart';
 import '../../providers/shops_provider.dart';
+import '../../providers/queue_provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../models/market.dart';
 import '../../models/shop.dart';
+import '../../services/notification_service.dart';
 
 class MarketDetailScreen extends StatefulWidget {
   final String marketId;
@@ -22,8 +25,8 @@ class MarketDetailScreen extends StatefulWidget {
 class _MarketDetailScreenState extends State<MarketDetailScreen> {
   // Mock markets data - replace with real data from provider
   final Map<String, Market> _mockMarkets = {
-    'market_1': Market(
-      id: 'market_1',
+    'market1': Market(
+      id: 'market1',
       name: 'La Boqueria',
       lat: 41.3817,
       lng: 2.1744,
@@ -32,8 +35,8 @@ class _MarketDetailScreenState extends State<MarketDetailScreen> {
       description: 'Traditional Barcelona market with fresh produce',
       mapImageUrl: 'assets/markets/boqueria_map.png',
     ),
-    'market_2': Market(
-      id: 'market_2',
+    'market2': Market(
+      id: 'market2',
       name: 'Sant Antoni Market',
       lat: 41.3794,
       lng: 2.1692,
@@ -42,8 +45,8 @@ class _MarketDetailScreenState extends State<MarketDetailScreen> {
       description: 'Historic market in the Sant Antoni neighborhood',
       mapImageUrl: 'assets/markets/sant_antoni_map.png',
     ),
-    'market_3': Market(
-      id: 'market_3',
+    'market3': Market(
+      id: 'market3',
       name: 'Mercat de Sant Josep',
       lat: 41.3870,
       lng: 2.1693,
@@ -52,8 +55,8 @@ class _MarketDetailScreenState extends State<MarketDetailScreen> {
       description: 'Modern market with variety of shops',
       mapImageUrl: 'assets/markets/sant_josep_map.png',
     ),
-    'market_4': Market(
-      id: 'market_4',
+    'market4': Market(
+      id: 'market4',
       name: 'Mercat de Provençals',
       lat: 41.3951,
       lng: 2.1933,
@@ -93,11 +96,17 @@ class _MarketDetailScreenState extends State<MarketDetailScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(market.name),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => context.pop(),
+          icon: const BackButtonIcon(),
+          onPressed: () {
+            if (Navigator.of(context).canPop()) {
+              context.pop();
+            } else {
+              context.go('/');
+            }
+          },
         ),
+        title: AppLogo(onTap: () => context.go('/')),
       ),
       body: SingleChildScrollView(
         child: Column(
@@ -259,6 +268,14 @@ class _ShopInMarketTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final auth = context.watch<AuthProvider>();
+    final queueProvider = context.watch<QueueProvider>();
+    final shopsProvider = context.watch<ShopsProvider>();
+    
+    final myEntry = queueProvider.myEntryForShop(shop.id);
+    final queue = queueProvider.queueForShop(shop.id);
+    final activeQueue = queueProvider.waitingEntries(shop.id);
+
     return Container(
       margin: const EdgeInsets.only(bottom: 10),
       padding: const EdgeInsets.all(12),
@@ -267,58 +284,156 @@ class _ShopInMarketTile extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: AppTheme.gray200),
       ),
-      child: Row(
+      child: Column(
         children: [
-          Container(
-            width: 44,
-            height: 44,
-            decoration: BoxDecoration(
-              color: color.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Center(
-              child: Text(_getCategoryEmoji(shop.category), style: const TextStyle(fontSize: 22)),
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  shop.name,
-                  style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14),
+          Row(
+            children: [
+              Container(
+                width: 44,
+                height: 44,
+                decoration: BoxDecoration(
+                  color: color.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(10),
                 ),
-                const SizedBox(height: 2),
-                Row(
+                child: Center(
+                  child: Text(_getCategoryEmoji(shop.category), style: const TextStyle(fontSize: 22)),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Container(
-                      width: 6,
-                      height: 6,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: color,
-                      ),
-                    ),
-                    const SizedBox(width: 4),
                     Text(
-                      shop.isOpen ? 'Open' : 'Closed',
-                      style: TextStyle(fontSize: 12, color: color),
+                      shop.name,
+                      style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14),
                     ),
-                    const SizedBox(width: 8),
-                    Text(
-                      '~${shop.avgServiceMinutes} min/customer',
-                      style: const TextStyle(fontSize: 12, color: AppTheme.gray400),
+                    const SizedBox(height: 2),
+                    Row(
+                      children: [
+                        Container(
+                          width: 6,
+                          height: 6,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: color,
+                          ),
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          shop.isOpen ? 'Open' : 'Closed',
+                          style: TextStyle(fontSize: 12, color: color),
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          '~${shop.avgServiceMinutes} min/customer',
+                          style: const TextStyle(fontSize: 12, color: AppTheme.gray400),
+                        ),
+                      ],
                     ),
                   ],
                 ),
-              ],
+              ),
+              TextButton(
+                onPressed: () => context.push('/customer/shop/${shop.id}'),
+                child: const Text('View'),
+              ),
+            ],
+          ),
+          if (myEntry != null) ...[
+            const SizedBox(height: 10),
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: AppTheme.orangeLight,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          '#${myEntry.position} of ${activeQueue.length} in queue',
+                          style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppTheme.orange),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          'Est. wait: ${(myEntry.position - 1) * shop.avgServiceMinutes}m',
+                          style: const TextStyle(fontSize: 12, color: AppTheme.gray600),
+                        ),
+                      ],
+                    ),
+                  ),
+                  OutlinedButton(
+                    onPressed: () async {
+                      final shopName = shop.name;
+                      await queueProvider.leaveQueue(shop.id, auth.userId ?? '');
+                      if (queueProvider.error != null && context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text(queueProvider.error!), backgroundColor: AppTheme.red),
+                        );
+                      } else {
+                        NotificationService.feedbackLeave();
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text('You left the queue at $shopName'),
+                              backgroundColor: AppTheme.orange,
+                              duration: const Duration(seconds: 3),
+                            ),
+                          );
+                        }
+                      }
+                    },
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: AppTheme.red,
+                      side: const BorderSide(color: AppTheme.red),
+                    ),
+                    child: const Text('Leave'),
+                  ),
+                ],
+              ),
             ),
-          ),
-          TextButton(
-            onPressed: () => context.go('/customer/shop/${shop.id}'),
-            child: const Text('View'),
-          ),
+          ] else if (shop.isOpen) ...[
+            const SizedBox(height: 10),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: queueProvider.isLoading
+                    ? null
+                    : () async {
+                        final shopName = shop.name;
+                        await queueProvider.joinQueue(shop.id, auth.userId ?? '');
+                        if (queueProvider.error != null && context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text(queueProvider.error!), backgroundColor: AppTheme.red),
+                          );
+                        } else {
+                          final entry = queueProvider.myEntryForShop(shop.id);
+                          final pos = entry?.position ?? 1;
+                          NotificationService.feedbackJoin();
+                          if (context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text('🛒 Joined queue at $shopName! You\'re #$pos'),
+                                backgroundColor: AppTheme.green,
+                                duration: const Duration(seconds: 4),
+                              ),
+                            );
+                          }
+                        }
+                      },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppTheme.orange,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                  padding: const EdgeInsets.symmetric(vertical: 10),
+                ),
+                child: const Text('Join Queue →', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 13)),
+              ),
+            ),
+          ],
         ],
       ),
     );

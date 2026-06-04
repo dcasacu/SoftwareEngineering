@@ -5,6 +5,18 @@ const pass123 = bcrypt.hashSync('pass123', 10);
 const qwerty = bcrypt.hashSync('qwerty', 10);
 
 db.exec(`
+  CREATE TABLE IF NOT EXISTS markets (
+    id TEXT PRIMARY KEY,
+    name TEXT NOT NULL,
+    lat REAL NOT NULL,
+    lng REAL NOT NULL,
+    address TEXT,
+    operating_hours TEXT,
+    description TEXT,
+    map_image_url TEXT,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+  );
+
   CREATE TABLE IF NOT EXISTS users (
     id TEXT PRIMARY KEY,
     name TEXT,
@@ -24,10 +36,12 @@ db.exec(`
     location_y REAL,
     lat REAL,
     lng REAL,
+    market_id TEXT,
     is_open BOOLEAN DEFAULT 0,
     avg_service_time INTEGER DEFAULT 300,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (owner_id) REFERENCES users(id)
+    FOREIGN KEY (owner_id) REFERENCES users(id),
+    FOREIGN KEY (market_id) REFERENCES markets(id)
   );
 
   CREATE TABLE IF NOT EXISTS queue_entries (
@@ -78,18 +92,31 @@ insertManyUsers([
 ]);
 
 
+// ─── MARKETS ──────────────────────────────────────────────────────────────────
+
+const insertMarket = db.prepare('INSERT OR IGNORE INTO markets (id, name, lat, lng, address, operating_hours, description, map_image_url) VALUES (?, ?, ?, ?, ?, ?, ?, ?)');
+const insertManyMarkets = db.transaction((rows) => { for (const row of rows) insertMarket.run(...row); });
+
+insertManyMarkets([
+  ['market1', 'La Boqueria', 41.3817, 2.1744, 'La Rambla, 91, Barcelona', '8:00 AM - 8:00 PM', 'Traditional Barcelona market with fresh produce, meat, fish, and flowers', 'assets/markets/boqueria_map.png'],
+  ['market2', 'Sant Antoni Market', 41.3794, 2.1692, 'Carrer del Parlament, 58, Barcelona', '7:00 AM - 2:00 PM (Mon-Sat)', 'Historic market in the Sant Antoni neighborhood with local vendors', 'assets/markets/sant_antoni_map.png'],
+  ['market3', 'Mercat de Sant Josep', 41.3870, 2.1693, 'Plaça de la Independència, Barcelona', '8:00 AM - 9:00 PM', 'Modern market with variety of shops and restaurants', 'assets/markets/sant_josep_map.png'],
+  ['market4', 'Mercat de Provençals', 41.3951, 2.1933, 'Carrer de Provençals, 35, Barcelona', '7:00 AM - 3:00 PM (Mon-Sat)', 'Local neighborhood market with traditional vendors', 'assets/markets/provencals_map.png'],
+]);
+
+
 // ─── SHOPS ────────────────────────────────────────────────────────────────────
 
-const insertShop = db.prepare('INSERT OR IGNORE INTO shops (id, owner_id, name, category, location_x, location_y, lat, lng, is_open, avg_service_time) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)');
+const insertShop = db.prepare('INSERT OR IGNORE INTO shops (id, owner_id, name, category, location_x, location_y, lat, lng, market_id, is_open, avg_service_time) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)');
 const insertManyShops = db.transaction((rows) => { for (const row of rows) insertShop.run(...row); });
 
 insertManyShops([
-  ['shop1', 'owner1', "Martí's Fruits", 'Fruits & Veg', 28, 22, 41.382, 2.177, 1, 240],
-  ['shop2', 'owner2', "Pep's Bakery", 'Bakery', 55, 38, 41.383, 2.179, 1, 180],
-  ['shop3', 'owner3', 'La Peixateria', 'Fish', 70, 62, 41.381, 2.180, 1, 360],
-  ['shop4', 'owner4', 'Ca la Carnissera', 'Meat', 40, 65, 41.380, 2.178, 0, 300],
-  ['shop5', 'owner5', "Espècies del Món", 'Spices', 18, 58, 41.382, 2.175, 1, 120],
-  ['shop6', 'owner6', 'Flors i Plantes', 'Flowers', 78, 28, 41.384, 2.181, 1, 180],
+  ['shop1', 'owner1', "Martí's Fruits", 'Fruits & Veg', 28, 22, 41.382, 2.177, 'market1', 1, 240],
+  ['shop2', 'owner2', "Pep's Bakery", 'Bakery', 55, 38, 41.383, 2.179, 'market1', 1, 180],
+  ['shop3', 'owner3', 'La Peixateria', 'Fish', 70, 62, 41.381, 2.180, 'market2', 1, 360],
+  ['shop4', 'owner4', 'Ca la Carnissera', 'Meat', 40, 65, 41.380, 2.178, 'market2', 0, 300],
+  ['shop5', 'owner5', "Espècies del Món", 'Spices', 18, 58, 41.382, 2.175, 'market3', 1, 120],
+  ['shop6', 'owner6', 'Flors i Plantes', 'Flowers', 78, 28, 41.384, 2.181, 'market3', 1, 180],
 ]);
 
 

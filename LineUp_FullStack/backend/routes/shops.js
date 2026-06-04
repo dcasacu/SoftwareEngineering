@@ -5,7 +5,7 @@ const db = require('../db');
 router.get('/', (req, res) => {
   const rows = db.prepare(`
     SELECT s.id, s.name, s.category, s.location_x AS locationX, s.location_y AS locationY,
-           s.lat, s.lng, s.is_open AS isOpen, s.avg_service_time AS avgServiceTime,
+           s.lat, s.lng, s.market_id AS marketId, s.is_open AS isOpen, s.avg_service_time AS avgServiceTime,
            s.owner_id AS ownerId, u.name AS ownerName
     FROM shops s
     LEFT JOIN users u ON s.owner_id = u.id
@@ -17,7 +17,7 @@ router.get('/search', (req, res) => {
   const { q, category } = req.query;
   let sql = `
     SELECT s.id, s.name, s.category, s.location_x AS locationX, s.location_y AS locationY,
-           s.lat, s.lng, s.is_open AS isOpen, s.avg_service_time AS avgServiceTime,
+           s.lat, s.lng, s.market_id AS marketId, s.is_open AS isOpen, s.avg_service_time AS avgServiceTime,
            s.owner_id AS ownerId, u.name AS ownerName
     FROM shops s
     LEFT JOIN users u ON s.owner_id = u.id
@@ -42,7 +42,7 @@ router.get('/:id', (req, res) => {
   const { id } = req.params;
   const row = db.prepare(`
     SELECT s.id, s.name, s.category, s.location_x AS locationX, s.location_y AS locationY,
-           s.lat, s.lng, s.is_open AS isOpen, s.avg_service_time AS avgServiceTime,
+           s.lat, s.lng, s.market_id AS marketId, s.is_open AS isOpen, s.avg_service_time AS avgServiceTime,
            s.owner_id AS ownerId, u.name AS ownerName
     FROM shops s
     LEFT JOIN users u ON s.owner_id = u.id
@@ -71,7 +71,7 @@ router.patch('/:id/status', (req, res) => {
 
   const row = db.prepare(`
     SELECT s.id, s.name, s.category, s.location_x AS locationX, s.location_y AS locationY,
-           s.lat, s.lng, s.is_open AS isOpen, s.avg_service_time AS avgServiceTime,
+           s.lat, s.lng, s.market_id AS marketId, s.is_open AS isOpen, s.avg_service_time AS avgServiceTime,
            s.owner_id AS ownerId, u.name AS ownerName
     FROM shops s
     LEFT JOIN users u ON s.owner_id = u.id

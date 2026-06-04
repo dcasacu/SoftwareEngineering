@@ -1,4 +1,4 @@
-name: Flutter CI
+name: Flutter & Node.js CI
 
 on:
   push:
@@ -7,8 +7,8 @@ on:
     branches: [ main ]
 
 jobs:
-  flutter-test:
-    name: Run Flutter tests
+  flutter-analyze:
+    name: Flutter Analyze
     runs-on: ubuntu-latest
 
     defaults:
@@ -27,5 +27,104 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
 
-      - name: Run tests
+      - name: Run flutter analyze
+        run: flutter analyze
+
+  flutter-format:
+    name: Flutter Format Check
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: LineUp_FullStack
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Check Flutter formatting
+        run: flutter format --dry-run --set-exit-if-changed .
+
+  flutter-test:
+    name: Flutter Tests
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: LineUp_FullStack
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Run Flutter tests
         run: flutter test
+
+  backend-test:
+    name: Backend Database & Dependencies
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: LineUp_FullStack
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install backend dependencies
+        run: npm install
+
+      - name: Initialize database schema
+        run: npm run init-db
+        working-directory: LineUp_FullStack/backend
+        env:
+          PATH: ${{ env.PATH }}
+
+      - name: Verify database schema
+        run: |
+          node -e "
+          const db = require('better-sqlite3')('./lineup.db');
+          const tables = db.prepare(\"SELECT name FROM sqlite_master WHERE type='table'\").all();
+          const tableNames = tables.map(t => t.name).sort();
+          console.log('Tables created:', tableNames);
+          const expectedTables = ['markets', 'queue_entries', 'queue_stats', 'shops', 'users'].sort();
+          const allTablesPresent = expectedTables.every(t => tableNames.includes(t));
+          if (!allTablesPresent) {
+            console.error('❌ Missing tables. Expected:', expectedTables, 'Got:', tableNames);
+            process.exit(1);
+          }
+          console.log('✅ All required tables created');
+          "
+        working-directory: LineUp_FullStack/backend
+
+  all-checks-passed:
+    name: All Checks Passed
+    runs-on: ubuntu-latest
+    needs: [flutter-analyze, flutter-format, flutter-test, backend-test]
+    if: success()
+    steps:
+      - name: Success
+        run: echo "✅ All CI checks passed!"
+

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../../config/theme.dart';
+import '../../widgets/app_logo.dart';
 import '../../providers/shops_provider.dart';
 import '../../providers/queue_provider.dart';
 import '../../providers/auth_provider.dart';
@@ -92,11 +93,21 @@ class _ShopDetailScreenState extends State<ShopDetailScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  TextButton.icon(
-                    onPressed: () => context.go('/customer/map'),
-                    icon: const Icon(Icons.arrow_back, color: Colors.white),
-                    label: const Text('Back', style: TextStyle(color: Colors.white)),
-                    style: TextButton.styleFrom(padding: EdgeInsets.zero),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.arrow_back, color: Colors.white),
+                        onPressed: () {
+                          if (Navigator.of(context).canPop()) {
+                            context.pop();
+                          } else {
+                            context.go('/');
+                          }
+                        },
+                      ),
+                      AppLogo(onTap: () => context.go('/')),
+                    ],
                   ),
                   const SizedBox(height: 8),
                   Text(_getCategoryEmoji(shop.category), style: const TextStyle(fontSize: 40)),

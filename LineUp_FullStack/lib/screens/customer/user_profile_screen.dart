@@ -31,7 +31,17 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Mi Perfil'),
+        leading: IconButton(
+          icon: const BackButtonIcon(),
+          onPressed: () {
+            if (Navigator.of(context).canPop()) {
+              context.pop();
+            } else {
+              context.go('/');
+            }
+          },
+        ),
+        title: const Text('My Profile'),
         elevation: 0,
       ),
       body: Consumer2<AuthProvider, UserProfileProvider>(
@@ -59,41 +69,66 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                 const SizedBox(height: 24),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: ElevatedButton.icon(
-                    onPressed: authProvider.isLoading ? null : () async {
-                      final confirmed = await showDialog<bool>(
-                        context: context,
-                        builder: (context) => AlertDialog(
-                          title: const Text('Delete account'),
-                          content: const Text('Are you sure you want to delete your account? This action cannot be undone.'),
-                          actions: [
-                            TextButton(
-                              onPressed: () => Navigator.of(context).pop(false),
-                              child: const Text('Cancel'),
-                            ),
-                            TextButton(
-                              onPressed: () => Navigator.of(context).pop(true),
-                              child: Text('Delete', style: const TextStyle(color: AppTheme.red)),
-                            ),
-                          ],
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: ElevatedButton.icon(
+                          onPressed: authProvider.isLoading ? null : () async {
+                            await authProvider.logout();
+                            if (!mounted) return;
+                            context.go('/');
+                          },
+                          icon: const Icon(Icons.logout),
+                          label: const Text('Log Out'),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppTheme.orange,
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                          ),
                         ),
-                      );
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: ElevatedButton.icon(
+                          onPressed: authProvider.isLoading ? null : () async {
+                            final confirmed = await showDialog<bool>(
+                              context: context,
+                              builder: (context) => AlertDialog(
+                                title: const Text('Delete account'),
+                                content: const Text('Are you sure you want to delete your account? This action cannot be undone.'),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () => Navigator.of(context).pop(false),
+                                    child: const Text('Cancel'),
+                                  ),
+                                  TextButton(
+                                    onPressed: () => Navigator.of(context).pop(true),
+                                    child: Text('Delete', style: const TextStyle(color: AppTheme.red)),
+                                  ),
+                                ],
+                              ),
+                            );
 
-                      if (confirmed == true) {
-                        await authProvider.deleteAccount();
-                        if (!mounted) return;
-                        if (!authProvider.isLoggedIn) {
-                          context.go('/');
-                        }
-                      }
-                    },
-                    icon: const Icon(Icons.delete_forever),
-                    label: const Text('Delete account'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppTheme.red,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                    ),
+                            if (confirmed == true) {
+                              await authProvider.deleteAccount();
+                              if (!mounted) return;
+                              if (!authProvider.isLoggedIn) {
+                                context.go('/');
+                              }
+                            }
+                          },
+                          icon: const Icon(Icons.delete_forever),
+                          label: const Text('Delete Account'),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppTheme.red,
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ],
@@ -133,7 +168,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
           ),
           const SizedBox(height: 12),
           Text(
-            user?.name ?? 'Usuario',
+            user?.name ?? 'User',
             style: const TextStyle(
               fontSize: 22,
               fontWeight: FontWeight.bold,
@@ -142,7 +177,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
           ),
           const SizedBox(height: 4),
           Text(
-            user?.email ?? 'Sin correo',
+            user?.email ?? 'No email',
             style: const TextStyle(
               fontSize: 14,
               color: Colors.white70,
@@ -204,18 +239,18 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
           _buildStatCard(
-            'Tiendas Visitadas',
+            'Shops Visited',
             profileProvider.visitCount.length.toString(),
           ),
           _buildStatCard(
-            'Total Visitas',
+            'Total Visits',
             profileProvider.visitCount.values.fold<int>(
               0,
               (sum, value) => sum + value,
             ).toString(),
           ),
           _buildStatCard(
-            'Favoritos',
+            'Favorites',
             profileProvider.favoriteShops.length.toString(),
           ),
         ],
@@ -268,7 +303,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text(
-            'Tiendas Favoritas',
+            'Favorite Shops',
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
@@ -284,7 +319,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
               ),
               child: Center(
                 child: Text(
-                  'No tienes tiendas favoritas aún',
+                  'You have no favorite shops yet',
                   style: TextStyle(color: Colors.grey[600]),
                 ),
               ),
@@ -352,7 +387,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                     const Icon(Icons.star, size: 16, color: Colors.amber),
                     const SizedBox(width: 4),
                     Text(
-                      '${profileProvider.visitCount[shop.id] ?? 0} visitas',
+                      '${profileProvider.visitCount[shop.id] ?? 0} visits',
                       style: const TextStyle(fontSize: 12),
                     ),
                   ],
@@ -385,7 +420,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
           (shop) => shop.id == entry.key,
           orElse: () => Shop(
             id: entry.key,
-            name: 'Tienda desconocida',
+            name: 'Unknown shop',
             category: 'N/A',
             isOpen: false,
             avgServiceTime: 0,
@@ -400,7 +435,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text(
-            'Tiendas Más Visitadas',
+            'Most Visited Shops',
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
@@ -416,7 +451,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
               ),
               child: Center(
                 child: Text(
-                  'Aún no has visitado tiendas',
+                  'You haven\'t visited any shops yet',
                   style: TextStyle(color: Colors.grey[600]),
                 ),
               ),
@@ -454,7 +489,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                             ),
                             const SizedBox(height: 4),
                             Text(
-                              '$visitCount visitas${lastVisit != null ? ' • Última: ${lastVisit.day}/${lastVisit.month}/${lastVisit.year}' : ''}',
+                              '$visitCount visits${lastVisit != null ? ' • Last: ${lastVisit.day}/${lastVisit.month}/${lastVisit.year}' : ''}',
                               style: TextStyle(
                                 fontSize: 12,
                                 color: Colors.grey[600],

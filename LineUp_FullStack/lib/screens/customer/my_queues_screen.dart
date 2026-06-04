@@ -5,6 +5,7 @@ import '../../config/theme.dart';
 import '../../providers/shops_provider.dart';
 import '../../providers/queue_provider.dart';
 import '../../providers/auth_provider.dart';
+import '../../widgets/app_logo.dart';
 import '../../models/shop.dart';
 import '../../services/vibration_service.dart';
 
@@ -55,7 +56,19 @@ class _MyQueuesScreenState extends State<MyQueuesScreen> {
     final activeEntries = queueProvider.myEntries.entries.where((e) => e.value != null).toList();
 
     return Scaffold(
-      appBar: AppBar(title: const Text('My Queues')),
+      appBar: AppBar(
+        leading: IconButton(
+          icon: const BackButtonIcon(),
+          onPressed: () {
+            if (Navigator.of(context).canPop()) {
+              context.pop();
+            } else {
+              context.go('/');
+            }
+          },
+        ),
+        title: AppLogo(onTap: () => context.go('/')),
+      ),
       body: activeEntries.isEmpty
           ? Center(
               child: Padding(
@@ -131,7 +144,7 @@ class _MyQueuesScreenState extends State<MyQueuesScreen> {
                         ),
                         const SizedBox(height: 14),
                         Row(children: [
-                          Expanded(child: ElevatedButton(onPressed: () => context.go('/customer/shop/$shopId'), child: const Text('View Shop'))),
+                          Expanded(child: ElevatedButton(onPressed: () => context.push('/customer/shop/$shopId'), child: const Text('View Shop'))),
                           const SizedBox(width: 8),
                           OutlinedButton(
                             onPressed: () async {
