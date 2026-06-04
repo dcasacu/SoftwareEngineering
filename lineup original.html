@@ -1,0 +1,1076 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>LineUp — Spend time shopping, not waiting</title>
+<meta name="description" content="LineUp is a mobile-first virtual queue app for local markets. Discover shops, join queues from your phone, and skip the wait." />
+<style>
+  /* =============================x============================
+     LineUp — Landing Page
+     Design: warm, market-inspired, modern, mobile-first
+     ========================================================= */
+
+  :root {
+    --bg: #f4f8fc;
+    --bg-warm: #fffaf3;
+    --surface: #ffffff;
+    --ink: #0e1a2b;
+    --ink-soft: #3d4d63;
+    --muted: #7a8699;
+    --line: #dde7f2;
+    --primary: #2563eb;       /* LineUp blue */
+    --primary-dark: #1d4ed8;
+    --primary-soft: #e6efff;
+    --secondary: #d96b27;     /* warm terracotta accent */
+    --accent: #0ea5e9;        /* sky blue */
+    --accent-soft: #e0f2fe;
+    --warm: #f6d365;          /* warm yellow accent */
+    --warm-soft: #fff3d1;
+    --radius: 18px;
+    --radius-lg: 28px;
+    --shadow-sm: 0 2px 8px rgba(15, 35, 70, .06);
+    --shadow: 0 10px 30px rgba(15, 35, 70, .08);
+    --shadow-lg: 0 20px 50px rgba(15, 35, 70, .14);
+    --max: 1180px;
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, "Helvetica Neue", Arial, sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+  img { max-width: 100%; display: block; }
+  a { color: inherit; text-decoration: none; }
+  h1, h2, h3, h4 { line-height: 1.2; margin: 0 0 .5em; letter-spacing: -.02em; }
+  h1 { font-size: clamp(2.2rem, 5.5vw, 3.8rem); font-weight: 800; }
+  h2 { font-size: clamp(1.7rem, 3.6vw, 2.5rem); font-weight: 800; }
+  h3 { font-size: 1.2rem; font-weight: 700; }
+  p  { margin: 0 0 1em; color: var(--ink-soft); }
+  .container { max-width: var(--max); margin: 0 auto; padding: 0 24px; }
+  section { padding: 88px 0; }
+  .eyebrow {
+    display: inline-block;
+    font-size: .8rem;
+    font-weight: 700;
+    letter-spacing: .15em;
+    text-transform: uppercase;
+    color: var(--primary);
+    background: var(--primary-soft);
+    padding: 6px 12px;
+    border-radius: 999px;
+    margin-bottom: 18px;
+  }
+  .section-head { text-align: center; max-width: 720px; margin: 0 auto 56px; }
+  .section-head p { font-size: 1.1rem; }
+
+  /* Buttons */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 14px 24px;
+    border-radius: 999px;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    border: none;
+    transition: transform .15s ease, box-shadow .2s ease, background .2s;
+  }
+  .btn-primary {
+    background: var(--primary);
+    color: #fff;
+    box-shadow: 0 8px 20px rgba(37, 99, 235, .35);
+  }
+  .btn-primary:hover { background: var(--primary-dark); transform: translateY(-2px); }
+  .btn-ghost {
+    background: transparent;
+    color: var(--ink);
+    border: 1.5px solid var(--line);
+  }
+  .btn-ghost:hover { border-color: var(--ink); }
+
+  /* =========================================================
+     NAVBAR
+     ========================================================= */
+  .nav {
+    position: sticky; top: 0; z-index: 50;
+    background: rgba(244, 248, 252, .85);
+    backdrop-filter: saturate(180%) blur(12px);
+    border-bottom: 1px solid var(--line);
+  }
+  .nav-inner {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 16px 24px; max-width: var(--max); margin: 0 auto;
+  }
+  .logo { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 1.2rem; }
+  .logo-mark {
+    width: 32px; height: 32px; border-radius: 10px;
+    background: linear-gradient(135deg, var(--primary), var(--warm));
+    display: grid; place-items: center; color: #fff; font-size: 1rem;
+    box-shadow: var(--shadow-sm);
+  }
+  .logo-img {
+    height: 42px;
+    width: auto;
+    display: block;
+  }
+  .nav-links { display: flex; gap: 28px; }
+  .nav-links a { font-size: .95rem; color: var(--ink-soft); font-weight: 500; }
+  .nav-links a:hover { color: var(--primary); }
+  @media (max-width: 760px) { .nav-links { display: none; } }
+
+  /* =========================================================
+     HERO
+     ========================================================= */
+  .hero {
+    padding: 80px 0 60px;
+    background:
+      radial-gradient(800px 400px at 90% 10%, var(--primary-soft) 0%, transparent 60%),
+      radial-gradient(600px 400px at 0% 80%, var(--accent-soft) 0%, transparent 60%),
+      var(--bg);
+  }
+  .hero-grid {
+    display: grid; grid-template-columns: 1.1fr .9fr; gap: 60px; align-items: center;
+  }
+  .hero h1 span { color: var(--primary); }
+  .hero p.lead { font-size: 1.2rem; max-width: 540px; color: var(--ink-soft); }
+  .hero-cta { display: flex; gap: 12px; margin-top: 28px; flex-wrap: wrap; }
+  .hero-meta { display: flex; gap: 24px; margin-top: 36px; flex-wrap: wrap; }
+  .hero-meta div { display: flex; align-items: center; gap: 8px; font-size: .9rem; color: var(--muted); }
+  .hero-meta strong { color: var(--ink); }
+
+  /* Phone mockup */
+  .phone {
+    position: relative;
+    width: 300px;
+    margin: 0 auto;
+    aspect-ratio: 9 / 19;
+    background: #1f1a14;
+    border-radius: 42px;
+    padding: 12px;
+    box-shadow: var(--shadow-lg);
+    transform: rotate(-3deg);
+  }
+  .phone-screen {
+    background: var(--surface);
+    border-radius: 32px;
+    width: 100%; height: 100%;
+    overflow: hidden;
+    display: flex; flex-direction: column;
+    position: relative;
+  }
+  .phone-status {
+    background: var(--primary); color: #fff;
+    padding: 22px 18px 14px;
+    font-weight: 700;
+  }
+  .phone-status small { display: block; opacity: .85; font-weight: 500; font-size: .7rem; letter-spacing: .12em; text-transform: uppercase; }
+  .phone-map {
+    flex: 1;
+    background:
+      linear-gradient(135deg, #e8f3ec 25%, transparent 25%) -10px 0,
+      linear-gradient(225deg, #e8f3ec 25%, transparent 25%) -10px 0,
+      linear-gradient(315deg, #e8f3ec 25%, transparent 25%),
+      linear-gradient(45deg,  #e8f3ec 25%, transparent 25%),
+      #fff8ec;
+    background-size: 20px 20px;
+    position: relative;
+  }
+  .pin { position: absolute; width: 22px; height: 22px; border-radius: 50% 50% 50% 0; transform: rotate(-45deg); background: var(--primary); box-shadow: 0 4px 10px rgba(0,0,0,.2); }
+  .pin.green { background: var(--accent); }
+  .pin.yellow { background: var(--warm); }
+  .phone-card {
+    background: #fff;
+    margin: 12px;
+    border-radius: 14px;
+    padding: 12px 14px;
+    box-shadow: var(--shadow-sm);
+    position: absolute; left: 0; right: 0; bottom: 12px;
+  }
+  .phone-card h4 { margin: 0; font-size: .95rem; }
+  .phone-card .row { display: flex; justify-content: space-between; align-items: center; margin-top: 6px; font-size: .8rem; color: var(--muted); }
+  .badge-open { background: var(--accent-soft); color: var(--accent); padding: 3px 8px; border-radius: 99px; font-weight: 700; font-size: .7rem; }
+
+  @media (max-width: 880px) {
+    .hero-grid { grid-template-columns: 1fr; text-align: center; }
+    .hero p.lead { margin-left: auto; margin-right: auto; }
+    .hero-cta, .hero-meta { justify-content: center; }
+    .phone { transform: rotate(0deg); }
+  }
+
+  /* =========================================================
+     PROBLEM
+     ========================================================= */
+  .problem { background: #fff; }
+  .problem-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-top: 40px;
+  }
+  .problem-card {
+    background: var(--bg);
+    border-radius: var(--radius);
+    padding: 28px;
+    border: 1px solid var(--line);
+  }
+  .problem-card .emoji { font-size: 2rem; }
+  @media (max-width: 800px) { .problem-grid { grid-template-columns: 1fr; } }
+
+  /* =========================================================
+     SOLUTION
+     ========================================================= */
+  .solution-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center;
+  }
+  .solution-list { list-style: none; padding: 0; margin: 24px 0 0; }
+  .solution-list li { display: flex; gap: 14px; padding: 14px 0; border-bottom: 1px dashed var(--line); }
+  .solution-list li:last-child { border: 0; }
+  .check {
+    flex: none; width: 28px; height: 28px; border-radius: 50%;
+    background: var(--accent-soft); color: var(--accent);
+    display: grid; place-items: center; font-weight: 800;
+  }
+  .solution-visual {
+    background: linear-gradient(135deg, var(--accent-soft), var(--primary-soft));
+    border-radius: var(--radius-lg);
+    padding: 40px;
+    aspect-ratio: 1 / 1;
+    display: grid; place-items: center;
+    box-shadow: var(--shadow);
+    position: relative;
+    overflow: hidden;
+  }
+  .ticket {
+    background: #fff; border-radius: 16px; padding: 20px 24px;
+    box-shadow: var(--shadow); text-align: center;
+    transform: rotate(-4deg);
+  }
+  .ticket .num { font-size: 4rem; font-weight: 900; color: var(--primary); line-height: 1; }
+  .ticket small { color: var(--muted); letter-spacing: .15em; text-transform: uppercase; font-size: .7rem; }
+  .ticket .shop { font-weight: 700; margin-top: 8px; }
+  @media (max-width: 800px) { .solution-grid { grid-template-columns: 1fr; } }
+
+  /* =========================================================
+     FEATURES
+     ========================================================= */
+  .features { background: #fff; }
+  .features-grid {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px;
+  }
+  .feature {
+    background: var(--bg);
+    border-radius: var(--radius);
+    padding: 24px;
+    border: 1px solid var(--line);
+    transition: transform .2s ease, box-shadow .2s ease;
+  }
+  .feature:hover { transform: translateY(-4px); box-shadow: var(--shadow); }
+  .feature-icon {
+    width: 44px; height: 44px; border-radius: 12px;
+    background: var(--primary-soft); color: var(--primary);
+    display: grid; place-items: center; font-size: 1.3rem;
+    margin-bottom: 14px;
+  }
+  .feature h3 { font-size: 1rem; margin-bottom: 6px; }
+  .feature p { font-size: .9rem; margin: 0; }
+  @media (max-width: 1000px) { .features-grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 520px) { .features-grid { grid-template-columns: 1fr; } }
+
+  /* =========================================================
+     FLOWS
+     ========================================================= */
+  .flows-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; }
+  .flow {
+    background: var(--surface); border: 1px solid var(--line);
+    border-radius: var(--radius-lg); padding: 36px;
+    box-shadow: var(--shadow-sm);
+  }
+  .flow.customer { border-top: 4px solid var(--primary); }
+  .flow.owner { border-top: 4px solid var(--accent); }
+  .flow h3 { font-size: 1.4rem; display: flex; align-items: center; gap: 10px; }
+  .steps { list-style: none; padding: 0; margin: 20px 0 0; counter-reset: step; }
+  .steps li {
+    position: relative; padding: 14px 0 14px 50px;
+    counter-increment: step;
+    border-bottom: 1px solid var(--line);
+  }
+  .steps li:last-child { border: 0; }
+  .steps li::before {
+    content: counter(step);
+    position: absolute; left: 0; top: 12px;
+    width: 34px; height: 34px; border-radius: 50%;
+    background: var(--bg); color: var(--ink);
+    border: 1.5px solid var(--line);
+    display: grid; place-items: center; font-weight: 800;
+  }
+  .flow.customer .steps li::before { background: var(--primary-soft); color: var(--primary); border-color: #ffd6b3; }
+  .flow.owner .steps li::before { background: var(--accent-soft); color: var(--accent); border-color: #c5e3d0; }
+  .steps strong { display: block; color: var(--ink); margin-bottom: 2px; }
+  .steps span { font-size: .9rem; color: var(--muted); }
+  @media (max-width: 800px) { .flows-grid { grid-template-columns: 1fr; } }
+
+  /* =========================================================
+     TECH
+     ========================================================= */
+  .tech { background: linear-gradient(180deg, var(--bg), #fff); }
+  .tech-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 18px; }
+  .tech-card {
+    background: #fff; border: 1px solid var(--line);
+    border-radius: var(--radius); padding: 24px; text-align: center;
+  }
+  .tech-card .emoji { font-size: 2rem; margin-bottom: 10px; }
+  .tech-card h4 { margin: 0 0 6px; font-size: .95rem; }
+  .tech-card p { font-size: .85rem; margin: 0; color: var(--muted); }
+  @media (max-width: 900px) { .tech-grid { grid-template-columns: repeat(2, 1fr); } }
+
+  /* =========================================================
+     INNOVATION
+     ========================================================= */
+  .innovation { background: var(--ink); color: #fff; border-radius: 0; }
+  .innovation .eyebrow { background: rgba(255,255,255,.1); color: var(--warm); }
+  .innovation h2 { color: #fff; }
+  .innovation p { color: rgba(255,255,255,.7); }
+  .innovation-grid {
+    display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; margin-top: 40px;
+  }
+  .innovation-card {
+    background: rgba(255,255,255,.05);
+    border: 1px solid rgba(255,255,255,.1);
+    border-radius: var(--radius); padding: 28px;
+  }
+  .innovation-card h3 { color: #fff; display: flex; align-items: center; gap: 10px; }
+  .innovation-card p { margin: 0; color: rgba(255,255,255,.65); }
+  .spark { color: var(--warm); }
+  @media (max-width: 800px) { .innovation-grid { grid-template-columns: 1fr; } }
+
+  /* =========================================================
+     AI USAGE
+     ========================================================= */
+  .ai { background: #fff; }
+  .ai-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; }
+  .ai-card {
+    background: var(--bg);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    padding: 36px;
+    transition: transform .2s ease, box-shadow .2s ease;
+  }
+  .ai-card:hover { transform: translateY(-4px); box-shadow: var(--shadow); }
+  .ai-card .emoji { font-size: 2.4rem; margin-bottom: 16px; }
+  .ai-card h3 { font-size: 1.3rem; margin-bottom: 10px; }
+  .ai-card p { font-size: 1rem; margin: 0; line-height: 1.7; color: var(--ink-soft); }
+  @media (max-width: 800px) { .ai-grid { grid-template-columns: 1fr; } }
+
+  /* =========================================================
+     FUTURE
+     ========================================================= */
+  .future-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; }
+  .future-card {
+    border: 1.5px dashed var(--line);
+    border-radius: var(--radius); padding: 24px; text-align: center;
+    background: #fff;
+  }
+  .future-card .emoji { font-size: 1.8rem; }
+  .future-card h4 { margin: 8px 0 4px; }
+  .future-card p { font-size: .85rem; margin: 0; color: var(--muted); }
+  @media (max-width: 800px) { .future-grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 460px) { .future-grid { grid-template-columns: 1fr; } }
+
+  /* =========================================================
+     CTA
+     ========================================================= */
+  .cta-final {
+    background: linear-gradient(135deg, var(--primary), var(--accent));
+    color: #fff;
+    border-radius: var(--radius-lg);
+    padding: 64px 32px;
+    text-align: center;
+    margin: 60px auto;
+    max-width: var(--max);
+    box-shadow: var(--shadow-lg);
+  }
+  .cta-final h2 { color: #fff; }
+  .cta-final p { color: rgba(255,255,255,.9); font-size: 1.15rem; max-width: 600px; margin: 0 auto 28px; }
+  .cta-final .btn-primary { background: #fff; color: var(--primary); box-shadow: none; }
+  .cta-final .btn-primary:hover { background: var(--ink); color: #fff; }
+  .cta-final .btn-ghost { color: #fff; border-color: rgba(255,255,255,.5); }
+
+  /* =========================================================
+     SPRINTS
+     ========================================================= */
+  .sprints { background: #fff; }
+  .sprints-timeline {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+    margin-top: 16px;
+  }
+  .sprints-timeline::before {
+    content: '';
+    position: absolute;
+    left: 39px;
+    top: 0; bottom: 0;
+    width: 2px;
+    background: var(--line);
+  }
+  .sprint-row {
+    display: flex;
+    gap: 28px;
+    align-items: flex-start;
+    position: relative;
+  }
+  .sprint-badge {
+    flex: none;
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    font-weight: 900;
+    font-size: 1.3rem;
+    z-index: 1;
+    position: relative;
+    box-shadow: 0 0 0 6px #fff;
+    letter-spacing: -.02em;
+  }
+  .sprint-badge.s1 { background: var(--primary-soft); color: var(--primary); border: 2px solid var(--primary); }
+  .sprint-badge.s2 { background: var(--accent-soft); color: var(--accent); border: 2px solid var(--accent); }
+  .sprint-badge.s3 { background: var(--warm-soft); color: var(--secondary); border: 2px solid var(--warm); }
+  .sprint-content {
+    flex: 1;
+    background: var(--bg);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    padding: 28px 32px;
+    transition: box-shadow .2s ease;
+  }
+  .sprint-content:hover { box-shadow: var(--shadow); }
+  .sprint-content.s1 { border-top: 3px solid var(--primary); }
+  .sprint-content.s2 { border-top: 3px solid var(--accent); }
+  .sprint-content.s3 { border-top: 3px solid var(--warm); }
+  .sprint-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+  }
+  .sprint-header h3 { margin: 0; font-size: 1.25rem; }
+  .sprint-label {
+    font-size: .75rem;
+    font-weight: 700;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    padding: 5px 12px;
+    border-radius: 999px;
+  }
+  .sprint-label.s1 { background: var(--primary-soft); color: var(--primary); }
+  .sprint-label.s2 { background: var(--accent-soft); color: var(--accent); }
+  .sprint-label.s3 { background: var(--warm-soft); color: var(--secondary); }
+  .sprint-items {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 12px;
+  }
+  .sprint-item {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 14px 16px;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    font-size: .9rem;
+  }
+  .sprint-item .dot {
+    flex: none;
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    margin-top: 5px;
+  }
+  .s1 .dot { background: var(--primary); }
+  .s2 .dot { background: var(--accent); }
+  .s3 .dot { background: var(--secondary); }
+  .sprint-item strong { display: block; color: var(--ink); font-size: .9rem; line-height: 1.3; }
+  @media (max-width: 640px) {
+    .sprints-timeline::before { display: none; }
+    .sprint-row { flex-direction: column; }
+    .sprint-badge { width: 56px; height: 56px; font-size: 1rem; }
+  }
+
+  /* =========================================================
+     FOOTER
+     ========================================================= */
+  footer {
+    padding: 32px 24px;
+    text-align: center;
+    color: var(--muted);
+    font-size: .9rem;
+    border-top: 1px solid var(--line);
+  }
+  /* ========================= TEAM ========================= */
+  .team {
+    margin-top: 80px;
+    padding-top: 64px;
+    border-top: 1px dashed var(--line);
+  }
+  .team-head { text-align: center; max-width: 680px; margin: 0 auto 40px; }
+  .team-head .eyebrow {
+    color: var(--secondary);
+    background: #fdece1;
+  }
+  .team-photo {
+    max-width: 880px;
+    margin: 0 auto 56px;
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    box-shadow: var(--shadow-lg);
+    border: 4px solid var(--surface);
+    outline: 2px solid var(--secondary);
+    outline-offset: -2px;
+  }
+  .team-photo img { width: 100%; height: auto; display: block; }
+  .team-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 18px;
+  }
+  .team-card {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 20px;
+    text-align: center;
+    transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+    border-bottom: 3px solid var(--secondary);
+  }
+  .team-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow);
+    border-color: var(--secondary);
+  }
+  .team-name {
+    font-weight: 700;
+    color: var(--ink);
+    margin-bottom: 4px;
+  }
+  .team-role {
+    font-size: .85rem;
+    font-weight: 700;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--secondary);
+  }
+  @media (max-width: 900px) {
+    .team-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+  </style>
+</head>
+<body>
+
+<!-- ========================= NAVBAR ========================= -->
+<header class="nav">
+  <div class="nav-inner">
+    <div class="logo">
+      <img src="LineUp_logo.png" alt="LineUp logo" class="logo-img">
+    </div>
+    <nav class="nav-links">
+      <a href="#problem">Problem</a>
+      <a href="#solution">Solution</a>
+      <a href="#features">Features</a>
+      <a href="#flows">How it works</a>
+      <a href="#tech">Technology</a>
+      <a href="#ai">AI Usage</a>
+      <a href="#sprints">Sprints</a>
+    </nav>
+    <a href="#cta" class="btn btn-primary" style="padding: 10px 18px; font-size: .9rem;">Try LineUp</a>
+  </div>
+</header>
+
+<!-- ========================= HERO ========================= -->
+<section class="hero">
+  <div class="container hero-grid">
+    <div>
+      <span class="eyebrow">Smart market queues</span>
+      <h1>Spend time <span>shopping</span>,<br />not waiting.</h1>
+      <p class="lead">LineUp brings your local market into your pocket. Discover shops, join virtual queues, and skip the line — without ever standing in it.</p>
+      <div class="hero-cta">
+        <a href="#cta" class="btn btn-primary">Get started free →</a>
+        <a href="#solution" class="btn btn-ghost">See how it works</a>
+      </div>
+      <div class="hero-meta">
+        <div>🛒 <strong>6+ shops</strong> live in pilot market</div>
+        <div>⏱ <strong>~12 min</strong> saved per visit</div>
+        <div>📱 No login needed</div>
+      </div>
+    </div>
+    <div>
+      <!-- Phone mockup -->
+      <div class="phone">
+        <div class="phone-screen">
+          <div class="phone-status">
+            <small>LineUp</small>
+            Mercat de Sant Josep
+          </div>
+          <div class="phone-map">
+            <div class="pin" style="top: 25%; left: 30%;"></div>
+            <div class="pin green" style="top: 50%; left: 60%;"></div>
+            <div class="pin yellow" style="top: 70%; left: 35%;"></div>
+            <div class="pin green" style="top: 35%; left: 75%;"></div>
+            <div class="phone-card">
+              <h4>Espècies del Món</h4>
+              <div class="row">
+                <span>Spices · ~2 min/customer</span>
+                <span class="badge-open">Open</span>
+              </div>
+              <div class="row" style="margin-top: 10px; color: var(--primary); font-weight: 700;">
+                <span>You're #4 in queue</span>
+                <span>⏱ 6m</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========================= PROBLEM ========================= -->
+<section class="problem" id="problem">
+  <div class="container">
+    <div class="section-head">
+      <span class="eyebrow">The problem</span>
+      <h2>People love local markets. They just hate the wait.</h2>
+      <p>Traditional markets are full of character and quality — but long queues, paper tickets and disorientation push shoppers toward supermarkets and delivery apps.</p>
+    </div>
+    <div class="problem-grid">
+      <div class="problem-card">
+        <div class="emoji">⏳</div>
+        <h3>Wasted time in line</h3>
+        <p>Customers can spend 15–30 minutes waiting at a single stall — and skip the market altogether when they're in a rush.</p>
+      </div>
+      <div class="problem-card">
+        <div class="emoji">🗺️</div>
+        <h3>Hard to navigate</h3>
+        <p>New visitors don't know which shops are open, where to find them, or what they sell. Signage rarely helps.</p>
+      </div>
+      <div class="problem-card">
+        <div class="emoji">📝</div>
+        <h3>Paper tickets, lost turns</h3>
+        <p>Owners juggle ticket dispensers and shouts, with no real visibility into peak hours or daily performance.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========================= SOLUTION ========================= -->
+<section id="solution">
+  <div class="container solution-grid">
+    <div>
+      <span class="eyebrow">The solution</span>
+      <h2>One app for the whole market.</h2>
+      <p>LineUp turns every stall into a smart, connected counter. Customers pick a market, find the shops they need, and join queues from anywhere — even before they leave home.</p>
+      <ul class="solution-list">
+        <li><span class="check">✓</span><div><strong>Real-time queues</strong> — Always know your position and estimated wait.</div></li>
+        <li><span class="check">✓</span><div><strong>Live shop info</strong> — Open/closed status, categories and average service time.</div></li>
+        <li><span class="check">✓</span><div><strong>Zero friction</strong> — No login required. Tap and you're in line.</div></li>
+        <li><span class="check">✓</span><div><strong>Owner-friendly</strong> — A simple dashboard, not another point-of-sale headache.</div></li>
+      </ul>
+    </div>
+    <div class="solution-visual">
+      <div class="ticket">
+        <small>Your turn</small>
+        <div class="num">#4</div>
+        <div class="shop">Espècies del Món</div>
+        <small>~6 min wait</small>
+      </div>
+    </div>
+  </div>
+
+  <div class="container team">
+    <div class="team-head">
+      <span class="eyebrow">Behind LineUp</span>
+      <h2>Meet the Team</h2>
+      <p>A small crew of builders, designers and researchers making waiting in line a thing of the past.</p>
+    </div>
+    <div class="team-photo">
+      <img src="team.png" alt="The LineUp team at a local market stall" />
+    </div>
+    <div class="team-grid">
+      <div class="team-card"><div class="team-name">Dídac Casacuberta</div><div class="team-role">Development</div></div>
+      <div class="team-card"><div class="team-name">Biel Monge</div><div class="team-role">Development</div></div>
+      <div class="team-card"><div class="team-name">Carla Ferrer</div><div class="team-role">Testing</div></div>
+      <div class="team-card"><div class="team-name">Paula Sánchez</div><div class="team-role">Research</div></div>
+      <div class="team-card"><div class="team-name">Isaac Amorós</div><div class="team-role">Planning</div></div>
+      <div class="team-card"><div class="team-name">Daniela Rodriguez</div><div class="team-role">Planning</div></div>
+      <div class="team-card"><div class="team-name">Emma Leroux</div><div class="team-role">Design</div></div>
+      <div class="team-card"><div class="team-name">Sara Viu</div><div class="team-role">Design</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ========================= FEATURES ========================= -->
+<section class="features" id="features">
+  <div class="container">
+    <div class="section-head">
+      <span class="eyebrow">Features</span>
+      <h2>Everything a modern market needs.</h2>
+      <p>From the first tap to the final purchase — designed around how markets actually work.</p>
+    </div>
+    <div class="features-grid">
+      <div class="feature">
+        <div class="feature-icon">📍</div>
+        <h3>Select a market</h3>
+        <p>Browse markets in your city and pick the one you're heading to.</p>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">🛍️</div>
+        <h3>Discover shops</h3>
+        <p>Filter by category — fruits, meat, fish, bakery, spices, flowers and more.</p>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">🎟️</div>
+        <h3>Join a virtual queue</h3>
+        <p>One tap to take your spot. Walk around or stay home until it's your turn.</p>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">🔔</div>
+        <h3>See queue position</h3>
+        <p>Live position, estimated wait, and a heads-up when you're next up.</p>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">📊</div>
+        <h3>Owner dashboard</h3>
+        <p>Daily stats, busiest hours and total customers served — at a glance.</p>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">🔓</div>
+        <h3>Open & close queues</h3>
+        <p>Owners control availability in one tap. Going on break? Pause the queue.</p>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">📱</div>
+        <h3>Mobile-first</h3>
+        <p>Designed for the phone in your hand while walking through the market.</p>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">🔳</div>
+        <h3>Future QR integration</h3>
+        <p>Scan a stall's QR code to jump straight into its queue. No typing.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========================= FLOWS ========================= -->
+<section id="flows">
+  <div class="container">
+    <div class="section-head">
+      <span class="eyebrow">How it works</span>
+      <h2>Two flows. One smoother market.</h2>
+    </div>
+    <div class="flows-grid">
+      <div class="flow customer">
+        <h3>🛒 Customer flow</h3>
+        <p>From your couch to your turn at the counter.</p>
+        <ol class="steps">
+          <li><strong>Open the app</strong><span>No sign-up. Continue as guest.</span></li>
+          <li><strong>Pick a market</strong><span>Browse the interactive map.</span></li>
+          <li><strong>Choose a shop</strong><span>Filter by category and see open/closed status.</span></li>
+          <li><strong>Join the queue</strong><span>Tap once. Get your position instantly.</span></li>
+          <li><strong>Arrive when it's your turn</strong><span>Track your spot live and get notified.</span></li>
+        </ol>
+      </div>
+      <div class="flow owner">
+        <h3>🧑‍🍳 Shop owner flow</h3>
+        <p>Manage your stall as easily as you serve a baguette.</p>
+        <ol class="steps">
+          <li><strong>Log in to your shop</strong><span>One account per stall.</span></li>
+          <li><strong>Open your queue</strong><span>Customers start joining immediately.</span></li>
+          <li><strong>Call the next customer</strong><span>Skip no-shows with a single tap.</span></li>
+          <li><strong>Track your day</strong><span>See customers served and busiest hours.</span></li>
+          <li><strong>Close up shop</strong><span>Pause or close the queue when you're done.</span></li>
+        </ol>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========================= TECHNOLOGY ========================= -->
+<section class="tech" id="tech">
+  <div class="container">
+    <div class="section-head">
+      <span class="eyebrow">Technology</span>
+      <h2>Built on a solid, modern stack.</h2>
+      <p>Engineered for reliability, speed and scale — ready for production from day one.</p>
+    </div>
+    <div class="tech-grid">
+      <div class="tech-card">
+        <div class="emoji">⚛️</div>
+        <h4>Frontend</h4>
+        <p>React + TypeScript, mobile-first responsive UI.</p>
+      </div>
+      <div class="tech-card">
+        <div class="emoji">🚀</div>
+        <h4>Backend</h4>
+        <p>Node.js REST API with real-time queue logic.</p>
+      </div>
+      <div class="tech-card">
+        <div class="emoji">🗄️</div>
+        <h4>Database</h4>
+        <p>PostgreSQL for relational integrity and live stats.</p>
+      </div>
+      <div class="tech-card">
+        <div class="emoji">🐙</div>
+        <h4>GitHub</h4>
+        <p>Version control with feature branches and PR reviews.</p>
+      </div>
+      <div class="tech-card">
+        <div class="emoji">✅</div>
+        <h4>Testing</h4>
+        <p>Unit + integration tests, CI/CD on every commit.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========================= AI USAGE ========================= -->
+<section class="ai" id="ai">
+  <div class="container">
+    <div class="section-head">
+      <span class="eyebrow">AI-Assisted Development</span>
+      <h2>How AI helped us build LineUp.</h2>
+      <p>We used AI throughout the project — not to replace our decisions, but to move faster and think broader.</p>
+    </div>
+    <div class="ai-grid">
+
+      <div class="ai-card">
+        <div class="emoji">🧠</div>
+        <h3>Brainstorming &amp; Ideation</h3>
+        <p>AI helped us explore ideas from day one — shaping the product concept, defining user flows, and refining our user stories. It was like having a sounding board that never ran out of perspectives.</p>
+      </div>
+
+      <div class="ai-card">
+        <div class="emoji">💻</div>
+        <h3>Design &amp; Code</h3>
+        <p>From Flutter UI components to backend API routes, AI assisted with design decisions, code structure, and debugging. It accelerated our development without replacing our engineering choices.</p>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ========================= INNOVATION ========================= -->
+<section class="innovation">
+  <div class="container">
+    <div class="section-head">
+      <span class="eyebrow">Innovation</span>
+      <h2>What makes LineUp different?</h2>
+      <p>LineUp is not just another queue app. It is a solution designed specifically for local markets, connecting customers, stalls and queue management in one interactive experience.</p>
+    </div>
+    <div class="innovation-grid">
+      <div class="innovation-card">
+        <h3><span class="spark">✦</span> Specialized in local markets</h3>
+        <p>Most queue systems are designed for restaurants, hospitals or generic businesses. LineUp focuses on traditional markets, where many small stalls, different queues and customer movement happen at the same time.</p>
+      </div>
+
+      <div class="innovation-card">
+        <h3><span class="spark">✦</span> Interactive map, not just information</h3>
+        <p>The market map is not only informative. Customers can discover stalls, check their status and join a queue directly from the map, turning navigation into action.</p>
+      </div>
+
+      <div class="innovation-card">
+        <h3><span class="spark">✦</span> Value for customers and owners</h3>
+        <p>Customers save time and avoid waiting physically in line, while owners manage their queue more easily and keep better control of their daily workflow.</p>
+      </div>
+
+      <div class="innovation-card">
+        <h3><span class="spark">✦</span> Daily queue statistics for owners</h3>
+        <p>At the end of the working day, shop owners can review useful stats such as customers served, busiest hours and queue performance, helping them understand demand and improve service.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========================= FUTURE ========================= -->
+<section>
+  <div class="container">
+    <div class="section-head">
+      <span class="eyebrow">Roadmap</span>
+      <h2>Where LineUp is heading next.</h2>
+      <p>We're just getting started. Here's what's cooking.</p>
+    </div>
+    <div class="future-grid">
+      <div class="future-card">
+        <div class="emoji">🔳</div>
+        <h4>QR tickets</h4>
+        <p>Scan a stall to join instantly.</p>
+      </div>
+      <div class="future-card">
+        <div class="emoji">🧭</div>
+        <h4>Indoor navigation</h4>
+        <p>Turn-by-turn directions inside the market.</p>
+      </div>
+      <div class="future-card">
+        <div class="emoji">🔔</div>
+        <h4>Push notifications</h4>
+        <p>"You're next" alerts so you never miss your turn.</p>
+      </div>
+      <div class="future-card">
+        <div class="emoji">🌍</div>
+        <h4>More markets</h4>
+        <p>Expanding city by city, stall by stall.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========================= SPRINTS ========================= -->
+<section class="sprints" id="sprints">
+  <div class="container">
+    <div class="section-head">
+      <span class="eyebrow">Development journey</span>
+      <h2>Built sprint by sprint.</h2>
+      <p>From a blank canvas to a fully working app — here's how we designed, built, and shipped LineUp across three focused sprints.</p>
+    </div>
+    <div class="sprints-timeline">
+
+      <!-- Sprint 1 -->
+      <div class="sprint-row">
+        <div class="sprint-badge s1">S1</div>
+        <div class="sprint-content s1">
+          <div class="sprint-header">
+            <h3>Sprint 1 — Foundation &amp; Identity</h3>
+            <span class="sprint-label s1">Planning</span>
+          </div>
+          <div class="sprint-items">
+            <div class="sprint-item">
+              <span class="dot s1"></span>
+              <div><strong>Requirements definition</strong></div>
+            </div>
+            <div class="sprint-item">
+              <span class="dot s1"></span>
+              <div><strong>Kanban board</strong></div>
+            </div>
+            <div class="sprint-item">
+              <span class="dot s1"></span>
+              <div><strong>Product canvas</strong></div>
+            </div>
+            <div class="sprint-item">
+              <span class="dot s1"></span>
+              <div><strong>App name</strong></div>
+            </div>
+            <div class="sprint-item">
+              <span class="dot s1"></span>
+              <div><strong>Logo &amp; visual identity</strong></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sprint 2 -->
+      <div class="sprint-row">
+        <div class="sprint-badge s2">S2</div>
+        <div class="sprint-content s2">
+          <div class="sprint-header">
+            <h3>Sprint 2 — Core Features</h3>
+            <span class="sprint-label s2">Building</span>
+          </div>
+          <div class="sprint-items">
+            <div class="sprint-item">
+              <span class="dot s2"></span>
+              <div><strong>Map &amp; locations</strong></div>
+            </div>
+            <div class="sprint-item">
+              <span class="dot s2"></span>
+              <div><strong>Interactive map</strong></div>
+            </div>
+            <div class="sprint-item">
+              <span class="dot s2"></span>
+              <div><strong>Search &amp; shop filters</strong></div>
+            </div>
+            <div class="sprint-item">
+              <span class="dot s2"></span>
+              <div><strong>Queues &amp; info pop-up</strong></div>
+            </div>
+            <div class="sprint-item">
+              <span class="dot s2"></span>
+              <div><strong>Database creation</strong></div>
+            </div>
+            <div class="sprint-item">
+              <span class="dot s2"></span>
+              <div><strong>Simple &amp; consistent UI</strong></div>
+            </div>
+            <div class="sprint-item">
+              <span class="dot s2"></span>
+              <div><strong>Path to each shop</strong></div>
+            </div>
+            <div class="sprint-item">
+              <span class="dot s2"></span>
+              <div><strong>Queue management &amp; estimated time</strong></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sprint 3 -->
+      <div class="sprint-row">
+        <div class="sprint-badge s3">S3</div>
+        <div class="sprint-content s3">
+          <div class="sprint-header">
+            <h3>Sprint 3 — Polish &amp; Delivery</h3>
+            <span class="sprint-label s3">Finalising</span>
+          </div>
+          <div class="sprint-items">
+            <div class="sprint-item">
+              <span class="dot s3"></span>
+              <div><strong>Vibration notification</strong></div>
+            </div>
+            <div class="sprint-item">
+              <span class="dot s3"></span>
+              <div><strong>Sign in</strong></div>
+            </div>
+            <div class="sprint-item">
+              <span class="dot s3"></span>
+              <div><strong>Market maps &amp; shops</strong></div>
+            </div>
+            <div class="sprint-item">
+              <span class="dot s3"></span>
+              <div><strong>Final product</strong></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ========================= FINAL CTA ========================= -->
+<section id="cta" style="padding-top: 0;">
+  <div class="cta-final">
+    <h2>Ready to shorten the line?</h2>
+    <p>Whether you're a shopper tired of waiting or an owner ready to grow, LineUp is built for you.</p>
+    <div class="hero-cta" style="justify-content: center;">
+      <a href="#" class="btn btn-primary">Try LineUp free</a>
+      <a href="#" class="btn btn-ghost">Talk to our team</a>
+    </div>
+  </div>
+</section>
+
+<!-- ========================= FOOTER ========================= -->
+<footer>
+  <div class="logo" style="justify-content: center; margin-bottom: 8px;">
+    <div class="logo-mark">L</div>
+    LineUp
+  </div>
+  © 2026 LineUp · Spend time shopping, not waiting.
+</footer>
+
+</body>
+</html>
