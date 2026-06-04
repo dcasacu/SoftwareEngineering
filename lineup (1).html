@@ -348,6 +348,24 @@
   @media (max-width: 800px) { .innovation-grid { grid-template-columns: 1fr; } }
 
   /* =========================================================
+     AI USAGE
+     ========================================================= */
+  .ai { background: #fff; }
+  .ai-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; }
+  .ai-card {
+    background: var(--bg);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    padding: 36px;
+    transition: transform .2s ease, box-shadow .2s ease;
+  }
+  .ai-card:hover { transform: translateY(-4px); box-shadow: var(--shadow); }
+  .ai-card .emoji { font-size: 2.4rem; margin-bottom: 16px; }
+  .ai-card h3 { font-size: 1.3rem; margin-bottom: 10px; }
+  .ai-card p { font-size: 1rem; margin: 0; line-height: 1.7; color: var(--ink-soft); }
+  @media (max-width: 800px) { .ai-grid { grid-template-columns: 1fr; } }
+
+  /* =========================================================
      FUTURE
      ========================================================= */
   .future-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; }
@@ -511,6 +529,7 @@
       <a href="#features">Features</a>
       <a href="#flows">How it works</a>
       <a href="#tech">Technology</a>
+      <a href="#ai">AI Usage</a>
       <a href="#sprints">Sprints</a>
     </nav>
     <a href="#cta" class="btn btn-primary" style="padding: 10px 18px; font-size: .9rem;">Try LineUp</a>
@@ -739,6 +758,32 @@
         <h4>Testing</h4>
         <p>Unit + integration tests, CI/CD on every commit.</p>
       </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========================= AI USAGE ========================= -->
+<section class="ai" id="ai">
+  <div class="container">
+    <div class="section-head">
+      <span class="eyebrow">AI-Assisted Development</span>
+      <h2>How AI helped us build LineUp.</h2>
+      <p>We used AI throughout the project — not to replace our decisions, but to move faster and think broader.</p>
+    </div>
+    <div class="ai-grid">
+
+      <div class="ai-card">
+        <div class="emoji">🧠</div>
+        <h3>Brainstorming &amp; Ideation</h3>
+        <p>AI helped us explore ideas from day one — shaping the product concept, defining user flows, and refining our user stories. It was like having a sounding board that never ran out of perspectives.</p>
+      </div>
+
+      <div class="ai-card">
+        <div class="emoji">💻</div>
+        <h3>Design &amp; Code</h3>
+        <p>From Flutter UI components to backend API routes, AI assisted with design decisions, code structure, and debugging. It accelerated our development without replacing our engineering choices.</p>
+      </div>
+
     </div>
   </div>
 </section>
