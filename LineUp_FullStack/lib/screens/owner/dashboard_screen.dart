@@ -9,6 +9,7 @@ import '../../providers/analytics_provider.dart';
 import '../../models/shop_analytics.dart';
 import '../../widgets/queue_list_tile.dart';
 import '../../providers/auth_provider.dart';
+import 'dart:async';
 
 class DashboardScreen extends StatefulWidget {
   final String shopId;
@@ -21,15 +22,31 @@ class DashboardScreen extends StatefulWidget {
 
 class _DashboardScreenState extends State<DashboardScreen> {
   bool _analyticsExpanded = true;
+  Timer? _queueTimer;
 
   @override
   void initState() {
     super.initState();
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      final queue = context.read<QueueProvider>();
+
       context.read<ShopsProvider>().selectShop(widget.shopId);
-      context.read<QueueProvider>().fetchQueue(widget.shopId);
+      queue.fetchQueue(widget.shopId);
       context.read<AnalyticsProvider>().fetchAnalytics(widget.shopId);
+
+      _queueTimer = Timer.periodic(
+        const Duration(seconds: 3),
+        (_) {
+          queue.fetchQueue(widget.shopId);
+        },
+      );
     });
+  }
+  @override
+  void dispose() {
+    _queueTimer?.cancel();
+    super.dispose();
   }
 
   void _showError(String? error) {
